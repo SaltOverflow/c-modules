@@ -1,3 +1,5 @@
+// Updated following file to include moduleDeclaration and importDeclaration
+
 /*
  [The "BSD licence"]
  Copyright (c) 2013 Sam Harwell
@@ -500,7 +502,15 @@ compilationUnit
     ;
 
 translationUnit
-    : externalDeclaration+
+    : moduleDeclaration? importDeclaration* externalDeclaration+
+    ;
+
+moduleDeclaration
+    : 'module' ';'
+    ;
+
+importDeclaration
+    : 'import' (StringLiteral | (Identifier ('/' Identifier)*)) ';'
     ;
 
 externalDeclaration

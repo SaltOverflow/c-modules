@@ -764,6 +764,24 @@ class CListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CParser#moduleDeclaration.
+    def enterModuleDeclaration(self, ctx:CParser.ModuleDeclarationContext):
+        pass
+
+    # Exit a parse tree produced by CParser#moduleDeclaration.
+    def exitModuleDeclaration(self, ctx:CParser.ModuleDeclarationContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#importDeclaration.
+    def enterImportDeclaration(self, ctx:CParser.ImportDeclarationContext):
+        pass
+
+    # Exit a parse tree produced by CParser#importDeclaration.
+    def exitImportDeclaration(self, ctx:CParser.ImportDeclarationContext):
+        pass
+
+
     # Enter a parse tree produced by CParser#externalDeclaration.
     def enterExternalDeclaration(self, ctx:CParser.ExternalDeclarationContext):
         pass
