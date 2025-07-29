@@ -169,13 +169,13 @@ class CVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by CParser#structOrUnionSpecifier.
-    def visitStructOrUnionSpecifier(self, ctx:CParser.StructOrUnionSpecifierContext):
+    # Visit a parse tree produced by CParser#structSpecifier.
+    def visitStructSpecifier(self, ctx:CParser.StructSpecifierContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by CParser#structOrUnion.
-    def visitStructOrUnion(self, ctx:CParser.StructOrUnionContext):
+    # Visit a parse tree produced by CParser#unionSpecifier.
+    def visitUnionSpecifier(self, ctx:CParser.UnionSpecifierContext):
         return self.visitChildren(ctx)
 
 

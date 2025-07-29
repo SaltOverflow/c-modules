@@ -296,21 +296,21 @@ class CListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by CParser#structOrUnionSpecifier.
-    def enterStructOrUnionSpecifier(self, ctx:CParser.StructOrUnionSpecifierContext):
+    # Enter a parse tree produced by CParser#structSpecifier.
+    def enterStructSpecifier(self, ctx:CParser.StructSpecifierContext):
         pass
 
-    # Exit a parse tree produced by CParser#structOrUnionSpecifier.
-    def exitStructOrUnionSpecifier(self, ctx:CParser.StructOrUnionSpecifierContext):
+    # Exit a parse tree produced by CParser#structSpecifier.
+    def exitStructSpecifier(self, ctx:CParser.StructSpecifierContext):
         pass
 
 
-    # Enter a parse tree produced by CParser#structOrUnion.
-    def enterStructOrUnion(self, ctx:CParser.StructOrUnionContext):
+    # Enter a parse tree produced by CParser#unionSpecifier.
+    def enterUnionSpecifier(self, ctx:CParser.UnionSpecifierContext):
         pass
 
-    # Exit a parse tree produced by CParser#structOrUnion.
-    def exitStructOrUnion(self, ctx:CParser.StructOrUnionContext):
+    # Exit a parse tree produced by CParser#unionSpecifier.
+    def exitUnionSpecifier(self, ctx:CParser.UnionSpecifierContext):
         pass
 
 

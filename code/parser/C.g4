@@ -1,4 +1,6 @@
 // Updated following file to include moduleDeclaration and importDeclaration
+// Also changed to allow empty struct declarations (not in c spec, but in gcc) - postfixExpression and structSpecifier
+// Also changed to allow $ in identifiers
 
 /*
  [The "BSD licence"]
@@ -59,7 +61,7 @@ genericAssociation
     ;
 
 postfixExpression
-    : (primaryExpression | '__extension__'? '(' typeName ')' '{' initializerList ','? '}') (
+    : (primaryExpression | '__extension__'? '(' typeName ')' '{' (initializerList ','?)? '}') (
         '[' expression ']'
         | '(' argumentExpressionList? ')'
         | ('.' | '->') Identifier
@@ -223,20 +225,21 @@ typeSpecifier
     | '__m128i'
     | '__extension__' '(' ('__m128' | '__m128d' | '__m128i') ')'
     | atomicTypeSpecifier
-    | structOrUnionSpecifier
+    | structSpecifier
+    | unionSpecifier
     | enumSpecifier
     | typedefName
     | '__typeof__' '(' constantExpression ')' // GCC extension
     ;
 
-structOrUnionSpecifier
-    : structOrUnion Identifier? '{' structDeclarationList '}'
-    | structOrUnion Identifier
+structSpecifier
+    : 'struct' Identifier? '{' structDeclarationList? '}'
+    | 'struct' Identifier
     ;
 
-structOrUnion
-    : 'struct'
-    | 'union'
+unionSpecifier
+    : 'union' Identifier? '{' structDeclarationList '}'
+    | 'union' Identifier
     ;
 
 structDeclarationList
@@ -899,7 +902,7 @@ fragment IdentifierNondigit
     ;
 
 fragment Nondigit
-    : [a-zA-Z_]
+    : [a-zA-Z_$]
     ;
 
 fragment Digit
