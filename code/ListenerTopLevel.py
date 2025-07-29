@@ -5,14 +5,15 @@ from parser.CListener import CListener
 class ListenerTopLevel(CListener):
     def __init__(self):
         # helpers
-        self.outer = []  # list[ctx], stores parent contexts (used in parsing and detecting problem contexts)
+        self.outer = []  # list[ctx], stores parent contexts (used to detect non-top level definitions, which aren't supported right now)
+        self.outer_declarations = []  # list[ctx:declarationContext], used to check export keyword for structs
         self.variable_names = set()  # list[name:str], holds variable names from self.variables for collision detection (note: only top-level)
         # errors
         self.problem_contexts = []  # list[ctx], stores non-supported definitions (non-top level, nameless)
         self.colliding_contexts = []  # list[(name:str, ctx)], stores definitions with the same name as another
         # output
         self.functions = {}  # dict[name:str, (name_index:int, ctx:functionDefinitionContext)]
-        self.structs = {}  # dict[name:str, (name_index:int, ctx:structSpecifierContext)]
+        self.structs = {}  # dict[name:str, (name_index:int, ctx:structSpecifierContext, is_exported:bool)]
         self.variables = []  # list[(list[name:str], list[name_index:int], ctx:declarationContext)], only contains top-level
 
     def enterFunctionDefinition(self, ctx):
@@ -45,17 +46,25 @@ class ListenerTopLevel(CListener):
             self.problem_contexts.append(ctx)  # anonymous struct, not supported right now
             return
         name, name_idx = ctx.Identifier().getText(), ctx.Identifier().getSourceInterval()[0]
+        def grab_first_token(ctx) -> str:  # copied from ListenerRenaming
+            while ctx.getChildCount():
+                ctx = ctx.getChild(0)
+            return ctx.getText()
+        is_exported = grab_first_token(self.outer_declarations[-1]) == 'export'
         if name in self.structs:
             self.colliding_contexts.append((name, ctx))
         else:
-            self.structs[name] = name_idx, ctx
+            self.structs[name] = name_idx, ctx, is_exported
     
     def enterDeclaration(self, ctx):
+        self.outer_declarations.append(ctx)
         if not ctx.initDeclaratorList() and not self._extract_name_and_idx_from_declarationSpecifiers(ctx.declarationSpecifiers()):
             return
         self.outer.append(ctx)
     
     def exitDeclaration(self, ctx):
+        should_be_ctx = self.outer_declarations.pop()
+        assert(should_be_ctx is ctx)
         if not ctx.initDeclaratorList():
             name_and_idx = self._extract_name_and_idx_from_declarationSpecifiers(ctx.declarationSpecifiers())
             if not name_and_idx:

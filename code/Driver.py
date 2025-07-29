@@ -5,13 +5,14 @@ from antlr4 import *
 from parser.CLexer import CLexer
 from parser.CParser import CParser
 from ListenerTopLevel import ListenerTopLevel
+from ListenerRenaming import ListenerRenaming
 
 std_modules = {"stdio", "stdlib", "unistd"}
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file", help="file to parse")
-    parser.add_argument("-a", "--action", type=int, choices=[0], default=0, help="""
+    parser.add_argument("-a", "--action", type=int, choices=[0, 1], default=1, help="""
                         what action to take.
                         0 = parse and output text
                         1 = parse top-level symbols
@@ -49,7 +50,7 @@ def parse_top_level(args):
         input_file = input_file[0:len(input_file)-2]
 
     module_asts = {}  # dict[file_path:str, (tokens, tree)]
-    module_imports = {}  # dict[file_path:str, list[file_path:str]]
+    module_imports = {}  # dict[file_path:str, list[(file_path:str, import_name:str)]]
     modules_to_process = [(input_file, input_file)]  # list[(file_path:str, import_name:str)]
     unknown_modules = set()  # set[(file_path:str, import_name:str)]
     not_a_module = list()  # list[(file_path:str, import_name:str)]
@@ -68,8 +69,8 @@ def parse_top_level(args):
         import_names = list(all_imports(tokens, tree))
         file_path_dir = os.path.split(file_path)[0]
         import_file_paths = [os.path.normpath('./'+file_path_dir+'/'+x) for x in import_names]
-        module_imports[file_path] = import_file_paths
-        modules_to_process.extend(zip(import_file_paths, import_names))
+        module_imports[file_path] = list(zip(import_file_paths, import_names))
+        modules_to_process.extend(module_imports[file_path])
 
     pprint(module_imports)
 
@@ -82,8 +83,8 @@ def parse_top_level(args):
     if problem_unknown_modules:
         raise RuntimeError(f"Unknown module names detected: {problem_unknown_modules}")
 
-    module_data = {}  # dict[file_path:str, (functions, structs, variables)], see ListenerTopLevel for details
-    module_problems = {}  # dict[file_path: str, (problem_contexts, colliding_contexts)], see ListenerTopLevel for details
+    module_data = {}  # dict[file_path:str, (functions, structs, variables)], see ListenerTopLevel
+    module_problems = {}  # dict[file_path: str, (problem_contexts, colliding_contexts)], see ListenerTopLevel
     walker = ParseTreeWalker()
     for file_path, (_, tree) in module_asts.items():
         ltoplevel = ListenerTopLevel()
@@ -97,6 +98,19 @@ def parse_top_level(args):
 
     pprint(module_data)
     pprint(module_problems)
+
+    lrenaming = ListenerRenaming(module_imports, module_data, input_file, is_module(module_asts[input_file][1]))
+    walker.walk(lrenaming, module_asts[input_file][1])
+    rename_list = lrenaming.rename_list  # list[(token_idx:int, new_symbol_name:str, from_module_name:str)], see ListenerRenaming
+    symbol_collisions = lrenaming.symbol_collisions  # dict[symbol_name:str, (list[module_name:str], is_ambiguous:bool)], see ListenerRenaming
+    used_symbol_collisions = lrenaming.used_symbol_collisions  # list[(token_idx:int, symbol_name:str)], see ListenerRenaming
+
+    if used_symbol_collisions:
+        raise RuntimeError(f"{used_symbol_collisions=}")
+
+    pprint(rename_list)
+    pprint(symbol_collisions)
+    pprint(used_symbol_collisions)
 
 def all_imports(tokens, tree):
     translationUnit = tree.getChild(0)
