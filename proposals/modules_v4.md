@@ -16,6 +16,8 @@ Strategy (implementation details)
     Modules use `import` instead of `#include`
     Forall polymorphism
 Walkthrough
+    Symbols of a module
+    How importing modules use symbols
 Formalism
 -->
 
@@ -69,7 +71,7 @@ We make the following insight: **if we have an oracle that tells us the size and
 
 How do we actually implement this "oracle"? After analyzing the alternatives, option 2 feels the most "natural", despite its inherent complexity.
 1. We can perform whole-program analysis to analyze all type-related information, similar to how Rust does it. This allows for maximum expressiveness since this gives us full visibility into the entire program, and can rely on the analyzer to automatically resolve circularly dependent modules (eg. module `A` imports module `B`, which in turn imports module `A`, but in a way that is still resolvable). However, this breaks the principle of separate compilation by accessing the entire program, and raises questions such as "what gets reanalyzed if `A` changes?"
-2. We can also extract type information into a separate generated module interface. This aligns closer to the principle of separate compilation, though it still requires special analysis to resolve circularly dependent modules (eg. module `A` imports module `B`, which in turn imports module `A`, but in a way that is still resolvable. In order to avoid a circular import error, this requires only importing the symbols from `B` that `A` needs). A criticism is that this does not really resolve the transitive dependency issue; in a certain sense, it's offloading the problem to a compile-time reflection mechanism. This level of compile-time reflection is also non-trivial, poentially requiring significant re-engineering and validation of an existing C compiler in order to implement. Despite these concerns, this strategy seems to align best with general intuitition when analyzing an existing codebase.
+2. We can also extract type information into a separate generated module interface. This aligns closer to the principle of separate compilation, though it still requires special analysis to resolve circularly dependent modules (eg. module `A` imports module `B`, which in turn imports module `A`, but in a way that is still resolvable. In order to avoid a circular import error, this requires only importing the symbols from `B` that `A` needs). A criticism is that this does not really resolve the transitive dependency issue; in a certain sense, it's offloading the problem to a compile-time reflection mechanism. This level of compile-time reflection is also non-trivial, poentially requiring significant re-engineering and validation of an existing C compiler in order to implement. Despite these concerns, this strategy seems to align best with general intuition when analyzing an existing codebase.
 
 ### C macros are not exportable
 
@@ -208,11 +210,107 @@ By having modules prepend their names to their symbols, we can add functionality
 
 ### Forall polymorphism
 
-The forall keyword is an addition to Cforall to support polymorphism, with polymorphic functions using vtables and a single implementation. If a module exports a forall statement, the module owns the polymorphic function implementations, while the polymorphic function declarations are exported (if these were declared inline, the definition could be exported, similar to C++20 modules). Polymorphic types are instantiated from the caller's side, so their definitions are exported. This does not present the same issues as those in the "handling unboxed types" section, as non-polymorphic function declarations cannot inadvertently capture these types (thus, they cannot "leak" outside of a module).
+The forall keyword is an addition to Cforall to support polymorphism, with polymorphic functions using vtables and a single implementation. If a module exports a forall statement, the module owns the polymorphic function implementations, while the polymorphic function declarations are exported (if these were declared inline, the definition could be exported, similar to C++20 modules). Polymorphic types are instantiated from the caller's side, so their definitions are exported. This may present problems, but currently I am not familiar enough with Cforall to judge.
 
 An interesting case is to consider if Cforall could be updated to perform specialization (multiple implementations for a single function) in addition to the single implementation strategy. This would be similar to Rust's `impl` vs `dyn` traits. To support this, the module system would need to be updated, as we would want the multiple implementations to exist within the module that owns the forall statement.
 
 ## Walkthrough
+
+A module holds a collection of symbols to be exported. What we're concerned with is how the importing module can use these symbols. In order to answer this, we will analyze the following questions:
+* What are the kinds of symbols and what does the importing module see?
+* How does the importing module disambiguate between symbols?
+
+Our guiding principle behind our modules is that, as much as is possible, **every symbol definition should have full control over who can see it.** This means that you cannot declare a function or struct that is defined in another module unless that module exports it and you import said module (of course, it may be accessible using `extern "C"`). We will see certain cases where types and inline functions break this abstraction somewhat, but we try to limit this "information leakage" as much as we can. A benefit of this is that our inductive proof usually only needs to reason using the previous step, as every symbol is logically isolated from each other.
+
+### Symbols of a module
+
+Modules in our modules are either types, functions or variables. While types can be defined in the same line as a variable (eg. `struct {int i;} name = {5};`), we will make the simplifying assumption right now that this does not happen (in the example, both `name` and the anonymous struct would be exported together).
+
+#### Types
+
+There are 3 kinds of types: builtins (eg. `int`), user-defined (ie. `struct`) and aliases (ie. `typedef`). We defer discussion on pointers, references and arrays until afterwards.
+
+Built-ins are provided by the compiler to every module, so we don't need to consider them. We can simplify aliases as a `struct` with one field, which has an implicit field access.
+
+So `struct` is really the only type we need to concern ourselves with. Based on our guiding principle, if we export a `struct` that has a `struct` field which is not itself, then it should not export any information related to that field's type. The importer will be able to access all of its fields, but the `struct` field is essentially an opaque type (if a module also wants access to that, it needs to import that `struct` too).
+
+Unfortunately, this isn't technically possible. First, we have unboxed types (boxed types are implemented as a pointer to the actual object). This means we need to know the size and alignment of every field, so we know how large the struct is and the offsets of each field. Second, when a user initializes a variable with a field, they need to be able to write down the type name (eg. `struct Exported e; struct Field f = e.f1;`). So we need to know the size, alignment and name of a field (in the previous example, move/copy constructors may also need to be considered, but in C we simply copy bytes). A similar thing happens when returning types from functions (eg. `struct Unexported foo();`), which we will discuss later.
+
+How do we obtain this size/alignment/name information? We use compile-time reflection to crawl import modules as needed. Note that this needs to handle circular imports, as it should only fail if we encounter a type name ambiguity (eg. we import module `A` and `B` which both export `struct S`, and we need a `struct S`) or the type has infinite size (eg. `struct A {struct B b;}; struct B {struct A a; int i;};`). This means the number of modules that need to be analyzed in order to determine the size/alignment of a `struct` is only bounded by the size of the codebase, but in practice this should not happen often.
+
+Pointers and references are boxed values, so size/alignment information of the underlying type is not gathered. However, we still require modules to import the symbol in order to handle name disambiguation. Arrays may be parameterized by an integer whose value must be immediately available. This is key, otherwise we can end up with cases such as `struct S {struct T t[sizeof(struct U)];};`, which may require fixpoint analysis. In our case, we can simply leverage compile-time reflection in the same manner as we do with field structs.
+
+#### Functions
+
+Functions have the form `returnType name(parameterType, ...numberOfParameters) {...body}`. An importing module needs to provide the size, alignment and name of any types in its declaration to any importing modules. We use compile-time reflection to resolve the details (see Types section for details).
+
+If we are exporting an inline function, from the compiler's perspective the function body is also exported. This may also use compile-time reflection in order to resolve the symbols within the function body (which is done within the context of the containing module, not the importing module).
+
+Cforall introduces a keyword called `forall`, which can be used to create polymorphic functions. At the moment, these functions do not specialize - there is only one instance of this function, and callers need to pass a vtable alongside any polymorphic type parameters, similar to how the `dyn` trait in Rust works. This means that trait information must be provided to the importing module, which unfortunately breaks our guiding principle somewhat. Within a `forall` block we can also define polymorphic types, which can be used as the return value of a polymorphic function. In that case we need size/align/name information, and the first two are currently handled by calling a "layout function" at runtime (this could possibly be moved to happening at compile-time, but isn't at the moment). As such, we need provide the layout function to the importing module, which unfortunately breaks our guiding principle too. So polymorphic functions can be made to work with our system, but they break our guiding principles to some extent.
+
+#### Variables
+
+Variables have the form `variableType name = expression;`. We make the simplifying assumption that only one name is defined at a time (ie. no `int a, b, c;`). An importing module needs to provide the size, alignment and name of `variableType` in its declaration to any importing modules. We use compile-time reflection to resolve the details (see Types section for details).
+
+If the variable is actually a polymorphic type (see Function section for details), I'm actually not sure how this works. The layout function can only be called at runtime, but you need the information in order to allocate the appropriate amount of space in the `.data` section. More analysis is needed here.
+
+### How importing modules use symbols
+
+The previous section notes compile-time reflection as the solution to many of our challenges with modules. Here we will explain how symbol names are resolved to the correct modules, allowing us to define how our compile-time reflection crawls through modules in order to determine the information it requires.
+
+#### Gathering symbols
+
+First, we scan the top-level declarations of a module, gathering a list of imported modules and top-level symbol names defined within the module.
+
+```
+// module data/graph/node
+module;
+import edge;
+import ../minheap;
+import stdlib;
+const int maxEdges = 10;
+export struct Node {
+    int id;
+    int value;
+    struct Edge edges[maxEdges];
+    struct MinHeap someField;
+};
+// Shadows imported MinHeap
+struct MinHeap {int capacity; int size; int *data;};
+struct MinHeap initHeap(int capacity) {
+    // Assumes malloc doesn't return error code
+    return {capacity, 0, (int*)malloc(sizeof(int) * capacity)};
+}
+void destroyHeap(struct MinHeap* h) {
+    free(h->data);
+    h.capacity = 0;
+    h.size = 0;
+}
+```
+
+We first look for the import relative to the current directory - if that fails we look at libraries. So our set of imports here are: `data/graph/edge`, `data/minheap` and `stdlib` (library module).
+
+The top-level symbol names are: `maxEdges`, `Node`, `MinHeap`, `initHeap` and `destroyHeap`.
+
+#### Crawling other modules
+
+Continuing with our example, we do the same top-level analysis with the imported modules.
+
+If `data/minheap` has `export import minheap/functions;` defined, then it is as if `data/graph/node` has `import ../minheap/functions;` defined. This can keep going - if `data/minheap/functions` has `export import`, it is also added to `data/graph/node`. After all `export import` have been resolved, we can look at the top-level declarations of every imported module in order to determine what symbols are visible to `data/graph/node`.
+
+Now, we can bind each symbol within `data/graph/node` to the correct module. The details of how multiple symbols are disambiguated are described in the Overload resolution section.
+
+In addition to name disambiguation, some symbols need additional information in order to be useable by importers. For example, size/alignment information of types, function bodies for inline functions, and trait information for polymorphic functions. This information is obtained by performing the above steps, but on the importing module instead of `data/graph/node`.
+
+This recursive task raises the problem of circular imports: What if we recurse back to `data/graph/node` (or any module that creates a cycle)? As long as we are analyzing different symbols inside the circularly imported module, this should not pose a problem. This leaves us with handling the problem where we circle back to the same symbol. For size/alignment analysis, coming back to the same type means that said type contains itself, which for our purposes is not resolvable/infinite size. If an inline function calls other inline functions that mutually recurse with itself, we can either produce a forward declaration of the function within the underlying C implementation (Cforall compiles down to C), or make mutual recursion be a regular function call. The first option is ideal, but if this is not supported in the C spec, we can fall back to the second option. For trait information, we could emit a warning, but if a trait includes itself, that can be safely ignored (a trait is a collection of conditions, it contains itself by definition). Since we can handle all of our circular problems, our system is well-defined here.
+
+#### Overload resolution
+
+A key aspect about our modules is that imported symbols are used in the same way as they are defined - no namespacing needed (eg. `struct Edge` in the provided example). While this raises the potential for name collisions, we argue that with the right compiler tools and the ability to disambiguate between different modules (eg. `A::a` means "symbol `a` within module `A`"), this can be a reasonable tradeoff (unfortunately, much of the tooling here is out of scope for this proposal).
+
+The reason behind this decision comes from 2 places: First, if we add namespacing to imports, then when we have an imported function that returns a type defined in another module, we would be forced to write the module name (the alternatives don't fare much better in terms of brevity and readability). Second, a core feature of Cforall is its advanced overloading system (eg. allowing multiple variables with the same name but different types to coexist). Adding namespaces would likely limit our ability to research and take advantage of this feature.
+
+This means we have both symbols defined within our module and imported symbols participating in overload resolution. This requires extending our existing overload resolution algorithm to handle multiple types with the same name (currently we handle multiple functions and variables with the same name, but not types). This also requires refactoring the overload resolution algorithm to hold the full name of a symbol (symbol name + module name). Finally, if overload resolution favours two options equally, it should favour symbols defined within the given module (eg. `struct MinHeap` in the provided example). Note that this will only happen if the alternative is strictly better, otherwise it is ambiguous.
 
 ## Formalism
 
