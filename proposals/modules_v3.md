@@ -3,6 +3,7 @@ Motivation and goal section are really good imo. The rest of it spiraled out of 
 
 Motivation
 Goal
+Strategy
 Simple example (acyclic, non-transitive, using .c/.h files)
 Generating headers
 Handling circular modules
@@ -29,6 +30,23 @@ Let's first clarify what we're trying to achieve with our modules. The term "mod
 * **Each feature is incremental** (each part of the module system requires minimal changes to existing C code - features should feel like optional, simple syntactic sugar)
 
 Put simply, we want to require minimal changes (source code, makefile, programmer thought process, compiler implementation), while building something similar to Rust modules. There are other aspects of modules that we'll want to cover - modules defined across multiple files, modules nested within a file, module friendship - which have their various solutions, but we'll get to them after working with these main 3 goals.
+
+## Strategy
+
+*note: this section was written after the rest of the document*
+
+* A module is a collection of definitions. We want to restrict the module interface to only the key details that an importer should know. There are 3 kinds of definitions in C to consider: variables, functions, types.
+    * Variables and functions export their declarations. Types need to export their definitions, so importers can access their fields.
+    * Variables and functions can use types not defined in their module. To avoid needing to expose other modules' contents (which creates unwanted transitive dependencies), the importer will receive a "shell" of that type - name, parent module, size, alignment. This allows callers of imported functions to allocate the appropriate space on the stack. If field information is necessary the importing module would also import the module containing the type.
+* First, a module needs to be scanned at the top-level to extract the "shells" of its types. To calculate the sizes, this can require recursively searching through all imports. To handle circular imports, this may require partial parsing and fixpoint analysis, which requires top-level declarations to use a context-free grammar. At the end of this pass, a **type declaration header** is produced for the module, which contains a "shell" for every type it defines. *[[unsure, also typedecls may need to have a separate header than structs]]*
+* Second, the module is parsed to collect all exported symbols, called the **export header**. If a symbol uses a type that isn't part of the module, the appropriate type declaration header is exported too. *[[doesn't the typedecl header potentially create too many unnecessary dependencies?]]* At the same time, we can also collect all top-level declarations, which can be used in the next phase to avoid needing forward declarations within modules.
+* Third, the module can generate its **implementation file**, which imports any necessary headers, forward declares all top-level declarations, then all definitions in the module (can skip those already defined in export header). Alternatively, we can go straight to compiling the object file.
+* Once headers are generated, they are not meant to change frequently. This way, when a module is updated, we can recompile it using the generated headers, without needing to check the actual modules. If we wish to update the headers, we invoke a command to do so, repeating the first and second steps (skipping modules that have not changed).
+* To keep track of which modules are connected to which, we can have a central module file which controls which modules are bound to which headers (ie. module interfaces). This would essentially function similar to a Makefile, but aware of the fine-grained details of symbol exports. *[[this can get very complex, dealing with details such as static/dynamic libraries, distributed builds, unity/release builds, and interfacing with codegen such as parser generators]]*
+
+*[[Simplify the explanation down to: separating the weak modules part (generating headers) from the strong modules part (compilation)]]*
+
+*[[to be continued with more concrete implementation examples]]*
 
 ## Simple example (acyclic, non-transitive, using .c/.h files)
 
