@@ -19,6 +19,11 @@ Walkthrough
     Symbols of a module
     How importing modules use symbols
 Formalism
+    Layout of the codebase
+    Individual module information
+    Resolving names of exported declarations
+    Providing additional information for importers
+    Resolving names for compilation
 -->
 
 # Modules proposal (v4, strong modules)
@@ -216,7 +221,7 @@ An interesting case is to consider if Cforall could be updated to perform specia
 
 ## Walkthrough
 
-A module holds a collection of symbols to be exported. What we're concerned with is how the importing module can use these symbols. In order to answer this, we will analyze the following questions:
+A module holds a collection of symbols to be exported. What we're concerned with is how the importing module can use these symbols. In order to answer this, we will analyze:
 * What are the kinds of symbols and what does the importing module see?
 * How does the importing module disambiguate between symbols?
 
@@ -242,7 +247,7 @@ Pointers and references are boxed values, so size/alignment information of the u
 
 #### Functions
 
-Functions have the form `returnType name(parameterType, ...numberOfParameters) {...body}`. An importing module needs to provide the size, alignment and name of any types in its declaration to any importing modules. We use compile-time reflection to resolve the details (see Types section for details).
+Functions have the form `returnType name(parameterType, ...numberOfParameters) {...body}`. In order for importers to use this function, we need to provide the size, alignment and name of any types in its declaration. We use compile-time reflection to resolve the details (see Types section for details).
 
 If we are exporting an inline function, from the compiler's perspective the function body is also exported. This may also use compile-time reflection in order to resolve the symbols within the function body (which is done within the context of the containing module, not the importing module).
 
@@ -313,3 +318,60 @@ The reason behind this decision comes from 2 places: First, if we add namespacin
 This means we have both symbols defined within our module and imported symbols participating in overload resolution. This requires extending our existing overload resolution algorithm to handle multiple types with the same name (currently we handle multiple functions and variables with the same name, but not types). This also requires refactoring the overload resolution algorithm to hold the full name of a symbol (symbol name + module name). Finally, if overload resolution favours two options equally, it should favour symbols defined within the given module (eg. `struct MinHeap` in the provided example). Note that this will only happen if the alternative is strictly better, otherwise it is ambiguous.
 
 ## Formalism
+
+Taking the Walkthrough section a step further, we will provide a rough sketch of a formal argument that our module system is well-defined.
+
+We'll first describe the layout of our module system by providing a rough description of the file structure and grammar we are working with. Then we describe what we can grab from each module file separately. By combining this information with those from other modules, we can determine which module's symbol is being referred to in each exported declaration. Note that for some symbols to be properly used by importers, additional information like size/alignment information will be necessary, which we will show is possible to obtain. Finally, with this information, we can resolve every symbol within a function body or expression, thereby completing the compilation process.
+
+### Layout of the codebase
+
+In order to provide a formal argument that our module system is sound, we need to first describe the format of the codebase we are trying to analyze.
+
+The file system is set up so that imports are relative to the current directory, or found in a library. For example, a module file `data/graph.cfa` trying to access `data/graph/node.cfa` would write `import graph/node;`. If such a file doesn't exist, we will look for `graph/node` within the provided libraries (starting from the root directory of each library).
+
+Module files have `module;` as their first statement. Import statements are written as `import filePath;`, where the file path can be escaped with double-quotes if necessary. Only top-level statements can be exported, which is done by placing `export` at the beginning (eg. `export const int i = 3;`). The available top-level statements are:
+* Types: `struct` and `typedef` statements. Only one `struct` can be defined per top-level statement (eg. no `typedef struct {int i;} MyStruct;`).
+* Functions: Format is `returnType name(parameterType ...numberOfParameters) {...functionBody}`.
+* Variables: Format is `variableType name = initializerExpression;`. Initializer may be omitted. Only one variable can be declared per top-level statement (eg. no `int a, b;`).
+
+The syntax of function bodies and initializer expressions can mostly remain unrestricted, as compilation is outside of the module system's purview (we provide the symbols and sufficient information on how to use them to importers). Some aspects we need to note are:
+* No user-defined copy/move constructors: In order to handle `func(s.f1)` (where `void func(struct Field);`), we need to be able to create a copy of `struct Field` without knowing its fields (in the example, the importer knows `func` and the type of `s`, but does not need to know the details of `struct Field`). Having user-defined copy/move constructors can be done, but we opt to avoid it here.
+* `::` operator: Sometimes we need to disambiguate which module a symbol belongs to. `struct InBothModules foo();` can either use `struct InBothModules;` from `import a;` or `import b;`. Trying to resolve this by analyzing the function body of `foo()` may be possible, but would likely be very challenging to implement. To resolve this, we can write `struct a::inBothModules foo();` instead.
+
+### Individual module information
+
+For every module file, we can collect the import list and the top-level symbols, without needing to consult any other files. The top-level symbols include types, functions and variables.
+
+Top-level statements, at least the way we have it set up here, avoid any context-sensitive sections (eg. `MyType * a;` can be multiplication or a variable). This means we have no issues parsing all symbols at the top-level (function bodies and initializer expressions are context-sensitive, but we don't need to deal with them here). This means that for each module file, we can grab an import list, a type list, a function list and a (global) variable list, as well as determine which are exported.
+
+### Resolving names of exported declarations
+
+Now we wish to resolve every symbol in any module's top-level declaration (this does not include the function bodies or initializer expressions). In order to do this, we first collect a module's full import list, then all of its imported symbols, before finally resolving our symbols.
+
+In order to determine a module's full import list, we first look at the individual module information of each imported module. We initially look for the imported module relative to the current directory of the module that the import statement is in - if it does not exist, it will look starting at the root directory of any provided libraries (if we can't find the module, we error out). If any imported module has `export import moduleName;` (or some other module name), then we look at those too. If we end up importing any modules we have already imported (or the module we are getting the full import list of), we can ignore those. Since there are a finite number of modules in a codebase (plus any provided libraries) and we don't analyze a module twice, this search will terminate with a full import list.
+
+To collect all the imported symbols, we take every module in the full import list and we grab all of the top-level statements that have `export` as their first keyword. This gives us a imported type list, a imported function list and a full variable list.
+
+Now that we have a list of imported symbols as well as the module's own, we can start resolving symbols in the top-level declarations. Since our grammar is not context-sensitive outside of function bodies and initializer expressions, there is no ambiguity determine whether a type or variable is needed. To resolve names, we first check to see if it uses the `::` operator - if so, then we look using the same strategy when looking for imported modules (if the module isn't in the full import list, we error out). Then we look in the module's own top-level symbols to see if we have a type/variable that matches the symbol's name (this means a module's symbols shadow its imported symbols). If we don't find a match, then we look in the list of imported symbols. If the list of imported symbols has more than one match, we error out due to ambiguity (it may be possible to use overload resolution here, but for now we'll prompt the user to use a `::` operator).
+
+Something to note about this setup is that forward declarations are neither necessary nor allowed, because all visible symbols are known before attempting to resolve names.
+
+### Providing additional information for importers
+
+Unfortunately, in order to use some of these top-level symbols, simply resolving the names within top-level declarations (ie. not including function bodies or initializer expressions) is not enough for an importer to be able to use it. For example, if a function returns a `struct`, we need to at least know the size/ alignment of the `struct` in order to use it.
+
+Type names are found within the definitions of other types, the return and parameters of a function, and the type of a variable. In order to fully specify a type, we must at least know the size/alignment of its fields. To use a function, we also need to know size/alignment of return and parameter types. To use a variable, the size/alignment of its type is not technically required, but to keep its semantics consistent with that of field access, we require it (eg. `struct Unimported x = s.f1; struct Unimported x1 = importedVariable;`).
+
+For functions and variables, we first resolve the type (for types, we move to the next step). Then we look at the fields of that type and resolve those types (pointers don't need to be resolved because pointers have a defined size/alignment). We keep recursing until we resolve everything or find a cycle (if we have a cycle, we error out), and this terminates because there are a finite number of symbols. Additionally, types may be arrays, which are parameterized by an integer (if we resolve to something that is not an integer, we error out). The C spec requires that this integer's value must be constant and immediately calculable, which means `char padding[64-sizeof(int)]` is fine but not `char padding[64-sizeof(struct U)];` (this functionality can be supported and may be useful for cache-aware programming, but we will not support this for now). This means we can fully resolve everything within a well-defined type, and therefore collect its size/alignment.
+
+While the importing module doesn't change its behaviour whether a function is inline or not, the compiler must see the function body, which means it must be included in the file sent to the compiler. In order to resolve the inline function body, then from the perspective of the module that contains the inline function, we must collect the full import list, then all of the imported symbols. If any of those imported symbols are inline functions, then we need to keep recursing. If we find a mututally recursive inline function, we would emit a forward declaration (eg. `inline float a();`). Note that the module that owns the inline function must use `extern` (eg. `extern inline float a() {return 5;}`) in order to ensure a definition is emitted. Since there are a finite number of modules, this will terminate. Note that if an imported module contains an inline function, we do not provide the function definitions of its non-inline functions - this means the compiler cannot inadvertently expand the definition of a function it is not meant to have access to.
+
+Cforall introduces the `forall` keyword, which allows creating polymorphic functions and types. I am not completely familiar with the internal implementation of these (hence it isn't actually a part of this formalism), but I know they use a single implementation, with callers passing in a vtable for each concrete instance of a polymorphic type (similar to Rust's `dyn` trait). This means that we need to provide the traits of each polymorphic type in a polymorphic function in order for an importer to use it. This analysis follows a similar logic to the size/alignment of types, except that we're working to define a trait rather than a type. As such, if a trait mutually includes another trait, we ignore the circular reference. I am unsure if resolving traits requires resolving more than the symbol names of each type - if necessary we use the same technique as size/alignment analysis.
+
+### Resolving names for compilation
+
+Now that we have every top-level symbol visible to a module ready to be used, we can proceed to resolve every symbol in each function body or initializer expression. This functionality is actually the domain of the overload resolution system rather than the module system, but the module system adds additional features which need to be handled by the overload resolution system.
+
+First, name resolution needs to be augmented to also store the containing module name. We also need to support the `::` operator, used when specifying a specific module name. This doesn't change how the overload resolution algorithm would work, but we need the containing module name in order to generate the full symbol name in the generated C code.
+
+Additionally, we have the fact that the imports' symbols are now available to participate in overload resolution. In this formalism, our module's symbols have priority over the imports' if they are deemed equal by the overload resolver, and we error out if we have to choose between two imported types with the same name. This allows us to handle the 2 special cases that our module system introduces to the overload resolver.
