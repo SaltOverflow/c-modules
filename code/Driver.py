@@ -18,7 +18,7 @@ def parse_args():
                         1 = parse top-level symbols
                         """)
     parser.add_argument("-r", "--project_root", help="the root folder of the project, used to generate module names")
-    parser.add_argument("-s", "--type_stub_file", help="file that stores type information, for generating type stub headers")
+    # parser.add_argument("-s", "--type_stub_file", help="file that stores type information, for generating type stub headers")
     args = parser.parse_args()
     return args
 
@@ -42,7 +42,6 @@ def simple_parse(args):
 def parse_top_level(args):
     # args.input_file
     # args.project_root
-    # args.type_stub_file
 
     input_file = os.path.relpath(args.input_file, args.project_root)
     os.chdir(args.project_root)
@@ -82,6 +81,8 @@ def parse_top_level(args):
             problem_unknown_modules.append((file_path, import_name))
     if problem_unknown_modules:
         raise RuntimeError(f"Unknown module names detected: {problem_unknown_modules}")
+
+    # Stuff after kind of needs to be redone
 
     module_data = {}  # dict[file_path:str, (functions, structs, variables)], see ListenerTopLevel
     module_problems = {}  # dict[file_path: str, (problem_contexts, colliding_contexts)], see ListenerTopLevel
