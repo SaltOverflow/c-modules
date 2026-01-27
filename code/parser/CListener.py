@@ -791,6 +791,114 @@ class CListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CParser#limitedFunctionDefinition.
+    def enterLimitedFunctionDefinition(self, ctx:CParser.LimitedFunctionDefinitionContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedFunctionDefinition.
+    def exitLimitedFunctionDefinition(self, ctx:CParser.LimitedFunctionDefinitionContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#limitedTypeSpecifier.
+    def enterLimitedTypeSpecifier(self, ctx:CParser.LimitedTypeSpecifierContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedTypeSpecifier.
+    def exitLimitedTypeSpecifier(self, ctx:CParser.LimitedTypeSpecifierContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#limitedDeclarator.
+    def enterLimitedDeclarator(self, ctx:CParser.LimitedDeclaratorContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedDeclarator.
+    def exitLimitedDeclarator(self, ctx:CParser.LimitedDeclaratorContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#limitedPointer.
+    def enterLimitedPointer(self, ctx:CParser.LimitedPointerContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedPointer.
+    def exitLimitedPointer(self, ctx:CParser.LimitedPointerContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#limitedParameterList.
+    def enterLimitedParameterList(self, ctx:CParser.LimitedParameterListContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedParameterList.
+    def exitLimitedParameterList(self, ctx:CParser.LimitedParameterListContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#limitedGlobal.
+    def enterLimitedGlobal(self, ctx:CParser.LimitedGlobalContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedGlobal.
+    def exitLimitedGlobal(self, ctx:CParser.LimitedGlobalContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#limitedInitDeclaratorList.
+    def enterLimitedInitDeclaratorList(self, ctx:CParser.LimitedInitDeclaratorListContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedInitDeclaratorList.
+    def exitLimitedInitDeclaratorList(self, ctx:CParser.LimitedInitDeclaratorListContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#limitedInitDeclarator.
+    def enterLimitedInitDeclarator(self, ctx:CParser.LimitedInitDeclaratorContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedInitDeclarator.
+    def exitLimitedInitDeclarator(self, ctx:CParser.LimitedInitDeclaratorContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#limitedStruct.
+    def enterLimitedStruct(self, ctx:CParser.LimitedStructContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedStruct.
+    def exitLimitedStruct(self, ctx:CParser.LimitedStructContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#limitedStructDeclarationList.
+    def enterLimitedStructDeclarationList(self, ctx:CParser.LimitedStructDeclarationListContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedStructDeclarationList.
+    def exitLimitedStructDeclarationList(self, ctx:CParser.LimitedStructDeclarationListContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#limitedStructDeclaration.
+    def enterLimitedStructDeclaration(self, ctx:CParser.LimitedStructDeclarationContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedStructDeclaration.
+    def exitLimitedStructDeclaration(self, ctx:CParser.LimitedStructDeclarationContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#limitedDeclaratorList.
+    def enterLimitedDeclaratorList(self, ctx:CParser.LimitedDeclaratorListContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedDeclaratorList.
+    def exitLimitedDeclaratorList(self, ctx:CParser.LimitedDeclaratorListContext):
+        pass
+
+
     # Enter a parse tree produced by CParser#functionDefinition.
     def enterFunctionDefinition(self, ctx:CParser.FunctionDefinitionContext):
         pass

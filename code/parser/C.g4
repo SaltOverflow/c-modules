@@ -1,6 +1,7 @@
 // Updated following file to include moduleDeclaration and importDeclaration
 // Also changed to allow empty struct declarations (not in c spec, but in gcc) - postfixExpression and structSpecifier
 // Also changed to allow $ in identifiers
+// updated the whole top-level statements to allow simpler, context-free parsing
 
 /*
  [The "BSD licence"]
@@ -517,9 +518,65 @@ importDeclaration
     ;
 
 externalDeclaration
-    : functionDefinition
-    | declaration
+    : 'export'? limitedFunctionDefinition
+    | 'export'? limitedGlobal
+    | 'export'? limitedStruct
     | ';' // stray ;
+    ;
+
+limitedFunctionDefinition
+    : limitedTypeSpecifier limitedDeclarator '(' limitedParameterList?  ')' compoundStatement
+    ;
+
+limitedTypeSpecifier
+    : 'void'
+    | 'char'
+    | 'short'
+    | 'int'
+    | 'long'
+    | 'float'
+    | 'double'
+    | 'struct' Identifier
+    ;
+
+limitedDeclarator
+    : limitedPointer Identifier
+    ;
+
+limitedPointer
+    : '*'*
+    ;
+
+limitedParameterList
+    : limitedTypeSpecifier limitedDeclarator (',' limitedTypeSpecifier limitedDeclarator)*
+    ;
+
+limitedGlobal
+    : limitedTypeSpecifier limitedInitDeclaratorList ';'
+    ;
+
+limitedInitDeclaratorList
+    : limitedInitDeclarator (',' limitedInitDeclarator)*
+    ;
+
+limitedInitDeclarator
+    : limitedDeclarator ('=' initializer)?
+    ;
+
+limitedStruct
+    : 'struct' Identifier '{' limitedStructDeclarationList? '}' ';'
+    ;
+
+limitedStructDeclarationList
+    : limitedStructDeclaration+
+    ;
+
+limitedStructDeclaration
+    : limitedTypeSpecifier limitedDeclaratorList ';'
+    ;
+
+limitedDeclaratorList
+    : limitedDeclarator (',' limitedDeclarator)*
     ;
 
 functionDefinition

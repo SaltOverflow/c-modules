@@ -444,6 +444,66 @@ class CVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by CParser#limitedFunctionDefinition.
+    def visitLimitedFunctionDefinition(self, ctx:CParser.LimitedFunctionDefinitionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by CParser#limitedTypeSpecifier.
+    def visitLimitedTypeSpecifier(self, ctx:CParser.LimitedTypeSpecifierContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by CParser#limitedDeclarator.
+    def visitLimitedDeclarator(self, ctx:CParser.LimitedDeclaratorContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by CParser#limitedPointer.
+    def visitLimitedPointer(self, ctx:CParser.LimitedPointerContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by CParser#limitedParameterList.
+    def visitLimitedParameterList(self, ctx:CParser.LimitedParameterListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by CParser#limitedGlobal.
+    def visitLimitedGlobal(self, ctx:CParser.LimitedGlobalContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by CParser#limitedInitDeclaratorList.
+    def visitLimitedInitDeclaratorList(self, ctx:CParser.LimitedInitDeclaratorListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by CParser#limitedInitDeclarator.
+    def visitLimitedInitDeclarator(self, ctx:CParser.LimitedInitDeclaratorContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by CParser#limitedStruct.
+    def visitLimitedStruct(self, ctx:CParser.LimitedStructContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by CParser#limitedStructDeclarationList.
+    def visitLimitedStructDeclarationList(self, ctx:CParser.LimitedStructDeclarationListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by CParser#limitedStructDeclaration.
+    def visitLimitedStructDeclaration(self, ctx:CParser.LimitedStructDeclarationContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by CParser#limitedDeclaratorList.
+    def visitLimitedDeclaratorList(self, ctx:CParser.LimitedDeclaratorListContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by CParser#functionDefinition.
     def visitFunctionDefinition(self, ctx:CParser.FunctionDefinitionContext):
         return self.visitChildren(ctx)
