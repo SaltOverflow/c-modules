@@ -43,3 +43,11 @@ Algorithm steps (given a single module file):
 * This may result in duplicate type definitions, so deduplicate by keeping the first output
 * Remove `export` keywords from the module file, then output
 * The output is fed into a C compiler
+
+# Scratch space
+
+The algorithm is essentially broken up into a partial parse (parse module by itself, get list of defns, uses, imports), followed by a combining phase (for each module, unresolved uses make us scan all imports), followed by a dedup phase (removing duplicate definitions before sending to C compiler).
+
+Context-sensitivity can make analyzing uses challenging (whether an identifier is a type or a variable can influence the code structure). Some examples include: angle brackets <>, dot operator ., dereference operator (a)*b, parentheses after identifiers int().
+
+Context-sensitivity could be handled by not having the module system get the uses. Instead, use the rest of the compiler to disambiguate uses.
