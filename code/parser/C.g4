@@ -525,7 +525,7 @@ externalDeclaration
     ;
 
 limitedFunctionDefinition
-    : limitedTypeSpecifier limitedDeclarator '(' limitedParameterList?  ')' compoundStatement
+    : limitedTypeSpecifier limitedDeclarator '(' limitedParameterList?  ')' limitedCompoundStatement
     ;
 
 limitedTypeSpecifier
@@ -540,43 +540,33 @@ limitedTypeSpecifier
     ;
 
 limitedDeclarator
-    : limitedPointer Identifier
-    ;
-
-limitedPointer
-    : '*'*
+    : '*'? Identifier
     ;
 
 limitedParameterList
     : limitedTypeSpecifier limitedDeclarator (',' limitedTypeSpecifier limitedDeclarator)*
     ;
 
+limitedCompoundStatement
+    : '{' limitedStatement* '}'
+    ;
+
+limitedStatement
+    : Identifier ';'  // these are values or functions
+    | 'type' Identifier ';'  // these are structs, need full definition
+    | 'type' '*' Identifier ';'  // these are structs, only need forward declaration
+    ;
+
 limitedGlobal
-    : limitedTypeSpecifier limitedInitDeclaratorList ';'
+    : limitedTypeSpecifier limitedDeclarator ('=' limitedInitializer)? ';'
     ;
 
-limitedInitDeclaratorList
-    : limitedInitDeclarator (',' limitedInitDeclarator)*
-    ;
-
-limitedInitDeclarator
-    : limitedDeclarator ('=' initializer)?
+limitedInitializer
+    : Identifier ('+' Identifier)* // these are values or functions
     ;
 
 limitedStruct
-    : 'struct' Identifier '{' limitedStructDeclarationList? '}' ';'
-    ;
-
-limitedStructDeclarationList
-    : limitedStructDeclaration+
-    ;
-
-limitedStructDeclaration
-    : limitedTypeSpecifier limitedDeclaratorList ';'
-    ;
-
-limitedDeclaratorList
-    : limitedDeclarator (',' limitedDeclarator)*
+    : 'struct' Identifier limitedCompoundStatement ';'
     ;
 
 functionDefinition

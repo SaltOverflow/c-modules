@@ -818,21 +818,30 @@ class CListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by CParser#limitedPointer.
-    def enterLimitedPointer(self, ctx:CParser.LimitedPointerContext):
-        pass
-
-    # Exit a parse tree produced by CParser#limitedPointer.
-    def exitLimitedPointer(self, ctx:CParser.LimitedPointerContext):
-        pass
-
-
     # Enter a parse tree produced by CParser#limitedParameterList.
     def enterLimitedParameterList(self, ctx:CParser.LimitedParameterListContext):
         pass
 
     # Exit a parse tree produced by CParser#limitedParameterList.
     def exitLimitedParameterList(self, ctx:CParser.LimitedParameterListContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#limitedCompoundStatement.
+    def enterLimitedCompoundStatement(self, ctx:CParser.LimitedCompoundStatementContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedCompoundStatement.
+    def exitLimitedCompoundStatement(self, ctx:CParser.LimitedCompoundStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by CParser#limitedStatement.
+    def enterLimitedStatement(self, ctx:CParser.LimitedStatementContext):
+        pass
+
+    # Exit a parse tree produced by CParser#limitedStatement.
+    def exitLimitedStatement(self, ctx:CParser.LimitedStatementContext):
         pass
 
 
@@ -845,21 +854,12 @@ class CListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by CParser#limitedInitDeclaratorList.
-    def enterLimitedInitDeclaratorList(self, ctx:CParser.LimitedInitDeclaratorListContext):
+    # Enter a parse tree produced by CParser#limitedInitializer.
+    def enterLimitedInitializer(self, ctx:CParser.LimitedInitializerContext):
         pass
 
-    # Exit a parse tree produced by CParser#limitedInitDeclaratorList.
-    def exitLimitedInitDeclaratorList(self, ctx:CParser.LimitedInitDeclaratorListContext):
-        pass
-
-
-    # Enter a parse tree produced by CParser#limitedInitDeclarator.
-    def enterLimitedInitDeclarator(self, ctx:CParser.LimitedInitDeclaratorContext):
-        pass
-
-    # Exit a parse tree produced by CParser#limitedInitDeclarator.
-    def exitLimitedInitDeclarator(self, ctx:CParser.LimitedInitDeclaratorContext):
+    # Exit a parse tree produced by CParser#limitedInitializer.
+    def exitLimitedInitializer(self, ctx:CParser.LimitedInitializerContext):
         pass
 
 
@@ -869,33 +869,6 @@ class CListener(ParseTreeListener):
 
     # Exit a parse tree produced by CParser#limitedStruct.
     def exitLimitedStruct(self, ctx:CParser.LimitedStructContext):
-        pass
-
-
-    # Enter a parse tree produced by CParser#limitedStructDeclarationList.
-    def enterLimitedStructDeclarationList(self, ctx:CParser.LimitedStructDeclarationListContext):
-        pass
-
-    # Exit a parse tree produced by CParser#limitedStructDeclarationList.
-    def exitLimitedStructDeclarationList(self, ctx:CParser.LimitedStructDeclarationListContext):
-        pass
-
-
-    # Enter a parse tree produced by CParser#limitedStructDeclaration.
-    def enterLimitedStructDeclaration(self, ctx:CParser.LimitedStructDeclarationContext):
-        pass
-
-    # Exit a parse tree produced by CParser#limitedStructDeclaration.
-    def exitLimitedStructDeclaration(self, ctx:CParser.LimitedStructDeclarationContext):
-        pass
-
-
-    # Enter a parse tree produced by CParser#limitedDeclaratorList.
-    def enterLimitedDeclaratorList(self, ctx:CParser.LimitedDeclaratorListContext):
-        pass
-
-    # Exit a parse tree produced by CParser#limitedDeclaratorList.
-    def exitLimitedDeclaratorList(self, ctx:CParser.LimitedDeclaratorListContext):
         pass
 
 
