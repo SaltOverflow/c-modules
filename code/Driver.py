@@ -2,8 +2,8 @@ import argparse
 import os
 from pprint import pprint
 from antlr4 import *
-from parser.CLexer import CLexer
-from parser.CParser import CParser
+from parser.CMODLexer import CMODLexer
+from parser.CMODParser import CMODParser
 from ListenerTopLevel import ListenerTopLevel
 from ListenerRenaming import ListenerRenaming
 
@@ -33,9 +33,9 @@ def main():
 
 def simple_parse(args):
     input_stream = FileStream(args.input_file)
-    lexer = CLexer(input_stream)
+    lexer = CMODLexer(input_stream)
     stream = CommonTokenStream(lexer)
-    parser = CParser(stream)
+    parser = CMODParser(stream)
     tree = parser.compilationUnit()
     print(tree.getText())
 
@@ -244,20 +244,20 @@ def parse_top_level(args):
             else:
                 token_start, _ = ast.getSourceInterval()
                 input_start = tokens[token_start].start
-                if type(ast) == CParser.LimitedFunctionDefinitionContext:
+                if type(ast) == CMODParser.LimitedFunctionDefinitionContext:
                     token_end, _ = ast.limitedCompoundStatement().getSourceInterval()
                     token_end -= 1
                     while tokens[token_end].text.isspace():
                         token_end -= 1
                     input_end = tokens[token_end].stop
                     symbol_output = input[input_start:input_end+1] + ';'
-                elif type(ast) == CParser.LimitedGlobalContext:
+                elif type(ast) == CMODParser.LimitedGlobalContext:
                     _, token_end = ast.limitedDeclarator().getSourceInterval()
                     input_end = tokens[token_end].stop
                     extern_str = 'extern '
                     symbol_output = extern_str + input[input_start:input_end+1] + ';'
                     input_start -= len(extern_str)  # adjust input_start to make the rewriting work
-                elif type(ast) == CParser.LimitedStructContext:
+                elif type(ast) == CMODParser.LimitedStructContext:
                     token_end, _ = ast.limitedCompoundStatement().getSourceInterval()
                     token_end -= 1
                     while tokens[token_end].text.isspace():
@@ -344,10 +344,10 @@ def parse_top_level(args):
 
 def all_imports(tokens, tree):
     translationUnit = tree.getChild(0)
-    if type(translationUnit) != CParser.TranslationUnitContext:
+    if type(translationUnit) != CMODParser.TranslationUnitContext:
         return
     for importDeclaration in translationUnit.getChildren():
-        if type(importDeclaration) != CParser.ImportDeclarationContext:
+        if type(importDeclaration) != CMODParser.ImportDeclarationContext:
             continue
         numChildren = importDeclaration.getChildCount()
         start = importDeclaration.getChild(1).getSourceInterval()[0]
@@ -359,7 +359,7 @@ def all_imports(tokens, tree):
 
 def is_module(tree):
     try:
-        return type(tree.getChild(0).getChild(0)) is CParser.ModuleDeclarationContext
+        return type(tree.getChild(0).getChild(0)) is CMODParser.ModuleDeclarationContext
     except AttributeError:
         return False
 
@@ -369,7 +369,7 @@ def parse_file(file_path):
     input = str(input_stream)
 
     # Get tokens so we can extract code
-    lexer = CLexer(input_stream)
+    lexer = CMODLexer(input_stream)
     tokens = lexer.getAllTokens()
     # tokens[0].text
     # tokens[0].start
@@ -380,7 +380,7 @@ def parse_file(file_path):
     # Get the actual AST
     lexer.reset()
     stream = CommonTokenStream(lexer)
-    parser = CParser(stream)
+    parser = CMODParser(stream)
     tree = parser.compilationUnit()
     # tree.getSourceInterval()  # eg. a,b = tree.getSourceInterval(); input[tokens[a].start:tokens[b+1].stop+1]
     # tree.getChildren()
