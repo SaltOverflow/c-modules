@@ -1,3 +1,23 @@
+# # This logic was written from back when the grammar was different and we were using type-stub strategy
+# # This would extract top-level information of a module, and made some simplifying assumptions about the structure of the code
+# # The grammar is different now; this is kept mostly as historical and syntax reference
+#
+# from antlr import *
+# from parser.CLexer import CLexer
+# from parser.CParser import CParser
+#
+# input_stream = FileStream("testing/graph.c")
+# lexer = CLexer(input_stream)
+# tokens = lexer.getAllTokens()
+# stream = CommonTokenStream(lexer)
+# parser = CParser(stream)
+# tree = parser.compilationUnit()
+#
+# walker = ParseTreeWalker()
+# ltoplevel = ListenerTopLevel()
+# walker.walk(ltoplevel, tree)
+# ltoplevel.functions  # structs, variables, problem_contexts, colliding_contexts
+
 from antlr4 import *
 from parser.CParser import CParser
 from parser.CListener import CListener

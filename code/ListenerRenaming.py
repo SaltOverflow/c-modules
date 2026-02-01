@@ -1,3 +1,23 @@
+# # This logic was written from back when the grammar was different and we were using type-stub strategy
+# # This would use top-level information of other modules to perform some renaming, but I don't think it was particularly successful (visitTerminal is essentially a CTRL-F)
+# # The grammar is different now; this is kept mostly as historical and syntax reference
+#
+# from antlr import *
+# from parser.CLexer import CLexer
+# from parser.CParser import CParser
+#
+# input_stream = FileStream("testing/graph.c")
+# lexer = CLexer(input_stream)
+# tokens = lexer.getAllTokens()
+# stream = CommonTokenStream(lexer)
+# parser = CParser(stream)
+# tree = parser.compilationUnit()
+#
+# walker = ParseTreeWalker()
+# lrenaming = ListenerRenaming()
+# walker.walk(lrenaming, tree)
+# lrenaming.rename_list  # symbol_collisions, used_symbol_collisions
+
 from antlr4 import *
 from parser.CListener import CListener
 

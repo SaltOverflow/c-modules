@@ -4,8 +4,6 @@ from pprint import pprint
 from antlr4 import *
 from parser.CMODLexer import CMODLexer
 from parser.CMODParser import CMODParser
-from ListenerTopLevel import ListenerTopLevel
-from ListenerRenaming import ListenerRenaming
 
 std_modules = {"stdio", "stdlib", "unistd"}
 
@@ -311,36 +309,6 @@ def parse_top_level(args):
     for file_path, generated_output in module_output.items():
         print(f"//////////////// START OF FILE {file_path} ////////////////")
         print(generated_output)
-
-    # # Keeping the rest here for syntax reference
-    # module_data = {}  # dict[file_path:str, (functions, structs, variables)], see ListenerTopLevel
-    # module_problems = {}  # dict[file_path: str, (problem_contexts, colliding_contexts)], see ListenerTopLevel
-    # walker = ParseTreeWalker()
-    # for file_path, (_, _, tree) in module_asts.items():
-    #     ltoplevel = ListenerTopLevel()
-    #     walker.walk(ltoplevel, tree)
-    #     module_data[file_path] = ltoplevel.functions, ltoplevel.structs, ltoplevel.variables
-    #     if ltoplevel.problem_contexts or ltoplevel.colliding_contexts:
-    #         module_problems[file_path] = ltoplevel.problem_contexts, ltoplevel.colliding_contexts
-
-    # if module_problems:
-    #     raise RuntimeError(f"Module problems: {module_problems}")
-
-    # pprint(module_data)
-    # pprint(module_problems)
-
-    # lrenaming = ListenerRenaming(module_imports, module_data, input_file, is_module(module_asts[input_file][2]))
-    # walker.walk(lrenaming, module_asts[input_file][2])
-    # rename_list = lrenaming.rename_list  # list[(token_idx:int, new_symbol_name:str, from_module_name:str)], see ListenerRenaming
-    # symbol_collisions = lrenaming.symbol_collisions  # dict[symbol_name:str, (list[module_name:str], is_ambiguous:bool)], see ListenerRenaming
-    # used_symbol_collisions = lrenaming.used_symbol_collisions  # list[(token_idx:int, symbol_name:str)], see ListenerRenaming
-
-    # if used_symbol_collisions:
-    #     raise RuntimeError(f"{used_symbol_collisions=}")
-
-    # pprint(rename_list)
-    # pprint(symbol_collisions)
-    # pprint(used_symbol_collisions)
 
 def all_imports(tokens, tree):
     translationUnit = tree.getChild(0)
