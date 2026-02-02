@@ -5,98 +5,93 @@ from antlr4 import *
 from parser.CMODLexer import CMODLexer
 from parser.CMODParser import CMODParser
 
-std_modules = {"stdio", "stdlib", "unistd"}
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file", help="file to parse")
-    parser.add_argument("-a", "--action", type=int, choices=[0, 1], default=1, help="""
-                        what action to take.
-                        0 = parse and output text
-                        1 = parse top-level symbols
-                        """)
     parser.add_argument("-r", "--project_root", help="the root folder of the project, used to generate module names")
-    # parser.add_argument("-s", "--type_stub_file", help="file that stores type information, for generating type stub headers")
     args = parser.parse_args()
     return args
 
 def main():
     args = parse_args()
-    if args.action == 0:
-        simple_parse(args)
-    elif args.action == 1:
-        parse_top_level(args)
-    else:
-        print(f"Unknown value for {args.action=}")
-
-def simple_parse(args):
-    input_stream = FileStream(args.input_file)
-    lexer = CMODLexer(input_stream)
-    stream = CommonTokenStream(lexer)
-    parser = CMODParser(stream)
-    tree = parser.compilationUnit()
-    print(tree.getText())
+    parse_top_level(args)
 
 def parse_top_level(args):
     # args.input_file
     # args.project_root
 
+    # This changes the OS directory to be project_root, and removes the suffix from input_file
+    # (it makes it easier to navigate the imports)
     input_file = os.path.relpath(args.input_file, args.project_root)
     os.chdir(args.project_root)
-    if input_file.endswith('.c'):
-        input_file = input_file[0:len(input_file)-2]
+    dot_index = input_file.find('.')
+    if dot_index < 0 or input_file[dot_index:] != '.cmod':
+        raise Exception("input_file must use .cmod suffix")
+    input_file = input_file[:dot_index]
 
-    module_asts = {}  # dict[file_path:str, (input, tokens, tree)]
-    module_imports = {}  # dict[file_path:str, list[(file_path:str, import_name:str)]]
-    modules_to_process = [(input_file, input_file)]  # list[(file_path:str, import_name:str)]
-    unknown_modules = set()  # set[(file_path:str, import_name:str)]
-    not_a_module = list()  # list[(file_path:str, import_name:str)]
-    while modules_to_process:
-        file_path, import_name = modules_to_process.pop()
-        if file_path in module_asts:
-            continue
-        try:
-            input, tokens, tree = parse_file(file_path+'.c')
-        except FileNotFoundError:
-            unknown_modules.add((file_path, import_name))
-            continue
-        if not is_module(tree):
-            not_a_module.append((file_path, import_name))
-        module_asts[file_path] = input, tokens, tree
-        import_names = list(all_imports(tokens, tree))
-        file_path_dir = os.path.split(file_path)[0]
-        import_file_paths = [os.path.normpath('./'+file_path_dir+'/'+x) for x in import_names]
-        module_imports[file_path] = list(zip(import_file_paths, import_names))
-        modules_to_process.extend(module_imports[file_path])
-
-    print("---- MODULE IMPORTS: ----")
-    pprint(module_imports)
-
-    if len(not_a_module) > 1 or (len(not_a_module) == 1 and not_a_module[0][0] != input_file):
-        raise RuntimeError(f"Non-modules detected ({input_file} is ok, it's the first file): {not_a_module}")
-    problem_unknown_modules = []
-    for file_path, import_name in unknown_modules:
-        if import_name not in std_modules:
-            problem_unknown_modules.append((file_path, import_name))
-    if problem_unknown_modules:
-        raise RuntimeError(f"Unknown module names detected: {problem_unknown_modules}")
-
-    # Type notes to help you understand this code:
-    # module_asts: dict[file_path: str, (input, tokens, tree)]
-    # module_imports: dict[file_path: str, list[(file_path: str, import_name: str)]]
-    # input  # str
+    # Type notes to help you understand this code
+    # (it helps to have this open in another tab while reading the code)
+    #
+    # module_asts: dict[file_path: str, (text, tokens, tree)]
+    # module_imports: dict[file_path: str, list[imported_file_path: str]]
+    # text  # str
     # tokens[0].text  # start, stop, line, column
     # a, b = tree.getSourceInterval()  # getChildren, getChildCount, getChild
-
+    #
     # module_data: dict[file_path: str, (types, variables)]
     # types, variables: dict[name: str, 
     #     (idx: int, used_names_decl, used_names_defn, is_exported: bool, AST)]
     # used_names_decl, used_names_defn: 
     #     list[(name: str, idx: int, is_variable: bool, needs_defn: bool)]
-
+    #
     # module_input: dict[file_path: str, (type_symbol_table, var_symbol_table)]
     # type_symbol_table, var_symbol_table: dict[name: str, file_path: str]
 
+    # This parses the input file, as well as any recursively imported modules
+    # (output: module_asts, module_imports)
+    module_asts = {}  # dict[file_path: str, (text, tokens, tree)]
+    module_imports = {}  # dict[file_path: str, list[imported_file_path: str]]
+    modules_to_process = [input_file]  # list[file_path: str]
+    while modules_to_process:
+        file_path = modules_to_process.pop()
+        if file_path in module_asts:
+            continue
+        input_stream = FileStream(file_path)
+        text = str(input_stream)
+        lexer = CMODLexer(input_stream)
+        tokens = lexer.getAllTokens()  # list[token: {text, start, stop, line, column}]
+                                       # stop is inclusive, just like getSourceInterval
+        lexer.reset()
+        stream = CommonTokenStream(lexer)
+        parser = CMODParser(stream)
+        tree = parser.compilationUnit()  # {getSourceInterval, getChildren, getChildCount, getChild}
+        if parser.getNumberOfSyntaxErrors() > 0:
+            raise RuntimeError(f"syntax errors for file {file_path}")
+        module_asts[file_path] = text, tokens, tree
+
+        import_names = []  # list[import_name: str]
+        for importDeclaration in tree.getChild(0).getChildren():
+            if type(importDeclaration) != CMODParser.ImportDeclarationContext:
+                continue
+            numChildren = importDeclaration.getChildCount()
+            token_start, _ = importDeclaration.getChild(1).getSourceInterval()
+            text_start = tokens[token_start].start
+            _, token_end = importDeclaration.getChild(numChildren-2).getSourceInterval()
+            input_end = tokens[token_end].stop
+            import_name = text[text_start:input_end+1]
+            if import_name.startswith('"'):
+                import_name = import_name[1:len(import_name)-1]
+            import_names.append(import_name)
+        file_path_dir = os.path.split(file_path)[0]
+        import_file_paths = [os.path.normpath('./'+file_path_dir+'/'+x) for x in import_names]
+        module_imports[file_path] = import_file_paths
+        modules_to_process.extend(module_imports[file_path])
+
+    print("---- MODULE IMPORTS: ----")
+    pprint(module_imports)
+
+    # This analyzes each module, extracting top-level symbols
+    # (output: module_data)
     module_data = {}  # dict[file_path: str, (types, variables)]
     for file_path, (_, tokens, tree) in module_asts.items():
         types, variables = {}, {}  # dict[name: str, (idx: int, used_names_decl, used_names_defn, is_exported: bool, AST)]
@@ -170,11 +165,13 @@ def parse_top_level(args):
     print("---- MODULE DATA: ----")
     pprint(module_data)
 
+    # This combines imported symbols to produce symbol tables for each module
+    # (output: module_input)
     module_input = {}  # dict[file_path: str, (type_symbol_table, var_symbol_table)]
-    for file_path, imports in module_imports.items():
+    for file_path, imported_file_paths in module_imports.items():
         type_symbol_table = {}  # dict[name: str, file_path: str]
         var_symbol_table = {}  # dict[name: str, file_path: str]
-        for imported_file_path, _ in imports:
+        for imported_file_path in imported_file_paths:
             types, variables = module_data[imported_file_path]
             # Assume no clashes (ie. overwrites)
             for name, (_, _, _, is_exported, _) in types.items():
@@ -193,6 +190,8 @@ def parse_top_level(args):
     print("---- MODULE INPUT: ----")
     pprint(module_input)
 
+    # This performs a topological ordering of any needed symbols, as well as renaming them to the correct module
+    # (output: module_output)
     module_output = {}  # dict[file_path: str, generated_output: str]
     for file_path in module_asts:
         already_added = {}  # dict[(file_path: str, name: str, is_variable: bool), (idx: int, is_defn: bool)]
@@ -233,35 +232,35 @@ def parse_top_level(args):
             if trying_to_add_defn:
                 add_necessary_symbols(used_names_defn)
             
-            input, tokens, _ = module_asts[file_path]
+            text, tokens, _ = module_asts[file_path]
             if trying_to_add_defn:
                 token_start, token_end = ast.getSourceInterval()
-                input_start = tokens[token_start].start
+                text_start = tokens[token_start].start
                 input_end = tokens[token_end].stop
-                symbol_output = input[input_start:input_end+1]
+                symbol_output = text[text_start:input_end+1]
             else:
                 token_start, _ = ast.getSourceInterval()
-                input_start = tokens[token_start].start
+                text_start = tokens[token_start].start
                 if type(ast) == CMODParser.LimitedFunctionDefinitionContext:
                     token_end, _ = ast.limitedCompoundStatement().getSourceInterval()
                     token_end -= 1
                     while tokens[token_end].text.isspace():
                         token_end -= 1
                     input_end = tokens[token_end].stop
-                    symbol_output = input[input_start:input_end+1] + ';'
+                    symbol_output = text[text_start:input_end+1] + ';'
                 elif type(ast) == CMODParser.LimitedGlobalContext:
                     _, token_end = ast.limitedDeclarator().getSourceInterval()
                     input_end = tokens[token_end].stop
                     extern_str = 'extern '
-                    symbol_output = extern_str + input[input_start:input_end+1] + ';'
-                    input_start -= len(extern_str)  # adjust input_start to make the rewriting work
+                    symbol_output = extern_str + text[text_start:input_end+1] + ';'
+                    text_start -= len(extern_str)  # adjust text_start to make the rewriting work
                 elif type(ast) == CMODParser.LimitedStructContext:
                     token_end, _ = ast.limitedCompoundStatement().getSourceInterval()
                     token_end -= 1
                     while tokens[token_end].text.isspace():
                         token_end -= 1
                     input_end = tokens[token_end].stop
-                    symbol_output = input[input_start:input_end+1] + ';'
+                    symbol_output = text[text_start:input_end+1] + ';'
                 else:
                     assert False, "This code path should not be reached"
             
@@ -270,8 +269,8 @@ def parse_top_level(args):
                 return file_path.replace('/', '$') + '$$' + name
             def update_symbol_output(file_path, name, idx):
                 nonlocal symbol_output
-                replace_start = tokens[idx].start - input_start
-                replace_end = tokens[idx].stop - input_start
+                replace_start = tokens[idx].start - text_start
+                replace_end = tokens[idx].stop - text_start
                 symbol_output = symbol_output[:replace_start] + full_name(file_path, name) + symbol_output[replace_end+1:]
             if trying_to_add_defn:
                 for u_name, u_idx, u_is_variable, _ in reversed(used_names_defn):
@@ -305,59 +304,18 @@ def parse_top_level(args):
             try_add_to_parts(file_path, name, True, True, idx, used_names_decl, used_names_defn, ast)
         module_output[file_path] = "\n\n".join(generated_parts)
 
-    # pprint(module_output)
     for file_path, generated_output in module_output.items():
         print(f"//////////////// START OF FILE {file_path} ////////////////")
         print(generated_output)
 
-def all_imports(tokens, tree):
-    translationUnit = tree.getChild(0)
-    if type(translationUnit) != CMODParser.TranslationUnitContext:
-        return
-    for importDeclaration in translationUnit.getChildren():
-        if type(importDeclaration) != CMODParser.ImportDeclarationContext:
-            continue
-        numChildren = importDeclaration.getChildCount()
-        start = importDeclaration.getChild(1).getSourceInterval()[0]
-        end = importDeclaration.getChild(numChildren-2).getSourceInterval()[1] + 1
-        import_name = ''.join(x.text for x in tokens[start:end])
-        if import_name.startswith('"'):
-            import_name = import_name[1:len(import_name)-1]
-        yield import_name
-
-def is_module(tree):
-    try:
-        return type(tree.getChild(0).getChild(0)) is CMODParser.ModuleDeclarationContext
-    except AttributeError:
-        return False
-
-def parse_file(file_path):
-    # Get original file so we can extract code
-    input_stream = FileStream(file_path)
-    input = str(input_stream)
-
-    # Get tokens so we can extract code
+def simple_parse(input_file):
+    # Used in debugging
+    input_stream = FileStream(input_file)
     lexer = CMODLexer(input_stream)
-    tokens = lexer.getAllTokens()
-    # tokens[0].text
-    # tokens[0].start
-    # tokens[0].stop  # like getSourceInterval, it's inclusive
-    # tokens[0].line
-    # tokens[0].column
-
-    # Get the actual AST
-    lexer.reset()
     stream = CommonTokenStream(lexer)
     parser = CMODParser(stream)
     tree = parser.compilationUnit()
-    # tree.getSourceInterval()  # eg. a,b = tree.getSourceInterval(); input[tokens[a].start:tokens[b+1].stop+1]
-    # tree.getChildren()
-    # tree.getChildCount()
-    # tree.getChild()
-
-    if parser.getNumberOfSyntaxErrors() > 0:
-        raise RuntimeError(f"syntax errors for file {file_path}")
-    return input, tokens, tree
+    print(tree.getText())
 
 def details(ast):
     # Used in debugging

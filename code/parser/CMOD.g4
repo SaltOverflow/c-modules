@@ -3,11 +3,11 @@
 grammar CMOD;
 
 compilationUnit
-    : translationUnit? EOF
+    : translationUnit EOF
     ;
 
 translationUnit
-    : moduleDeclaration? importDeclaration* externalDeclaration+
+    : moduleDeclaration importDeclaration* externalDeclaration*
     ;
 
 moduleDeclaration
