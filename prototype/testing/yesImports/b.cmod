@@ -26,4 +26,6 @@ export struct struct_6 {
 export struct struct_8 {
     // uses b
     function_1;
+    // uses b
+    type struct_7;
 };
