@@ -8,7 +8,7 @@ from parser.CMODParser import CMODParser
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file", help="file to parse")
-    parser.add_argument("-r", "--project_root", help="the root folder of the project, used to generate module names")
+    parser.add_argument("-r", "--project_root", help="the root folder of the project, used to generate module names. All modules, including imports, should be within this folder")
     args = parser.parse_args()
     return args
 
@@ -24,9 +24,9 @@ def parse_top_level(args):
     # (it makes it easier to navigate the imports)
     input_file = os.path.relpath(args.input_file, args.project_root)
     os.chdir(args.project_root)
-    dot_index = input_file.find('.')
+    dot_index = input_file.rfind('.')
     if dot_index < 0 or input_file[dot_index:] != '.cmod':
-        raise Exception("input_file must use .cmod suffix")
+        raise RuntimeError("input_file must use .cmod suffix")
     input_file = input_file[:dot_index]
 
     # Type notes to help you understand this code
@@ -56,7 +56,9 @@ def parse_top_level(args):
         file_path = modules_to_process.pop()
         if file_path in module_asts:
             continue
-        input_stream = FileStream(file_path)
+        if "." in file_path:
+            raise RuntimeError(f"{file_path=} contains '.', which is disallowed. Make sure {args.project_root=} contains all modules")
+        input_stream = FileStream(file_path + ".cmod")
         text = str(input_stream)
         lexer = CMODLexer(input_stream)
         tokens = lexer.getAllTokens()  # list[token: {text, start, stop, line, column}]
