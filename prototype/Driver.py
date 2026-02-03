@@ -149,8 +149,9 @@ def parse_top_level(args):
                 if struct_type is not None:
                     idx, _ = struct_type.getSourceInterval()
                     name = tokens[idx].text
-                    # Do global decls actually need the struct defn?
-                    used_names_decl.append((name, idx, False, lg.limitedDeclarator().getChildCount() == 1))
+                    # global decls actually don't need the struct defn
+                    used_names_decl.append((name, idx, False, False))
+                    used_names_defn.append((name, idx, False, lg.limitedDeclarator().getChildCount() == 1))
                 li = lg.limitedInitializer()
                 if li is not None:
                     for identifier in li.Identifier():
