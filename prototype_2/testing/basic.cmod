@@ -1,0 +1,24 @@
+module Basic;
+
+export struct S {
+    int i;
+    int j;
+    struct SS k;
+};
+
+struct SS {
+    struct S *a;
+    float b;
+};
+
+export struct SS f(int i) {
+    struct SS ss;
+    ss.b = ff(i);
+    return ss;
+}
+
+float ff(int i) {
+    return (float) i + j;
+}
+
+float j = 4.4;

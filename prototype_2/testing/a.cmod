@@ -1,0 +1,11 @@
+module A;
+
+import Basic;
+
+export struct S foo(int i, int j, int k) {
+    struct S s;
+    s.i = i;
+    s.j = j;
+    s.k = f(k);
+    return s;
+}
