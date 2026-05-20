@@ -1,14 +1,12 @@
 ## Generating the parser code *(already done, in parser/)*
 
-Using ANTLR4 (v4.12.0) to parse grammars. See https://github.com/antlr/antlr4/blob/master/doc/getting-started.md for details. Run `pip install antlr4-tools` to get `antlr4` and `anltr4-parse` executables. Example command: `antlr4-parse parser/CMOD.g4 compilationUnit -gui testing/basic.cmod`
+Using ANTLR4 (v4.13.2) to parse grammars. See https://github.com/antlr/antlr4/blob/master/doc/getting-started.md for details. Run `pip install antlr4-tools` to get `antlr4` and `anltr4-parse` executables. Example command: `antlr4-parse -v 4.13.2 parser/CMOD.g4 compilationUnit -gui testing/basic.cmod`
 
-CMOD.g4 grammar inspired by https://github.com/antlr/grammars-v4/blob/master/c/C.g4 (though heavily edited afterwards). Ran `antlr4 -Dlanguage=Python3 parser/CMOD.g4` to generate parser code (you can add `-visitor -listener` flags for extra capabilities).
+CMOD.g4 grammar inspired by https://github.com/antlr/grammars-v4/blob/master/c/C.g4 (though heavily edited afterwards). Ran `antlr4 -v 4.13.2 -Dlanguage=Python3 parser/CMOD.g4` to generate parser code (you can add `-visitor -listener` flags for extra capabilities).
 
 ## Running the code
 
 Adapted the steps from https://github.com/antlr/antlr4/blob/master/doc/python-target.md to generate output. Run `pip install -r requirements.txt` to get needed libraries, then `python3 Driver.py -r testing testing/basic.cmod` to run on example code.
-
-You may have a disagreement in versions between `antlr4` and `antlr4-python3-runtime`. If that's the case, simply change `requirements.txt` so the versions agree.
 
 ## Documentation
 
