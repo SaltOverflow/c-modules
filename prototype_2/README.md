@@ -1,4 +1,4 @@
-## Generating the parser code *(already done, in parser/)*
+## Generating the parser code
 
 Using ANTLR4 (v4.13.2) to parse grammars. See https://github.com/antlr/antlr4/blob/master/doc/getting-started.md for details. Run `pip install antlr4-tools` to get `antlr4` and `anltr4-parse` executables. Example command: `antlr4-parse -v 4.13.2 parser/CMOD.g4 compilationUnit -gui testing/basic.cmod`
 
