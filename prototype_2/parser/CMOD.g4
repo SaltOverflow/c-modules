@@ -31,7 +31,7 @@ structUnionDefinition
     ;
 
 structField
-    : typeSpecifier declarator ';'
+    : typeQualifierList typeSpecifier typeQualifierList declarator ';'
     ;
 
 typedefDefinition
@@ -39,15 +39,15 @@ typedefDefinition
     ;
 
 globalDefinition
-    : typeSpecifier declarator ('=' expression)? ';'
+    : typeQualifierList typeSpecifier typeQualifierList declarator ('=' expression)? ';'
     ;
 
 functionDefinition
-    : typeSpecifier declarator '(' parameterList? ')' compoundStatement
+    : typeQualifierList typeSpecifier typeQualifierList declarator '(' parameterList? ')' compoundStatement
     ;
 
 parameterList
-    : typeSpecifier declarator (',' typeSpecifier declarator)*
+    : typeQualifierList typeSpecifier typeQualifierList declarator (',' typeQualifierList typeSpecifier typeQualifierList declarator)*
     ;
 
 compoundStatement
@@ -71,6 +71,15 @@ expression
     | CharLiteral
     | Number
     | typeSpecifier '*'*  // Identifier is contained inside
+    | typeQualifier
+    ;
+
+typeQualifierList
+    : typeQualifier*
+    ;
+
+typeQualifier
+    : 'const' | 'volatile'
     ;
 
 typeSpecifier
@@ -87,7 +96,7 @@ typeSpecifier
     ;
 
 declarator
-    : '*'? Identifier
+    : ('*' typeQualifierList)? Identifier
     ;
 
 Identifier

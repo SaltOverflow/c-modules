@@ -134,6 +134,24 @@ class CMODListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CMODParser#typeQualifierList.
+    def enterTypeQualifierList(self, ctx:CMODParser.TypeQualifierListContext):
+        pass
+
+    # Exit a parse tree produced by CMODParser#typeQualifierList.
+    def exitTypeQualifierList(self, ctx:CMODParser.TypeQualifierListContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODParser#typeQualifier.
+    def enterTypeQualifier(self, ctx:CMODParser.TypeQualifierContext):
+        pass
+
+    # Exit a parse tree produced by CMODParser#typeQualifier.
+    def exitTypeQualifier(self, ctx:CMODParser.TypeQualifierContext):
+        pass
+
+
     # Enter a parse tree produced by CMODParser#typeSpecifier.
     def enterTypeSpecifier(self, ctx:CMODParser.TypeSpecifierContext):
         pass
