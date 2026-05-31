@@ -43,7 +43,7 @@ globalDefinition
     ;
 
 functionDefinition
-    : typeQualifierList typeSpecifier typeQualifierList declarator '(' parameterList? ')' compoundStatement
+    : 'inline'? typeQualifierList typeSpecifier typeQualifierList declarator '(' parameterList? ')' compoundStatement
     ;
 
 parameterList
@@ -55,7 +55,7 @@ compoundStatement
     ;
 
 statement
-    : 'typedef'? expression ';'
+    : 'typedef'? expression ';'?
     ;
 
 expression
@@ -63,10 +63,10 @@ expression
     // We just need to know which symbols are used
     // Note this is a conservative overestimate
     : expression expression
-    | ',' | '.' | '->' | '*' | '/' | '+' | '-' | '!' | '~' | '&' | '|' | '?' | ':' | '=' | '<' | '>'
-    | '(' (expression | ';')* ')'
+    | ',' | '.' | '->' | '*' | '/' | '%' | '+' | '-' | '!' | '~' | '&' | '|' | '?' | ':' | '=' | '<' | '>'
+    | '(' statement* ')'
     | '[' expression? ']'
-    | '{' expression? '}'
+    | '{' statement* '}'
     | StringLiteral
     | CharLiteral
     | Number

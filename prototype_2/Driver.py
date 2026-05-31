@@ -130,6 +130,7 @@ def generate_code(args):
     visiting = set()  # set[(module_name: str, idx: int, is_defn: bool)]
     typedef_decl_level = [0]  # typedef doesn't have declaration form,
                               # this makes recursions use decls (array for mutability)
+    deferred_codegen = set()  # set[(module_name: str, idx: int, is_defn: bool)]
     def codegen(parent_module_name: str, idx: int, needs_defn: bool):
         def is_varfunc(module_name, idx):
             _, _, tree = get_module_info(module_name)
@@ -162,6 +163,8 @@ def generate_code(args):
         def codegen_expression(expression):
             for expr in expression.expression():
                 codegen_expression(expr)
+            for stmt in expression.statement():
+                codegen_expression(stmt.expression())
             typeSpecifier = expression.typeSpecifier()
             if typeSpecifier:
                 codegen_typeSpecifier(typeSpecifier, expression.getChildCount() == 1, True)
@@ -238,6 +241,8 @@ def generate_code(args):
             if needs_defn:
                 for statement in functionDefinition.compoundStatement().statement():
                     codegen_expression(statement.expression())
+            if functionDefinition.getChild(0).getText() == 'inline':
+                deferred_codegen.add((parent_module_name, idx, True))
             # print out declaration / definition
             token_start, token_end = functionDefinition.getSourceInterval()
             if not needs_defn:
@@ -250,6 +255,15 @@ def generate_code(args):
 
         visiting.remove((parent_module_name, idx, needs_defn))
         visited.add((parent_module_name, idx, needs_defn))
+
+        if deferred_codegen and needs_defn:
+            # deferred goes after the defn that triggered it (hence `and needs_defn`)
+            # this relies on decls never recursing into defns
+            deferred_codegen_copy = set()
+            deferred_codegen_copy.update(deferred_codegen)
+            deferred_codegen.clear()
+            for module_name, idx, needs_defn in deferred_codegen_copy:
+                codegen(module_name, idx, needs_defn)
     
     # Now drive codegen through the input module
     _, _, tree = get_module_info(input_module)
