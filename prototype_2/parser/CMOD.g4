@@ -19,15 +19,15 @@ importDeclaration
     ;
 
 externalDeclaration
-    : 'export'? structDefinition
+    : 'export'? structUnionDefinition
     | 'export'? typedefDefinition
     | 'export'? globalDefinition
     | 'export'? functionDefinition
     | ';' // stray ;
     ;
 
-structDefinition
-    : 'struct' Identifier '{' structField* '}' ';'
+structUnionDefinition
+    : ('struct' | 'union') Identifier '{' structField* '}' ';'
     ;
 
 structField
@@ -63,11 +63,12 @@ expression
     // We just need to know which symbols are used
     // Note this is a conservative overestimate
     : expression expression
-    | ',' | '.' | '->' | '*' | '/' | '+' | '-' | '&' | '|' | '?' | ':' | '=' | '<' | '>'
+    | ',' | '.' | '->' | '*' | '/' | '+' | '-' | '!' | '~' | '&' | '|' | '?' | ':' | '=' | '<' | '>'
     | '(' expression ')'
     | '[' expression ']'
     | '{' expression '}'
     | StringLiteral
+    | CharLiteral
     | Number
     | typeSpecifier '*'*  // Identifier is contained inside
     ;
@@ -81,6 +82,7 @@ typeSpecifier
     | 'float'
     | 'double'
     | 'struct' Identifier
+    | 'union' Identifier
     | Identifier
     ;
 
@@ -102,6 +104,10 @@ fragment Nondigit
 
 fragment Digit
     : [0-9]
+    ;
+
+CharLiteral
+    : '\'' SChar '\''
     ;
 
 StringLiteral

@@ -53,12 +53,12 @@ class CMODListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by CMODParser#structDefinition.
-    def enterStructDefinition(self, ctx:CMODParser.StructDefinitionContext):
+    # Enter a parse tree produced by CMODParser#structUnionDefinition.
+    def enterStructUnionDefinition(self, ctx:CMODParser.StructUnionDefinitionContext):
         pass
 
-    # Exit a parse tree produced by CMODParser#structDefinition.
-    def exitStructDefinition(self, ctx:CMODParser.StructDefinitionContext):
+    # Exit a parse tree produced by CMODParser#structUnionDefinition.
+    def exitStructUnionDefinition(self, ctx:CMODParser.StructUnionDefinitionContext):
         pass
 
 

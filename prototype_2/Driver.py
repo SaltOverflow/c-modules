@@ -76,12 +76,13 @@ def generate_code(args):
             symbol_list = []  # list[(symbol_name: str, idx: int, exported: bool)]
             for idx, externalDeclaration in enumerate(tree.translationUnit().externalDeclaration()):
                 exported = externalDeclaration.getChild(0).getText() == 'export'
-                structDefinition = externalDeclaration.structDefinition()
+                structUnionDefinition = externalDeclaration.structUnionDefinition()
                 typedefDefinition = externalDeclaration.typedefDefinition()
                 globalDefinition = externalDeclaration.globalDefinition()
                 functionDefinition = externalDeclaration.functionDefinition()
-                if structDefinition:
-                    symbol_name = "struct " + structDefinition.Identifier().getText()
+                if structUnionDefinition:
+                    symbol_name = (structUnionDefinition.getChild(0).getText() + " " +
+                                   structUnionDefinition.Identifier().getText())
                 elif typedefDefinition:
                     symbol_name = typedefDefinition.Identifier().getText()
                 elif globalDefinition:
@@ -139,8 +140,9 @@ def generate_code(args):
             if typeSpecifier.Identifier() is None:
                 return
             lookup_name = typeSpecifier.Identifier().getText()
-            if typeSpecifier.getChild(0).getText() == "struct":
-                lookup_name = "struct " + lookup_name
+            firstText = typeSpecifier.getChild(0).getText()
+            if firstText == 'struct' or firstText == 'union':
+                lookup_name = firstText + ' ' + lookup_name
             res = lookup_symbol(parent_module_name, lookup_name)
             if not res:
                 return
@@ -172,20 +174,20 @@ def generate_code(args):
         # get symbol definition
         text, tokens, tree = get_module_info(parent_module_name)
         externalDeclaration = tree.translationUnit().externalDeclaration(idx)
-        structDefinition = externalDeclaration.structDefinition()
+        structUnionDefinition = externalDeclaration.structUnionDefinition()
         typedefDefinition = externalDeclaration.typedefDefinition()
         globalDefinition = externalDeclaration.globalDefinition()
         functionDefinition = externalDeclaration.functionDefinition()
-        if structDefinition:
+        if structUnionDefinition:
             # call codegen on children
             if needs_defn:
-                for structField in structDefinition.structField():
+                for structField in structUnionDefinition.structField():
                     codegen_type_info(structField.typeSpecifier(),
                                       structField.declarator().getChildCount() == 1)
             # print out declaration / definition
-            token_start, token_end = structDefinition.getSourceInterval()
+            token_start, token_end = structUnionDefinition.getSourceInterval()
             if not needs_defn:
-                token_end = structDefinition.Identifier().getSourceInterval()[1]
+                token_end = structUnionDefinition.Identifier().getSourceInterval()[1]
             text_start, text_end = tokens[token_start].start, tokens[token_end].stop
             code = text[text_start:text_end+1]
             if not needs_defn:

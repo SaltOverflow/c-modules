@@ -1,0 +1,17 @@
+module unions;
+
+int f() {
+    union Value v;
+    v.i = 42;
+    if (v.i != 42) return 1;
+    v.f = 3.14;
+    if (v.f != 3.14) return 1;
+    v.c = 'a';
+    if (v.c != 'a') return 1;
+    return 0;
+}
+union Value {
+    int i;
+    float f;
+    char c;
+};
