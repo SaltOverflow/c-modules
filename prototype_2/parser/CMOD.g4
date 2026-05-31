@@ -70,7 +70,7 @@ expression
     | StringLiteral
     | CharLiteral
     | Number
-    | typeSpecifier '*'*  // Identifier is contained inside
+    | typeSpecifier (typeQualifier? '*')*  // Identifier is contained inside
     | typeQualifier
     ;
 

@@ -1,0 +1,43 @@
+module exposePtrTypes;
+
+// struct/function/variable that contains a value/ptr to struct/typedef
+
+// struct example
+struct S {
+    struct S1 s1;
+    S2 s2;
+    struct S3 *s3;
+    S4 *s4;
+};
+struct S1 { int i; };
+typedef struct S2* S2;
+struct S2 { struct S s; };
+struct S3 { struct S s; };
+typedef struct S4 S4;
+struct S4 { struct S s; };
+
+// function example
+struct T1 foo(T2 t2, struct T3 *t3, T4 *t4) {
+    struct T1 t1;
+    return t1;
+}
+struct T { int i; };
+struct T1 { int i; };
+typedef struct T2* T2;
+struct T2 { struct T s; };
+struct T3 { struct T s; };
+typedef struct T4 T4;
+struct T4 { struct T s; };
+
+// variable example
+struct U1 bar1;
+U2 bar2;
+struct U3 *bar3;
+U4 *bar4;
+struct U { int i; };
+struct U1 { int i; };
+typedef struct U2* U2;
+struct U2 { struct U s; };
+struct U3 { struct U s; };
+typedef struct U4 U4;
+struct U4 { struct U s; };

@@ -130,6 +130,8 @@ def generate_code(args):
     visiting = set()  # set[(module_name: str, idx: int, is_defn: bool)]
     typedef_decl_level = [0]  # typedef doesn't have declaration form,
                               # this makes recursions use decls (array for mutability)
+    struct_defn_level = [0]  # pointer types coming from struct defns have their defns deferred
+                             # this also applies to unions
     deferred_codegen = set()  # set[(module_name: str, idx: int, is_defn: bool)]
     def codegen(parent_module_name: str, idx: int, needs_defn: bool):
         def is_varfunc(module_name, idx):
@@ -159,6 +161,13 @@ def generate_code(args):
                     # Let it keep going with errors
                     print(f"// ERROR: variable used in wrong place!")
                 uses_defn = False  # var/func names should always be decl
+            elif uses_defn == False:
+                # We want to expose the underlying type defn,
+                # but defer it if we're handling a struct defn (avoid false cycles)
+                if struct_defn_level[0]:
+                    deferred_codegen.add((module_name, idx, True))
+                else:
+                    uses_defn = True
             codegen(module_name, idx, uses_defn)
         def codegen_expression(expression):
             for expr in expression.expression():
@@ -190,9 +199,11 @@ def generate_code(args):
         if structUnionDefinition:
             # call codegen on children
             if needs_defn:
+                struct_defn_level[0] += 1
                 for structField in structUnionDefinition.structField():
                     codegen_typeSpecifier_declarator(structField.typeSpecifier(),
                                                      structField.declarator())
+                struct_defn_level[0] -= 1
             # print out declaration / definition
             token_start, token_end = structUnionDefinition.getSourceInterval()
             if not needs_defn:
@@ -256,8 +267,8 @@ def generate_code(args):
         visiting.remove((parent_module_name, idx, needs_defn))
         visited.add((parent_module_name, idx, needs_defn))
 
-        if deferred_codegen and needs_defn:
-            # deferred goes after the defn that triggered it (hence `and needs_defn`)
+        if deferred_codegen and needs_defn and not struct_defn_level:
+            # deferred goes after defns, also avoids running while handling a struct defn
             # this relies on decls never recursing into defns
             deferred_codegen_copy = set()
             deferred_codegen_copy.update(deferred_codegen)
