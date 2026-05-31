@@ -77,10 +77,13 @@ def generate_code(args):
             for idx, externalDeclaration in enumerate(tree.translationUnit().externalDeclaration()):
                 exported = externalDeclaration.getChild(0).getText() == 'export'
                 structDefinition = externalDeclaration.structDefinition()
+                typedefDefinition = externalDeclaration.typedefDefinition()
                 globalDefinition = externalDeclaration.globalDefinition()
                 functionDefinition = externalDeclaration.functionDefinition()
                 if structDefinition:
-                    symbol_name = structDefinition.Identifier().getText()
+                    symbol_name = "struct " + structDefinition.Identifier().getText()
+                elif typedefDefinition:
+                    symbol_name = typedefDefinition.Identifier().getText()
                 elif globalDefinition:
                     symbol_name = globalDefinition.declarator().Identifier().getText()
                 elif functionDefinition:
@@ -122,57 +125,55 @@ def generate_code(args):
 
     # Generate the supporting code for a given symbol definition
     # (output: codegen())
-    visited = {}  # dict[(module_name: str, idx: int), is_defn: bool]
-    visiting = set()  # set[(module_name: str, idx: int)]
+    visited = set()  # set[(module_name: str, idx: int, is_defn: bool)]
+    visiting = set()  # set[(module_name: str, idx: int, is_defn: bool)]
+    typedef_decl_level = [0]  # typedef doesn't have declaration form,
+                              # this makes recursions use decls (array for mutability)
     def codegen(parent_module_name: str, idx: int, needs_defn: bool):
-        def codegen_type_info(typeSpecifier, uses_defn):
-            struct_identifier = typeSpecifier.Identifier()
-            if not struct_identifier:
+        def is_varfunc(module_name, idx):
+            _, _, tree = get_module_info(module_name)
+            externalDeclaration = tree.translationUnit().externalDeclaration(idx)
+            return (externalDeclaration.globalDefinition()
+                    or externalDeclaration.functionDefinition())
+        def codegen_type_info(typeSpecifier, uses_defn, varfunc_allowed=False):
+            if typeSpecifier.Identifier() is None:
                 return
-            res = lookup_symbol(parent_module_name, struct_identifier.getText())
+            lookup_name = typeSpecifier.Identifier().getText()
+            if typeSpecifier.getChild(0).getText() == "struct":
+                lookup_name = "struct " + lookup_name
+            res = lookup_symbol(parent_module_name, lookup_name)
             if not res:
                 return
             module_name, idx = res
+            if is_varfunc(module_name, idx):
+                if not varfunc_allowed:
+                    # Let it keep going with errors
+                    print(f"// ERROR: variable used in wrong place!")
+                uses_defn = False  # var/func names should always be decl
             codegen(module_name, idx, uses_defn)
         def codegen_expression_info(expression):
             for expr in expression.expression():
                 codegen_expression_info(expr)
             typeSpecifier = expression.typeSpecifier()
             if typeSpecifier:
-                codegen_type_info(typeSpecifier, expression.getChildCount() == 1)
-            identifier = expression.Identifier()
-            if identifier:
-                res = lookup_symbol(parent_module_name, identifier.getText())
-                if res:
-                    module_name, idx = res
-                    codegen(module_name, idx, False)
+                codegen_type_info(typeSpecifier, expression.getChildCount() == 1, True)
 
-        if (parent_module_name, idx) in visited:
-            # Unless we now need the definition, we can skip
-            if visited[(parent_module_name, idx)] == True or not needs_defn:
-                return
-        if (parent_module_name, idx) in visiting:
-            text, tokens, tree = get_module_info(parent_module_name)
-            structDefinition = tree.translationUnit().externalDeclaration(idx).structDefinition()
-            if not needs_defn and structDefinition:
-                # Special case: can revisit struct as a declaration
-                token_start = structDefinition.getSourceInterval()[0]
-                token_end = structDefinition.Identifier().getSourceInterval()[1]
-                text_start, text_end = tokens[token_start].start, tokens[token_end].stop
-                code = text[text_start:text_end+1]
-                code += ';'
-                print(code)
-                return
-            else:
-                # Let it keep going with errors
-                print(f"// ERROR: circular reference!")
-                return
-        visiting.add((parent_module_name, idx))
+        if typedef_decl_level[0]:
+            needs_defn = False  # if we come from a typedef decl, we don't need defns
+        if ((parent_module_name, idx, needs_defn) in visited
+            or (parent_module_name, idx, True) in visited):
+            return  # skip if we already have it (defn also counts as decl)
+        if (parent_module_name, idx, needs_defn) in visiting:
+            # Let it keep going with errors
+            print(f"// ERROR: circular reference!")
+            return
+        visiting.add((parent_module_name, idx, needs_defn))
 
         # get symbol definition
         text, tokens, tree = get_module_info(parent_module_name)
         externalDeclaration = tree.translationUnit().externalDeclaration(idx)
         structDefinition = externalDeclaration.structDefinition()
+        typedefDefinition = externalDeclaration.typedefDefinition()
         globalDefinition = externalDeclaration.globalDefinition()
         functionDefinition = externalDeclaration.functionDefinition()
         if structDefinition:
@@ -189,6 +190,18 @@ def generate_code(args):
             code = text[text_start:text_end+1]
             if not needs_defn:
                 code += ';'
+            print(code)
+        elif typedefDefinition:
+            # call codegen on children
+            if not needs_defn:
+                typedef_decl_level[0] += 1
+            codegen_expression_info(typedefDefinition.expression())
+            if not needs_defn:
+                typedef_decl_level[0] -= 1
+            # print out declaration / definition
+            token_start, token_end = typedefDefinition.getSourceInterval()
+            text_start, text_end = tokens[token_start].start, tokens[token_end].stop
+            code = text[text_start:text_end+1]
             print(code)
         elif globalDefinition:
             # call codegen on children
@@ -227,8 +240,8 @@ def generate_code(args):
                 code += ';'
             print(code)
 
-        visiting.remove((parent_module_name, idx))
-        visited[(parent_module_name, idx)] = needs_defn
+        visiting.remove((parent_module_name, idx, needs_defn))
+        visited.add((parent_module_name, idx, needs_defn))
     
     # Now drive codegen through the input module
     _, _, tree = get_module_info(input_module)

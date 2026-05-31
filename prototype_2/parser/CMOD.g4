@@ -20,6 +20,7 @@ importDeclaration
 
 externalDeclaration
     : 'export'? structDefinition
+    | 'export'? typedefDefinition
     | 'export'? globalDefinition
     | 'export'? functionDefinition
     | ';' // stray ;
@@ -31,6 +32,10 @@ structDefinition
 
 structField
     : typeSpecifier declarator ';'
+    ;
+
+typedefDefinition
+    : 'typedef' expression Identifier ';'
     ;
 
 globalDefinition
@@ -50,7 +55,7 @@ compoundStatement
     ;
 
 statement
-    : expression ';'
+    : 'typedef'? expression ';'
     ;
 
 expression
@@ -64,8 +69,7 @@ expression
     | '{' expression '}'
     | StringLiteral
     | Number
-    | typeSpecifier '*'*
-    | Identifier
+    | typeSpecifier '*'*  // Identifier is contained inside
     ;
 
 typeSpecifier
@@ -77,6 +81,7 @@ typeSpecifier
     | 'float'
     | 'double'
     | 'struct' Identifier
+    | Identifier
     ;
 
 declarator

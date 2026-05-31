@@ -1,0 +1,13 @@
+module typedefs;
+
+// typedefs should be pointer-aware
+T t;
+typedef struct T T;
+struct T { TTT ttt; TT tt; };
+typedef struct TT TT;
+struct TT { T *t; };
+typedef T2* TTT;
+typedef T3* T2;
+typedef T4 T3;
+typedef struct TTT T4;
+struct TTT { struct T t; };

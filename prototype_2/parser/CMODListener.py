@@ -71,6 +71,15 @@ class CMODListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CMODParser#typedefDefinition.
+    def enterTypedefDefinition(self, ctx:CMODParser.TypedefDefinitionContext):
+        pass
+
+    # Exit a parse tree produced by CMODParser#typedefDefinition.
+    def exitTypedefDefinition(self, ctx:CMODParser.TypedefDefinitionContext):
+        pass
+
+
     # Enter a parse tree produced by CMODParser#globalDefinition.
     def enterGlobalDefinition(self, ctx:CMODParser.GlobalDefinitionContext):
         pass
