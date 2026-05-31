@@ -170,5 +170,14 @@ class CMODListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CMODParser#arraySuffix.
+    def enterArraySuffix(self, ctx:CMODParser.ArraySuffixContext):
+        pass
+
+    # Exit a parse tree produced by CMODParser#arraySuffix.
+    def exitArraySuffix(self, ctx:CMODParser.ArraySuffixContext):
+        pass
+
+
 
 del CMODParser

@@ -64,9 +64,9 @@ expression
     // Note this is a conservative overestimate
     : expression expression
     | ',' | '.' | '->' | '*' | '/' | '+' | '-' | '!' | '~' | '&' | '|' | '?' | ':' | '=' | '<' | '>'
-    | '(' expression ')'
-    | '[' expression ']'
-    | '{' expression '}'
+    | '(' (expression | ';')* ')'
+    | '[' expression? ']'
+    | '{' expression? '}'
     | StringLiteral
     | CharLiteral
     | Number
@@ -96,7 +96,11 @@ typeSpecifier
     ;
 
 declarator
-    : ('*' typeQualifierList)? Identifier
+    : ('*' typeQualifierList)? Identifier arraySuffix*
+    ;
+
+arraySuffix
+    : '[' expression? ']'
     ;
 
 Identifier

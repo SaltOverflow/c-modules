@@ -136,7 +136,13 @@ def generate_code(args):
             externalDeclaration = tree.translationUnit().externalDeclaration(idx)
             return (externalDeclaration.globalDefinition()
                     or externalDeclaration.functionDefinition())
-        def codegen_type_info(typeSpecifier, uses_defn, varfunc_allowed=False):
+        def codegen_typeSpecifier_declarator(typeSpecifier, declarator):
+            codegen_typeSpecifier(typeSpecifier, declarator.getChild(0).getText() != '*')
+            for arraySuffix in declarator.arraySuffix():
+                if arraySuffix.expression() is None:
+                    continue
+                codegen_expression(arraySuffix.expression())
+        def codegen_typeSpecifier(typeSpecifier, uses_defn, varfunc_allowed=False):
             if typeSpecifier.Identifier() is None:
                 return
             lookup_name = typeSpecifier.Identifier().getText()
@@ -153,12 +159,12 @@ def generate_code(args):
                     print(f"// ERROR: variable used in wrong place!")
                 uses_defn = False  # var/func names should always be decl
             codegen(module_name, idx, uses_defn)
-        def codegen_expression_info(expression):
+        def codegen_expression(expression):
             for expr in expression.expression():
-                codegen_expression_info(expr)
+                codegen_expression(expr)
             typeSpecifier = expression.typeSpecifier()
             if typeSpecifier:
-                codegen_type_info(typeSpecifier, expression.getChildCount() == 1, True)
+                codegen_typeSpecifier(typeSpecifier, expression.getChildCount() == 1, True)
 
         if typedef_decl_level[0]:
             needs_defn = False  # if we come from a typedef decl, we don't need defns
@@ -182,8 +188,8 @@ def generate_code(args):
             # call codegen on children
             if needs_defn:
                 for structField in structUnionDefinition.structField():
-                    codegen_type_info(structField.typeSpecifier(),
-                                      structField.declarator().getChildCount() == 1)
+                    codegen_typeSpecifier_declarator(structField.typeSpecifier(),
+                                                     structField.declarator())
             # print out declaration / definition
             token_start, token_end = structUnionDefinition.getSourceInterval()
             if not needs_defn:
@@ -197,7 +203,7 @@ def generate_code(args):
             # call codegen on children
             if not needs_defn:
                 typedef_decl_level[0] += 1
-            codegen_expression_info(typedefDefinition.expression())
+            codegen_expression(typedefDefinition.expression())
             if not needs_defn:
                 typedef_decl_level[0] -= 1
             # print out declaration / definition
@@ -207,10 +213,10 @@ def generate_code(args):
             print(code)
         elif globalDefinition:
             # call codegen on children
-            codegen_type_info(globalDefinition.typeSpecifier(),
-                              globalDefinition.declarator().getChildCount() == 1)
+            codegen_typeSpecifier_declarator(globalDefinition.typeSpecifier(),
+                                             globalDefinition.declarator())
             if needs_defn and globalDefinition.expression():
-                codegen_expression_info(globalDefinition.expression())
+                codegen_expression(globalDefinition.expression())
             # print out declaration / definition
             token_start, token_end = globalDefinition.getSourceInterval()
             if not needs_defn:
@@ -222,16 +228,16 @@ def generate_code(args):
             print(code)
         elif functionDefinition:
             # call codegen on children
-            codegen_type_info(functionDefinition.typeSpecifier(),
-                              functionDefinition.declarator().getChildCount() == 1)
+            codegen_typeSpecifier_declarator(functionDefinition.typeSpecifier(),
+                                             functionDefinition.declarator())
             parameterList = functionDefinition.parameterList()
             if parameterList:
                 for typeSpecifier, declarator in zip(parameterList.typeSpecifier(),
                                                      parameterList.declarator()):
-                    codegen_type_info(typeSpecifier, declarator.getChildCount() == 1)
+                    codegen_typeSpecifier_declarator(typeSpecifier, declarator)
             if needs_defn:
                 for statement in functionDefinition.compoundStatement().statement():
-                    codegen_expression_info(statement.expression())
+                    codegen_expression(statement.expression())
             # print out declaration / definition
             token_start, token_end = functionDefinition.getSourceInterval()
             if not needs_defn:
