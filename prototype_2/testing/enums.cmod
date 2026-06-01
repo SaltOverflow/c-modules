@@ -1,0 +1,19 @@
+module enums;
+
+int useColor() {
+    return RED | GREEN;
+}
+
+enum Direction { NORTH, SOUTH, EAST, WEST };
+
+enum Color { RED = 1, GREEN = 2, BLUE = 4 };
+
+const char *direction_name(enum Direction d) {
+    switch (d) {
+        case NORTH: return "North";
+        case SOUTH: return "South";
+        case EAST:  return "East";
+        case WEST:  return "West";
+        default:    return "Unknown";
+    }
+}

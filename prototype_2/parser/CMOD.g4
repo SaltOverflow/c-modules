@@ -21,6 +21,7 @@ importDeclaration
 externalDeclaration
     : 'export'? structUnionDefinition
     | 'export'? typedefDefinition
+    | 'export'? enumDefinition
     | 'export'? globalDefinition
     | 'export'? functionDefinition
     | ';' // stray ;
@@ -36,6 +37,15 @@ structField
 
 typedefDefinition
     : 'typedef' expression Identifier ';'
+    ;
+
+enumDefinition
+    : 'enum' Identifier? '{' enumerator (',' enumerator)* '}' ';'
+    ;
+
+enumerator
+    // expression eats the ',' so I'm using Number instead
+    : Identifier ('=' Number)?
     ;
 
 globalDefinition
@@ -92,6 +102,7 @@ typeSpecifier
     | 'double'
     | 'struct' Identifier
     | 'union' Identifier
+    | 'enum' Identifier
     | Identifier
     ;
 

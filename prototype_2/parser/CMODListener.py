@@ -80,6 +80,24 @@ class CMODListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CMODParser#enumDefinition.
+    def enterEnumDefinition(self, ctx:CMODParser.EnumDefinitionContext):
+        pass
+
+    # Exit a parse tree produced by CMODParser#enumDefinition.
+    def exitEnumDefinition(self, ctx:CMODParser.EnumDefinitionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODParser#enumerator.
+    def enterEnumerator(self, ctx:CMODParser.EnumeratorContext):
+        pass
+
+    # Exit a parse tree produced by CMODParser#enumerator.
+    def exitEnumerator(self, ctx:CMODParser.EnumeratorContext):
+        pass
+
+
     # Enter a parse tree produced by CMODParser#globalDefinition.
     def enterGlobalDefinition(self, ctx:CMODParser.GlobalDefinitionContext):
         pass

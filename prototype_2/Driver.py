@@ -75,9 +75,12 @@ def generate_code(args):
             _, _, tree = get_module_info(module_name)
             symbol_list = []  # list[(symbol_name: str, idx: int, exported: bool)]
             for idx, externalDeclaration in enumerate(tree.translationUnit().externalDeclaration()):
+                if externalDeclaration.getChild(0).getText() == ';':
+                    continue
                 exported = externalDeclaration.getChild(0).getText() == 'export'
                 structUnionDefinition = externalDeclaration.structUnionDefinition()
                 typedefDefinition = externalDeclaration.typedefDefinition()
+                enumDefinition = externalDeclaration.enumDefinition()
                 globalDefinition = externalDeclaration.globalDefinition()
                 functionDefinition = externalDeclaration.functionDefinition()
                 if structUnionDefinition:
@@ -89,7 +92,15 @@ def generate_code(args):
                     symbol_name = globalDefinition.declarator().Identifier().getText()
                 elif functionDefinition:
                     symbol_name = functionDefinition.declarator().Identifier().getText()
-                symbol_list.append((symbol_name, idx, exported))
+                if enumDefinition:
+                    if enumDefinition.Identifier():
+                        symbol_name = enumDefinition.Identifier().getText()
+                        symbol_list.append((symbol_name, idx, exported))
+                    for enumerator in enumDefinition.enumerator():
+                        symbol_name = enumerator.Identifier().getText()
+                        symbol_list.append((symbol_name, idx, exported))
+                else:
+                    symbol_list.append((symbol_name, idx, exported))
             module_symbols[module_name] = symbol_list
 
         if module_name not in module_symbols:
@@ -194,6 +205,7 @@ def generate_code(args):
         externalDeclaration = tree.translationUnit().externalDeclaration(idx)
         structUnionDefinition = externalDeclaration.structUnionDefinition()
         typedefDefinition = externalDeclaration.typedefDefinition()
+        enumDefinition = externalDeclaration.enumDefinition()
         globalDefinition = externalDeclaration.globalDefinition()
         functionDefinition = externalDeclaration.functionDefinition()
         if structUnionDefinition:
@@ -225,6 +237,21 @@ def generate_code(args):
             text_start, text_end = tokens[token_start].start, tokens[token_end].stop
             code = text[text_start:text_end+1]
             print(code)
+        elif enumDefinition:
+            # For enums, defn and decl are the same
+            if (parent_module_name, idx, False) in visited:
+                pass
+            elif (parent_module_name, idx, not needs_defn) in visiting:
+                # Let it keep going with errors
+                print(f"// ERROR: circular reference!")
+            else:
+                # call codegen on children
+                # (no expressions here)
+                # print out declaration / definition
+                token_start, token_end = enumDefinition.getSourceInterval()
+                text_start, text_end = tokens[token_start].start, tokens[token_end].stop
+                code = text[text_start:text_end+1]
+                print(code)
         elif globalDefinition:
             # call codegen on children
             codegen_typeSpecifier_declarator(globalDefinition.typeSpecifier(),
