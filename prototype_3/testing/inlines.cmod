@@ -1,0 +1,21 @@
+module inlines;
+
+inline int rec1(int x) {
+    if (x % 3 == 0) {
+        return x;
+    } else {
+        return rec2(x * 2 + 5);
+    }
+}
+
+// due to the way we implement this,
+// this should be at the bottom of the generated code
+int bottom;
+
+inline int rec2(int x) {
+    if (x % 7 == 0) {
+        return x;
+    } else {
+        return rec1(x / 2);
+    }
+}

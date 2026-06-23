@@ -1,0 +1,22 @@
+module arrays;
+
+int total = 0;
+
+void sum_array(const int *arr, int len) {
+    for (int i = 0; i < len; i++)
+        total += arr[i];
+}
+
+int perform2() {
+    int arr[] = {10, 20, 30, 40, 50};
+    int len = sizeof(arr) / sizeof(arr[0]);
+
+    sum_array(arr, len);
+
+    arr[2] = matrix[0][1];
+    sum_array(arr, len);
+
+    return total;
+}
+
+int matrix[2][3] = { {1, 2, 3}, {4, 5, 6} };
