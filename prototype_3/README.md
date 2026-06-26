@@ -12,4 +12,4 @@ Adapted the steps from https://github.com/antlr/antlr4/blob/master/doc/python-ta
 
 The concepts behind this prototype are discussed in [my ONPLS 2026 presentation](https://docs.google.com/presentation/d/10CdEMUHpR9FgXT7NRg_zzKULKEtGaaZ1YX_n6-uuW5o/edit?slide=id.p#slide=id.p).
 
-*The previous prototype uses a very small toy language and the code is hard to read. Here, we demonstrate the concept on a substantial part of the C language, as well as make the code readable.*
+*The previous prototype was presented at the seminar, so we create a separate iteration for further work. This extends the grammar to almost all C99 code (ignore trigrams and K&R syntax), including expression parsing. Module namespacing is left to the next iteration, as it introduces additional language extensions.*
