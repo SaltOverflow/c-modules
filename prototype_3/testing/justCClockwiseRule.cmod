@@ -1,0 +1,10 @@
+// Taken from https://c-faq.com/decl/spiral.anderson.html
+char *str[10];
+char *(*fp)( int, float *);
+void (*signal(int, void (*fp)(int)))(int);
+const char *chptr;
+char * const chptr2;
+volatile char * const chptr3;
+
+const char volatile *str2[10], * const * volatile str3[volatile 3];
+int (*signal2(int, void (*fp)(int)))(int), f(int, int);
