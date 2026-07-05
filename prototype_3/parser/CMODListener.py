@@ -404,6 +404,24 @@ class CMODListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CMODParser#moduleDeclaration.
+    def enterModuleDeclaration(self, ctx:CMODParser.ModuleDeclarationContext):
+        pass
+
+    # Exit a parse tree produced by CMODParser#moduleDeclaration.
+    def exitModuleDeclaration(self, ctx:CMODParser.ModuleDeclarationContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODParser#importDeclaration.
+    def enterImportDeclaration(self, ctx:CMODParser.ImportDeclarationContext):
+        pass
+
+    # Exit a parse tree produced by CMODParser#importDeclaration.
+    def exitImportDeclaration(self, ctx:CMODParser.ImportDeclarationContext):
+        pass
+
+
     # Enter a parse tree produced by CMODParser#externalDeclaration.
     def enterExternalDeclaration(self, ctx:CMODParser.ExternalDeclarationContext):
         pass

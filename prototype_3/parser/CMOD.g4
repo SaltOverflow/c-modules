@@ -1,5 +1,6 @@
 // C99 grammar without trigrams and K&R syntax, originally taken from Annex A of C99 standard and edited
 // Here, we perform a partial parse to extract file-level names
+// We also introduce module syntax to the language
 
 grammar CMOD;
 
@@ -18,6 +19,7 @@ keyword
     | 'enum' | 'extern' | 'float' | 'for' | 'goto' | 'if' | 'inline' | 'int' | 'long' | 'register'
     | 'restrict' | 'return' | 'short' | 'signed' | 'sizeof' | 'static' | 'struct' | 'switch' | 'typedef' | 'union'
     | 'unsigned' | 'void' | 'volatile' | 'while' | '_Bool' | '_Complex' | '_Imaginary'
+    | 'module' | 'import' | 'export'
     ;
 
 Identifier
@@ -409,11 +411,19 @@ compilationUnit
     ;
 
 translationUnit
-    : externalDeclaration+
+    : moduleDeclaration importDeclaration* externalDeclaration*
+    ;
+
+moduleDeclaration
+    : 'module' Identifier ';'
+    ;
+
+importDeclaration
+    : 'import' Identifier ';'
     ;
 
 externalDeclaration
-    : functionDefinition | declaration
+    : 'export'? (functionDefinition | declaration)
     ;
 
 functionDefinition
