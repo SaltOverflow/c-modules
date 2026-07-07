@@ -4,6 +4,7 @@ from pprint import pprint
 from antlr4 import *
 from parser.CMODLexer import CMODLexer
 from parser.CMODParser import CMODParser
+from src.ListenerExtractSymbolDefinitions import *
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -68,44 +69,31 @@ def generate_code(args):
         return module_imports[module_name]
 
     # Gets info for symbols of module
-    # (output: get_symbol_list())
-    module_symbols = {}  # dict[module_name: str, list[(symbol_name: str, idx: int, exported: bool)]]
+    # (output: get_symbol_list(), module_anonymous_map)
+    module_symbols = {}  # dict[module_name: str, list[(name: str, is_exported: bool, SymbolType, ctx, idx?: int)]]
+    starting_anonymous_id = [0]
+    module_anonymous_map = {}  # dict[module_name: str, dict[start_token_idx: int, str]]
     def get_symbol_list(module_name: str):
         def insert_symbol_list(module_name):
             _, _, tree = get_module_info(module_name)
-            symbol_list = []  # list[(symbol_name: str, idx: int, exported: bool)]
-            for idx, externalDeclaration in enumerate(tree.translationUnit().externalDeclaration()):
-                if externalDeclaration.getChild(0).getText() == ';':
-                    continue
-                exported = externalDeclaration.getChild(0).getText() == 'export'
-                structUnionDefinition = externalDeclaration.structUnionDefinition()
-                typedefDefinition = externalDeclaration.typedefDefinition()
-                enumDefinition = externalDeclaration.enumDefinition()
-                globalDefinition = externalDeclaration.globalDefinition()
-                functionDefinition = externalDeclaration.functionDefinition()
-                if structUnionDefinition:
-                    symbol_name = (structUnionDefinition.getChild(0).getText() + " " +
-                                   structUnionDefinition.Identifier().getText())
-                elif typedefDefinition:
-                    symbol_name = typedefDefinition.Identifier().getText()
-                elif globalDefinition:
-                    symbol_name = globalDefinition.declarator().Identifier().getText()
-                elif functionDefinition:
-                    symbol_name = functionDefinition.declarator().Identifier().getText()
-                if enumDefinition:
-                    if enumDefinition.Identifier():
-                        symbol_name = enumDefinition.Identifier().getText()
-                        symbol_list.append((symbol_name, idx, exported))
-                    for enumerator in enumDefinition.enumerator():
-                        symbol_name = enumerator.Identifier().getText()
-                        symbol_list.append((symbol_name, idx, exported))
-                else:
-                    symbol_list.append((symbol_name, idx, exported))
-            module_symbols[module_name] = symbol_list
+            walker = ParseTreeWalker()
+            lExtractSymbolDefinitions = ListenerExtractSymbolDefinitions(starting_anonymous_id[0])
+            walker.walk(lExtractSymbolDefinitions, tree)
+            module_anonymous_map[module_name] = lExtractSymbolDefinitions.anonymous_map
+            starting_anonymous_id[0] = lExtractSymbolDefinitions.anonymous_id
+            module_symbols[module_name] = lExtractSymbolDefinitions.symbol_definitions
 
         if module_name not in module_symbols:
             insert_symbol_list(module_name)
         return module_symbols[module_name]
+    
+    get_symbol_list(input_module)
+    pprint(module_symbols)
+    pprint(module_anonymous_map)
+
+    # The code below is under revision. It uses the old definition of module_symbols:
+    # module_symbols = {}  # dict[module_name: str, list[(symbol_name: str, idx: int, exported: bool)]]
+    return
 
     # Gets info for symbols via lookup
     # (output: lookup_symbol())
