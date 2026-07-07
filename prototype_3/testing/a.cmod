@@ -1,6 +1,6 @@
-module A;
+module a;
 
-import Basic;
+import basic;
 
 export struct S foo(int i, int j, int k) {
     struct S s;

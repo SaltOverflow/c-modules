@@ -1,14 +1,13 @@
-# Given a symbol definition, returns token ranges to cut out
-# (so only one symbol is defined at a time)
+# Grab all symbol definitions in the AST
 
-# # Example code
+# # Example code (execute inside src/)
 # from antlr4 import *
 # from parser.CMODLexer import CMODLexer
 # from parser.CMODParser import CMODParser
 # from ListenerExtractSymbolDefinitions import *
 # from pprint import pprint
 #
-# input_stream = FileStream("testing/clockwiseRule.cmod")
+# input_stream = FileStream("../testing/clockwiseRule.cmod")
 # text = str(input_stream)
 # lexer = CMODLexer(input_stream)
 # tokens = lexer.getAllTokens()
@@ -80,11 +79,11 @@ class ListenerExtractSymbolDefinitions(CMODListener):
         self.export_status = False
 
     def exitStructOrUnionSpecifier(self, ctx: CMODParser.StructOrUnionSpecifierContext):
-        if ctx.structDeclaration() is None:
+        if not ctx.structDeclaration():
             return
         if ctx.Identifier() is None:
-            name = '_anon_' + ctx.structOrUnion().getText() + '_' + self.anonymous_id
-            self.anonymous_map[self.anonymous_id] = name
+            name = '_anon_' + ctx.structOrUnion().getText() + '_' + str(self.anonymous_id)
+            self.anonymous_map[ctx.getSourceInterval()[0]] = name
             self.anonymous_id += 1
         else:
             name: str = ctx.Identifier().getText()
@@ -100,7 +99,7 @@ class ListenerExtractSymbolDefinitions(CMODListener):
             return
         if ctx.Identifier() is None:
             name = '_anon_enum_' + self.anonymous_id
-            self.anonymous_map[self.anonymous_id] = name
+            self.anonymous_map[ctx.getSourceInterval()[0]] = name
             self.anonymous_id += 1
         else:
             name: str = ctx.Identifier().getText()
