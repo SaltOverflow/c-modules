@@ -25,6 +25,7 @@ from antlr4 import *
 from parser.CMODListener import CMODListener
 from parser.CMODParser import CMODParser
 from enum import Enum, auto
+from typing import NamedTuple
 
 class SymbolType(Enum):
     STRUCT = auto()  # ctx: StructOrUnionSpecifierContext
@@ -35,13 +36,20 @@ class SymbolType(Enum):
     VARIABLE = auto()  # ctx: DeclarationContext
     FUNCTION = auto()  # ctx: FunctionDefinitionContext
 
+class SymbolInfo(NamedTuple):
+    name: str
+    is_exported: bool
+    symbolType: SymbolType
+    ctx: ParserRuleContext  # see SymbolType for disambiguation
+    idx: int | None = None  # set in ENUM_CONSTANT, TYPEDEF, VARIABLE
+
 class ListenerExtractSymbolDefinitions(CMODListener):
     def __init__(self, starting_anonymous_id: int = 0):
         super().__init__()
         self.reset(starting_anonymous_id)
     
     def reset(self, starting_anonymous_id: int = 0):
-        self.symbol_definitions = []  # list[(name: str, is_exported: bool, SymbolType, ctx, idx?: int)]
+        self.symbol_definitions: list[SymbolInfo] = []  # list[SymbolInfo]
         self.anonymous_id = starting_anonymous_id  # int
         self.anonymous_map = {}  # dict[start_token_idx: int, str]
         # The rest are for internal computation
@@ -91,7 +99,7 @@ class ListenerExtractSymbolDefinitions(CMODListener):
                 # Let it keep going
                 print(f"// ERROR: name starts with _anon_ for {name}")
         symbolType = SymbolType.STRUCT if ctx.structOrUnion().getText() == 'struct' else SymbolType.UNION
-        self.symbol_definitions.append((name, self.export_status, symbolType, ctx))
+        self.symbol_definitions.append(SymbolInfo(name, self.export_status, symbolType, ctx))
         # Nested structs are also in file-level scope (handled automatically)
 
     def exitEnumSpecifier(self, ctx: CMODParser.EnumSpecifierContext):
@@ -106,10 +114,10 @@ class ListenerExtractSymbolDefinitions(CMODListener):
             if name.startswith('_anon_'):
                 # Let it keep going
                 print(f"// ERROR: name starts with _anon_ for {name}")
-        self.symbol_definitions.append((name, self.export_status, SymbolType.ENUM, ctx))
+        self.symbol_definitions.append(SymbolInfo(name, self.export_status, SymbolType.ENUM, ctx))
         # Enumeration constants are also in file-level scope
         for idx, enum_name in enumerate(self.enum_names):
-            self.symbol_definitions.append((enum_name, self.export_status, SymbolType.ENUM_CONSTANT, ctx, idx))
+            self.symbol_definitions.append(SymbolInfo(enum_name, self.export_status, SymbolType.ENUM_CONSTANT, ctx, idx))
         self.enum_names = []
 
     def exitEnumerationConstant(self, ctx: CMODParser.EnumerationConstantContext):
@@ -117,7 +125,7 @@ class ListenerExtractSymbolDefinitions(CMODListener):
 
     def exitFunctionDefinition(self, ctx: CMODParser.FunctionDefinitionContext):
         name = self.getNameFromDeclarator(ctx.declarator())
-        self.symbol_definitions.append((name, self.export_status, SymbolType.FUNCTION, ctx))
+        self.symbol_definitions.append(SymbolInfo(name, self.export_status, SymbolType.FUNCTION, ctx))
 
     def exitDeclaration(self, ctx: CMODParser.DeclarationContext):
         if ctx.initDeclaratorList() is None:
@@ -130,4 +138,4 @@ class ListenerExtractSymbolDefinitions(CMODListener):
             name = self.getNameFromDeclarator(initDeclarator.declarator())
             if self.function_prototype:
                 continue
-            self.symbol_definitions.append((name, self.export_status, symbolType, ctx, idx))
+            self.symbol_definitions.append(SymbolInfo(name, self.export_status, symbolType, ctx, idx))

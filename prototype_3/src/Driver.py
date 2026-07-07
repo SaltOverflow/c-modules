@@ -70,10 +70,10 @@ def generate_code(args):
 
     # Gets info for symbols of module
     # (output: get_symbol_list(), module_anonymous_map)
-    module_symbols = {}  # dict[module_name: str, list[(name: str, is_exported: bool, SymbolType, ctx, idx?: int)]]
+    module_symbols: dict[str, list[SymbolInfo]] = {}  # dict[module_name: str, list[SymbolInfo]]
     starting_anonymous_id = [0]
     module_anonymous_map = {}  # dict[module_name: str, dict[start_token_idx: int, str]]
-    def get_symbol_list(module_name: str):
+    def get_symbol_list(module_name: str) -> list[SymbolInfo]:
         def insert_symbol_list(module_name):
             _, _, tree = get_module_info(module_name)
             walker = ParseTreeWalker()
