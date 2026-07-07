@@ -86,33 +86,26 @@ def generate_code(args):
         if module_name not in module_symbols:
             insert_symbol_list(module_name)
         return module_symbols[module_name]
-    
-    get_symbol_list(input_module)
-    pprint(module_symbols)
-    pprint(module_anonymous_map)
-
-    # The code below is under revision. It uses the old definition of module_symbols:
-    # module_symbols = {}  # dict[module_name: str, list[(symbol_name: str, idx: int, exported: bool)]]
-    return
 
     # Gets info for symbols via lookup
     # (output: lookup_symbol())
-    module_lookup = {}  # dict[parent_module_name: str, dict[symbol_name: str, (module_name: str, idx: int)]]
-    def lookup_symbol(parent_module_name: str, symbol_name: str) -> tuple[str, int] | None:
+    module_lookup = {}  # dict[parent_module_name: str, dict[symbol_name: str, (module_name: str, SymbolInfo)]]
+                        # Using `symbol_name` in `parent_module_name` refers to symbol defined in `module_name`
+    def lookup_symbol(parent_module_name: str, symbol_name: str) -> tuple[str, SymbolInfo] | None:
         def generate_symbol_table(parent_module_name):
-            symbol_table = {}  # dict[symbol_name: str, (module_name: str, idx: int)]
-            def add_to_symbol_table(symbol_name, module_name, idx):
+            symbol_table = {}  # dict[symbol_name: str, (module_name: str, SymbolInfo)]
+            def add_to_symbol_table(symbol_name, module_name, symbolInfo):
                 if symbol_name in symbol_table:
                     # Let it keep going with errors
                     print(f"// ERROR: symbol name clash for {symbol_name}")
                 else:
-                    symbol_table[symbol_name] = module_name, idx
-            for symbol_name, idx, _ in get_symbol_list(parent_module_name):
-                add_to_symbol_table(symbol_name, parent_module_name, idx)
+                    symbol_table[symbol_name] = module_name, symbolInfo
+            for symbolInfo in get_symbol_list(parent_module_name):
+                add_to_symbol_table(symbolInfo.name, parent_module_name, symbolInfo)
             for module_name in get_imports(parent_module_name):
-                for symbol_name, idx, exported in get_symbol_list(module_name):
-                    if exported:
-                        add_to_symbol_table(symbol_name, module_name, idx)
+                for symbolInfo in get_symbol_list(module_name):
+                    if symbolInfo.is_exported:
+                        add_to_symbol_table(symbolInfo.name, module_name, symbolInfo)
             module_lookup[parent_module_name] = symbol_table
 
         if parent_module_name not in module_lookup:
@@ -122,6 +115,10 @@ def generate_code(args):
         else:
             # if symbol not found, hopefully it's fine
             return None
+
+    lookup_symbol(input_module, "hello")
+    pprint(module_lookup)
+    return
 
     # Generate the supporting code for a given symbol definition
     # (output: codegen())
