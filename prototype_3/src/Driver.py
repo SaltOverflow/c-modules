@@ -5,6 +5,7 @@ from antlr4 import *
 from parser.CMODLexer import CMODLexer
 from parser.CMODParser import CMODParser
 from src.ListenerExtractSymbolDefinitions import *
+from src.ListenerCodegenHelper import *
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -116,8 +117,62 @@ def generate_code(args):
             # if symbol not found, hopefully it's fine
             return None
 
-    lookup_symbol(input_module, "hello")
-    pprint(module_lookup)
+    def codegen(module_name: str, symbolInfo: SymbolInfo):
+        # First extract useful codegen information
+        get_symbol_list(module_name)  # side effect: fills module_anonymous_map (technically unnecessary because already called)
+        walker = ParseTreeWalker()
+        lCodegenHelper = ListenerCodegenHelper(symbolInfo.name, module_anonymous_map[module_name])
+        if symbolInfo.symbolType == SymbolType.TYPEDEF or symbolInfo.symbolType == SymbolType.VARIABLE:
+            walker.walk(lCodegenHelper, symbolInfo.ctx.declarationSpecifiers())
+            walker.walk(lCodegenHelper, symbolInfo.ctx.initDeclaratorList().initDeclarator(symbolInfo.idx))
+        else:
+            walker.walk(lCodegenHelper, symbolInfo.ctx)
+
+        # Then recurse on symbols our definition depends on
+        print(f"{symbolInfo.name} depends on {lCodegenHelper.symbol_dependencies.keys()}")
+        return
+        for symbol_name in lCodegenHelper.symbol_dependencies:
+            ls = lookup_symbol(module_name, symbol_name)
+            if ls is not None:
+                codegen(*ls)
+
+        # Now we output code for the stripped definition
+        # ie. `struct S {int i;} a;` becomes `struct S  a;`
+        text, tokens, _ = get_module_info(module_name)
+        clip_ranges_idx, anonymous_names_idx = 0, 0
+        def outputCode(ctx):
+            nonlocal clip_ranges_idx, anonymous_names_idx
+            token_start, token_end = ctx.getSourceInterval()
+            token_idx = token_start
+            while token_idx <= token_end:
+                if clip_ranges_idx < len(lCodegenHelper.clip_ranges):
+                    start_clip, end_clip = lCodegenHelper.clip_ranges[clip_ranges_idx]
+                    text_start, text_end = tokens[token_idx].start, tokens[start_clip-1].stop
+                    code = text[text_start:text_end+1]
+                    # print(code, end=None)
+                    if anonymous_names_idx < len(lCodegenHelper.anonymous_names):
+                        if lCodegenHelper.anonymous_names[anonymous_names_idx][0] < start_clip:
+                            name = lCodegenHelper.anonymous_names[anonymous_names_idx][1]
+                            # print(name + ' ', end=None)
+                            anonymous_names_idx += 1
+                    token_idx = end_clip + 1
+                    clip_ranges_idx += 1
+                else:
+                    text_start, text_end = tokens[token_idx].start, tokens[token_end].stop
+                    code = text[text_start:text_end+1]
+                    # print(code, end=None)
+                    token_idx = token_end + 1
+        if symbolInfo.symbolType == SymbolType.TYPEDEF or symbolInfo.symbolType == SymbolType.VARIABLE:
+            outputCode(symbolInfo.ctx.declarationSpecifiers())
+            # print(' ', end=None)
+            outputCode(symbolInfo.ctx.initDeclaratorList().initDeclarator(symbolInfo.idx))
+            # print()
+        else:
+            outputCode(symbolInfo.ctx)
+            # print()
+
+    for symbolInfo in get_symbol_list(input_module):
+        codegen(input_module, symbolInfo)
     return
 
     # Generate the supporting code for a given symbol definition

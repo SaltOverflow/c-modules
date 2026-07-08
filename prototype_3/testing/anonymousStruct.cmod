@@ -1,0 +1,3 @@
+module anonymousStruct;
+
+export struct { int i; } a, b = a;
