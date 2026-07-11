@@ -210,7 +210,9 @@ punctuator
 
 skipTokens
     // This captures CharacterConstant and StringLiteral because those are tokens
-    : ~('(' | ')' | '[' | ']' | '{' | '}' | ',' | ';')
+    : ~('(' | ')' | '[' | ']' | '{' | '}' | ',' | ';'
+        | 'struct' | 'union' | 'enum')
+    | ('struct' | 'union' | 'enum') Identifier
     ;
 
 constantExpression

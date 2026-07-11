@@ -18,7 +18,7 @@
 # tree = parser.compilationUnit()
 #
 # walker = ParseTreeWalker()
-# lCodegenHelper = ListenerCodegenHelper("b", {8: "_anon_struct_0"})
+# lCodegenHelper = ListenerCodegenHelper("b", SymbolLookupKind.IDENTIFIER, {8: "_anon_struct_0"})
 # d = tree.translationUnit().externalDeclaration(0).declaration()
 # walker.walk(lCodegenHelper, d.declarationSpecifiers())
 # walker.walk(lCodegenHelper, d.initDeclaratorList().initDeclarator(1))
@@ -30,21 +30,32 @@
 from antlr4 import *
 from parser.CMODListener import CMODListener
 from parser.CMODParser import CMODParser
-from parser.CMODLexer import CMODLexer
 from collections import defaultdict
+from enum import StrEnum, auto
+
+class SymbolLookupKind(StrEnum):
+    STRUCT = auto()
+    UNION = auto()
+    ENUM = auto()
+    IDENTIFIER = auto()
+
+    @classmethod
+    def _missing_(cls, value):
+        return cls.IDENTIFIER
 
 class ListenerCodegenHelper(CMODListener):
-    def __init__(self, definition_name: str, anonymous_map: dict[int, str]):
+    def __init__(self, definition_name: str, definition_kind: SymbolLookupKind, anonymous_map: dict[int, str]):
         super().__init__()
-        self.reset(definition_name, anonymous_map)
+        self.reset(definition_name, definition_kind, anonymous_map)
 
-    def reset(self, definition_name: str, anonymous_map: dict[int, str]):
+    def reset(self, definition_name: str, definition_kind: SymbolLookupKind, anonymous_map: dict[int, str]):
         # Output values
         self.clip_ranges = []  # list[(start_token_idx: int, end_token_idx: int)]
         self.anonymous_names = []  # list[(idx: int, name: str)]
-        self.symbol_dependencies = defaultdict(list)  # dict[symbol_name: str, list[idx: int]]
+        self.symbol_dependencies = {kind: defaultdict(list) for kind in SymbolLookupKind}  # dict[symbol_kind: SymbolLookupKind, dict[symbol_name: str, list[idx: int]]]
         # Input values
         self.definition_name = definition_name  # name of definition to keep
+        self.definition_kind = definition_kind  # and its kind
         self.anonymous_map = anonymous_map  # names for anonymous types
         # for internal computation
         self.start_clip_info: tuple[int, ParserRuleContext] | None = None
@@ -64,9 +75,10 @@ class ListenerCodegenHelper(CMODListener):
         else:
             idx = ctx.Identifier().getSourceInterval()[0]
             name: str = ctx.Identifier().getText()
-        if name == self.definition_name:
+        kind = SymbolLookupKind.STRUCT if ctx.getChild(0).getText() == 'struct' else SymbolLookupKind.ENUM
+        if kind == self.definition_kind and name == self.definition_name:
             return
-        self.symbol_dependencies[name].append(idx)
+        self.symbol_dependencies[kind][name].append(idx)
         if not ctx.structDeclaration():
             return
         self.start_clip_info = ctx.getChild(1).getSourceInterval()[0], ctx
@@ -92,9 +104,10 @@ class ListenerCodegenHelper(CMODListener):
         else:
             idx = ctx.Identifier().getSourceInterval()[0]
             name: str = ctx.Identifier().getText()
-        if name == self.definition_name:
+        kind = SymbolLookupKind.ENUM
+        if kind == self.definition_kind and name == self.definition_name:
             return
-        self.symbol_dependencies[name].append(idx)
+        self.symbol_dependencies[kind][name].append(idx)
         if ctx.enumeratorList() is None:
             return
         self.start_clip_info = ctx.getChild(1).getSourceInterval()[0], ctx
@@ -109,17 +122,22 @@ class ListenerCodegenHelper(CMODListener):
         if self.start_clip_info is not None:
             # Listener traverses entire AST, but we want to skip clipped sections
             return
-        if ctx.getText() == self.definition_name:
+        idx = ctx.Identifier().getSourceInterval()[0]
+        name = ctx.getText()
+        kind = SymbolLookupKind.IDENTIFIER
+        if kind == self.definition_kind and name == self.definition_name:
             return
-        self.symbol_dependencies[ctx.getText()].append(ctx.getSourceInterval()[0])
+        self.symbol_dependencies[kind][name].append(idx)
 
     def exitSkipTokens(self, ctx: CMODParser.SkipTokensContext):
         if self.start_clip_info is not None:
             # Listener traverses entire AST, but we want to skip clipped sections
             return
-        node = ctx.getChild(0)
-        if node.getSymbol().type != CMODLexer.Identifier:
+        if ctx.Identifier() is None:
             return
-        if node.getText() == self.definition_name:
+        idx = ctx.Identifier().getSourceInterval()[0]
+        name = ctx.Identifier().getText()
+        kind = SymbolLookupKind(ctx.getChild(0).getText())
+        if kind == self.definition_kind and name == self.definition_name:
             return
-        self.symbol_dependencies[node.getText()].append(node.getSourceInterval()[0])
+        self.symbol_dependencies[kind][name].append(idx)
