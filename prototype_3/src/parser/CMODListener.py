@@ -251,6 +251,15 @@ class CMODListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CMODParser#rootDeclarator.
+    def enterRootDeclarator(self, ctx:CMODParser.RootDeclaratorContext):
+        pass
+
+    # Exit a parse tree produced by CMODParser#rootDeclarator.
+    def exitRootDeclarator(self, ctx:CMODParser.RootDeclaratorContext):
+        pass
+
+
     # Enter a parse tree produced by CMODParser#declarator.
     def enterDeclarator(self, ctx:CMODParser.DeclaratorContext):
         pass
@@ -302,6 +311,15 @@ class CMODListener(ParseTreeListener):
 
     # Exit a parse tree produced by CMODParser#parameterDeclaration.
     def exitParameterDeclaration(self, ctx:CMODParser.ParameterDeclarationContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODParser#rootAbstractDeclarator.
+    def enterRootAbstractDeclarator(self, ctx:CMODParser.RootAbstractDeclaratorContext):
+        pass
+
+    # Exit a parse tree produced by CMODParser#rootAbstractDeclarator.
+    def exitRootAbstractDeclarator(self, ctx:CMODParser.RootAbstractDeclaratorContext):
         pass
 
 

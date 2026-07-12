@@ -20,8 +20,10 @@
 # walker = ParseTreeWalker()
 # lCodegenHelper = ListenerCodegenHelper("b", SymbolLookupKind.IDENTIFIER, {8: "_anon_struct_0"})
 # d = tree.translationUnit().externalDeclaration(0).declaration()
+# lCodegenHelper.pushDeclarationStack()
 # walker.walk(lCodegenHelper, d.declarationSpecifiers())
 # walker.walk(lCodegenHelper, d.initDeclaratorList().initDeclarator(1))
+# lCodegenHelper.popDeclarationStack()
 # pprint(lCodegenHelper.clip_ranges)
 # pprint(lCodegenHelper.anonymous_names)
 # pprint(lCodegenHelper.symbol_dependencies)
@@ -32,6 +34,7 @@ from parser.CMODListener import CMODListener
 from parser.CMODParser import CMODParser
 from collections import defaultdict
 from enum import StrEnum, auto
+from typing import NamedTuple
 
 class SymbolLookupKind(StrEnum):
     STRUCT = auto()
@@ -52,13 +55,70 @@ class ListenerCodegenHelper(CMODListener):
         # Output values
         self.clip_ranges = []  # list[(start_token_idx: int, end_token_idx: int)]
         self.anonymous_names = []  # list[(idx: int, name: str)]
-        self.symbol_dependencies = {kind: defaultdict(list) for kind in SymbolLookupKind}  # dict[symbol_kind: SymbolLookupKind, dict[symbol_name: str, list[idx: int]]]
+        self.symbol_dependencies = {kind: defaultdict(lambda: False) for kind in SymbolLookupKind}  # dict[symbol_kind: SymbolLookupKind, dict[symbol_name: str, needs_defn: bool]]
         # Input values
         self.definition_name = definition_name  # name of definition to keep
         self.definition_kind = definition_kind  # and its kind
         self.anonymous_map = anonymous_map  # names for anonymous types
         # for internal computation
         self.start_clip_info: tuple[int, ParserRuleContext] | None = None
+        self.declaration_stack: list[ListenerCodegenHelper.SymbolDependencyInfo] = []
+
+    class SymbolDependencyInfo:
+        def __init__(self):
+            self.name: str | None = None
+            self.kind: SymbolLookupKind | None = None
+            self.needs_defn: list[bool] = []
+
+    def pushDeclarationStack(self):
+        self.declaration_stack.append(self.SymbolDependencyInfo())
+    
+    def popDeclarationStack(self, needs_defn_override: bool | None = None):
+        sdi = self.declaration_stack.pop()
+        if sdi.kind is None or sdi.name is None:
+            return
+        if needs_defn_override is not None:
+            self.symbol_dependencies[sdi.kind][sdi.name] |= needs_defn_override
+        else:
+            self.symbol_dependencies[sdi.kind][sdi.name] |= any(sdi.needs_defn)
+
+    def enterDeclaration(self, ctx):
+        self.pushDeclarationStack()
+    
+    def exitDeclaration(self, ctx):
+        self.popDeclarationStack()
+    
+    def enterStructDeclaration(self, ctx):
+        self.pushDeclarationStack()
+
+    def exitStructDeclaration(self, ctx):
+        self.popDeclarationStack()
+
+    def enterFunctionDefinition(self, ctx):
+        self.pushDeclarationStack()
+
+    def exitFunctionDefinition(self, ctx):
+        self.popDeclarationStack()
+
+    def enterParameterDeclaration(self, ctx):
+        self.pushDeclarationStack()
+    
+    def exitParameterDeclaration(self, ctx):
+        self.popDeclarationStack(False)
+
+    def enterRootDeclarator(self, ctx):
+        self.declaration_stack[-1].needs_defn.append(True)
+    
+    def enterRootAbstractDeclarator(self, ctx):
+        self.declaration_stack[-1].needs_defn.append(True)
+
+    def exitDeclarator(self, ctx: CMODParser.DeclaratorContext):
+        needs_defn = ctx.pointer() is None
+        self.declaration_stack[-1].needs_defn[-1] &= needs_defn
+
+    def exitAbstractDeclarator(self, ctx: CMODParser.AbstractDeclaratorContext):
+        needs_defn = ctx.pointer() is None
+        self.declaration_stack[-1].needs_defn[-1] &= needs_defn
 
     def enterStructOrUnionSpecifier(self, ctx: CMODParser.StructOrUnionSpecifierContext):
         if self.start_clip_info is not None:
@@ -73,12 +133,12 @@ class ListenerCodegenHelper(CMODListener):
             name = self.anonymous_map[idx]
             self.anonymous_names.append((idx, name))
         else:
-            idx = ctx.Identifier().getSourceInterval()[0]
             name: str = ctx.Identifier().getText()
         kind = SymbolLookupKind.STRUCT if ctx.getChild(0).getText() == 'struct' else SymbolLookupKind.ENUM
         if kind == self.definition_kind and name == self.definition_name:
             return
-        self.symbol_dependencies[kind][name].append(idx)
+        self.declaration_stack[-1].name = name
+        self.declaration_stack[-1].kind = kind
         if not ctx.structDeclaration():
             return
         self.start_clip_info = ctx.getChild(1).getSourceInterval()[0], ctx
@@ -102,12 +162,12 @@ class ListenerCodegenHelper(CMODListener):
             name = self.anonymous_map[idx]
             self.anonymous_names.append((idx, name))
         else:
-            idx = ctx.Identifier().getSourceInterval()[0]
             name: str = ctx.Identifier().getText()
         kind = SymbolLookupKind.ENUM
         if kind == self.definition_kind and name == self.definition_name:
             return
-        self.symbol_dependencies[kind][name].append(idx)
+        self.declaration_stack[-1].name = name
+        self.declaration_stack[-1].kind = kind
         if ctx.enumeratorList() is None:
             return
         self.start_clip_info = ctx.getChild(1).getSourceInterval()[0], ctx
@@ -122,12 +182,12 @@ class ListenerCodegenHelper(CMODListener):
         if self.start_clip_info is not None:
             # Listener traverses entire AST, but we want to skip clipped sections
             return
-        idx = ctx.Identifier().getSourceInterval()[0]
         name = ctx.getText()
         kind = SymbolLookupKind.IDENTIFIER
         if kind == self.definition_kind and name == self.definition_name:
             return
-        self.symbol_dependencies[kind][name].append(idx)
+        self.declaration_stack[-1].name = name
+        self.declaration_stack[-1].kind = kind
 
     def exitSkipTokens(self, ctx: CMODParser.SkipTokensContext):
         if self.start_clip_info is not None:
@@ -135,9 +195,8 @@ class ListenerCodegenHelper(CMODListener):
             return
         if ctx.Identifier() is None:
             return
-        idx = ctx.Identifier().getSourceInterval()[0]
         name = ctx.Identifier().getText()
         kind = SymbolLookupKind(ctx.getChild(0).getText())
         if kind == self.definition_kind and name == self.definition_name:
             return
-        self.symbol_dependencies[kind][name].append(idx)
+        self.symbol_dependencies[kind][name] |= True

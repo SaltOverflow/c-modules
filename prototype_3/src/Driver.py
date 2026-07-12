@@ -123,13 +123,15 @@ def generate_code(args):
         walker = ParseTreeWalker()
         lCodegenHelper = ListenerCodegenHelper(symbolInfo.name, SymbolLookupKind(symbolInfo.symbolType.name.lower()), module_anonymous_map[module_name])
         if symbolInfo.symbolType == SymbolType.TYPEDEF or symbolInfo.symbolType == SymbolType.VARIABLE:
+            lCodegenHelper.pushDeclarationStack()
             walker.walk(lCodegenHelper, symbolInfo.ctx.declarationSpecifiers())
             walker.walk(lCodegenHelper, symbolInfo.ctx.initDeclaratorList().initDeclarator(symbolInfo.idx))
+            lCodegenHelper.popDeclarationStack()
         else:
             walker.walk(lCodegenHelper, symbolInfo.ctx)
 
         # Then recurse on symbols our definition depends on
-        print(f"{symbolInfo.name} depends on {[(name, kind.name) for kind, x in lCodegenHelper.symbol_dependencies.items() for name in x.keys()]}")
+        print(f"{symbolInfo.name} depends on {[(name, kind.name, needs_defn) for kind, x in lCodegenHelper.symbol_dependencies.items() for name, needs_defn in x.items()]}")
         return
         for symbol_name in lCodegenHelper.symbol_dependencies:
             ls = lookup_symbol(module_name, symbol_name)

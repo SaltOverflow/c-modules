@@ -258,7 +258,7 @@ initDeclaratorList
     ;
 
 initDeclarator
-    : declarator ('=' initializer)?
+    : rootDeclarator ('=' initializer)?
     ;
 
 storageClassSpecifier
@@ -303,8 +303,8 @@ structDeclaratorList
     ;
 
 structDeclarator
-    : declarator
-    | declarator? ':' constantExpression
+    : rootDeclarator
+    | rootDeclarator? ':' constantExpression
     ;
 
 enumSpecifier
@@ -326,6 +326,10 @@ typeQualifier
 
 functionSpecifier
     : 'inline'
+    ;
+
+rootDeclarator
+    : declarator
     ;
 
 declarator
@@ -356,7 +360,11 @@ parameterTypeList
     ;
 
 parameterDeclaration
-    : declarationSpecifiers (declarator | abstractDeclarator)?
+    : declarationSpecifiers (rootDeclarator | rootAbstractDeclarator)?
+    ;
+
+rootAbstractDeclarator
+    : abstractDeclarator
     ;
 
 abstractDeclarator
@@ -429,7 +437,7 @@ externalDeclaration
     ;
 
 functionDefinition
-    : declarationSpecifiers declarator compoundStatement
+    : declarationSpecifiers rootDeclarator compoundStatement
     ;
 
 // Comments and whitespace

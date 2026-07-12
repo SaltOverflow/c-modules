@@ -124,7 +124,7 @@ class ListenerExtractSymbolDefinitions(CMODListener):
         self.enum_names.append(ctx.Identifier().getText())
 
     def exitFunctionDefinition(self, ctx: CMODParser.FunctionDefinitionContext):
-        name = self.getNameFromDeclarator(ctx.declarator())
+        name = self.getNameFromDeclarator(ctx.rootDeclarator().declarator())
         self.symbol_definitions.append(SymbolInfo(name, self.export_status, SymbolType.FUNCTION, ctx))
 
     def exitDeclaration(self, ctx: CMODParser.DeclarationContext):
@@ -135,7 +135,7 @@ class ListenerExtractSymbolDefinitions(CMODListener):
             if storageClassSpecifier.getText() == 'typedef':
                 symbolType = SymbolType.TYPEDEF
         for idx, initDeclarator in enumerate(ctx.initDeclaratorList().initDeclarator()):
-            name = self.getNameFromDeclarator(initDeclarator.declarator())
+            name = self.getNameFromDeclarator(initDeclarator.rootDeclarator().declarator())
             if self.function_prototype:
                 continue
             self.symbol_definitions.append(SymbolInfo(name, self.export_status, symbolType, ctx, idx))
