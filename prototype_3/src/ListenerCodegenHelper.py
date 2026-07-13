@@ -20,10 +20,10 @@
 # walker = ParseTreeWalker()
 # lCodegenHelper = ListenerCodegenHelper("b", SymbolLookupKind.IDENTIFIER, {8: "_anon_struct_0"})
 # d = tree.translationUnit().externalDeclaration(0).declaration()
-# lCodegenHelper.pushDeclarationStack()
+# lCodegenHelper.enterDeclaration(d)
 # walker.walk(lCodegenHelper, d.declarationSpecifiers())
 # walker.walk(lCodegenHelper, d.initDeclaratorList().initDeclarator(1))
-# lCodegenHelper.popDeclarationStack()
+# lCodegenHelper.exitDeclaration(d)
 # pprint(lCodegenHelper.clip_ranges)
 # pprint(lCodegenHelper.anonymous_names)
 # pprint(lCodegenHelper.symbol_dependencies)
@@ -63,31 +63,33 @@ class ListenerCodegenHelper(CMODListener):
         # for internal computation
         self.start_clip_info: tuple[int, ParserRuleContext] | None = None
         self.declaration_stack: list[ListenerCodegenHelper.SymbolDependencyInfo] = []
+        self.negativeIfParentIsDefinition: int = -1
 
     class SymbolDependencyInfo:
         def __init__(self):
             self.name: str | None = None
             self.kind: SymbolLookupKind | None = None
-            self.needs_defn: list[bool] = []
+            self.needs_defn: bool = False
 
     def pushDeclarationStack(self):
         self.declaration_stack.append(self.SymbolDependencyInfo())
     
-    def popDeclarationStack(self, needs_defn_override: bool | None = None):
+    def popDeclarationStack(self):
         sdi = self.declaration_stack.pop()
         if sdi.kind is None or sdi.name is None:
             return
-        if needs_defn_override is not None:
-            self.symbol_dependencies[sdi.kind][sdi.name] |= needs_defn_override
-        else:
-            self.symbol_dependencies[sdi.kind][sdi.name] |= any(sdi.needs_defn)
+        self.symbol_dependencies[sdi.kind][sdi.name] |= sdi.needs_defn
 
     def enterDeclaration(self, ctx):
         self.pushDeclarationStack()
+        is_extern = any(scs.getText() == 'extern' for scs in ctx.declarationSpecifiers().storageClassSpecifier())
+        self.negativeIfParentIsDefinition += is_extern
     
     def exitDeclaration(self, ctx):
         self.popDeclarationStack()
-    
+        is_extern = any(scs.getText() == 'extern' for scs in ctx.declarationSpecifiers().storageClassSpecifier())
+        self.negativeIfParentIsDefinition -= is_extern
+
     def enterStructDeclaration(self, ctx):
         self.pushDeclarationStack()
 
@@ -96,29 +98,74 @@ class ListenerCodegenHelper(CMODListener):
 
     def enterFunctionDefinition(self, ctx):
         self.pushDeclarationStack()
+        self.negativeIfParentIsDefinition -= 1  # undo effect of enterParameterTypeList
 
     def exitFunctionDefinition(self, ctx):
         self.popDeclarationStack()
+        self.negativeIfParentIsDefinition += 1
 
     def enterParameterDeclaration(self, ctx):
         self.pushDeclarationStack()
     
     def exitParameterDeclaration(self, ctx):
         self.popDeclarationStack(False)
-
-    def enterRootDeclarator(self, ctx):
-        self.declaration_stack[-1].needs_defn.append(True)
     
-    def enterRootAbstractDeclarator(self, ctx):
-        self.declaration_stack[-1].needs_defn.append(True)
+    def enterParameterTypeList(self, ctx):
+        self.negativeIfParentIsDefinition += 1
+    
+    def exitParameterTypeList(self, ctx):
+        self.negativeIfParentIsDefinition -= 1
 
-    def exitDeclarator(self, ctx: CMODParser.DeclaratorContext):
-        needs_defn = ctx.pointer() is None
-        self.declaration_stack[-1].needs_defn[-1] &= needs_defn
-
-    def exitAbstractDeclarator(self, ctx: CMODParser.AbstractDeclaratorContext):
-        needs_defn = ctx.pointer() is None
-        self.declaration_stack[-1].needs_defn[-1] &= needs_defn
+    def exitRootDeclarator(self, ctx: CMODParser.RootDeclaratorContext):
+        is_pointer_of_type = False
+        is_array_of_type = False
+        def recurseDeclarator(ctx: CMODParser.DeclaratorContext):
+            nonlocal is_pointer_of_type
+            if ctx.pointer() is not None:
+                is_pointer_of_type = True
+                return
+            recurseDirectDeclarator(ctx.directDeclarator())
+        def recurseDirectDeclarator(ctx: CMODParser.DirectDeclaratorContext):
+            nonlocal is_array_of_type
+            if ctx.getChild(ctx.getChildCount()-1).getText() == ']':
+                is_array_of_type = True
+                return
+            if ctx.declarator() is not None:
+                recurseDeclarator(ctx.declarator())
+        recurseDeclarator(ctx.declarator())
+        if is_array_of_type:
+            needs_defn = True  # C99 standard 6.7.5.2/1
+        elif is_pointer_of_type:
+            needs_defn = False
+        else:
+            needs_defn = self.negativeIfParentIsDefinition < 0
+        self.declaration_stack[-1].needs_defn |= needs_defn
+    
+    def exitRootAbstractDeclarator(self, ctx: CMODParser.RootAbstractDeclaratorContext):
+        is_pointer_of_type = False
+        is_array_of_type = False
+        def recurseAbstractDeclarator(ctx: CMODParser.AbstractDeclaratorContext):
+            nonlocal is_pointer_of_type
+            if ctx.pointer() is not None:
+                is_pointer_of_type = True
+                return
+            if ctx.directAbstractDeclarator():
+                recurseDirectAbstractDeclarator(ctx.directAbstractDeclarator())
+        def recurseDirectAbstractDeclarator(ctx: CMODParser.DirectAbstractDeclaratorContext):
+            nonlocal is_array_of_type
+            if ctx.directAbstractDeclaratorAfter():
+                directAbstractDeclaratorAfter = ctx.getChild(ctx.getChildCount()-1)
+                is_array_of_type = directAbstractDeclaratorAfter.getChild(0).getText() == '['
+                return
+            recurseAbstractDeclarator(ctx.abstractDeclarator())
+        recurseAbstractDeclarator(ctx.abstractDeclarator())
+        if is_array_of_type:
+            needs_defn = True  # C99 standard 6.7.5.2/1
+        elif is_pointer_of_type:
+            needs_defn = False
+        else:
+            needs_defn = self.negativeIfParentIsDefinition < 0
+        self.declaration_stack[-1].needs_defn |= needs_defn
 
     def enterStructOrUnionSpecifier(self, ctx: CMODParser.StructOrUnionSpecifierContext):
         if self.start_clip_info is not None:
