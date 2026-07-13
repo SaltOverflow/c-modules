@@ -4,8 +4,9 @@ from pprint import pprint
 from antlr4 import *
 from parser.CMODLexer import CMODLexer
 from parser.CMODParser import CMODParser
-from src.ListenerExtractSymbolDefinitions import *
-from src.ListenerCodegenHelper import *
+from ListenerExtractSymbolDefinitions import *
+from ListenerCodegenHelper import *
+from PruningHelpers import *
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -120,7 +121,7 @@ def generate_code(args):
     def codegen(module_name: str, symbolInfo: SymbolInfo):
         # First extract useful codegen information
         get_symbol_list(module_name)  # side effect: fills module_anonymous_map (technically unnecessary because already called)
-        walker = ParseTreeWalker()
+        walker = ParseTreeWalkerWithPruning()
         lCodegenHelper = ListenerCodegenHelper(symbolInfo.name, SymbolLookupKind(symbolInfo.symbolType.name.lower()), module_anonymous_map[module_name])
         if symbolInfo.symbolType == SymbolType.TYPEDEF or symbolInfo.symbolType == SymbolType.VARIABLE:
             lCodegenHelper.pushDeclarationStack()

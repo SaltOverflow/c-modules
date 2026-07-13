@@ -7,6 +7,7 @@
 # from parser.CMODParser import CMODParser
 # from ListenerCodegenHelper import *
 # from pprint import pprint
+# from PruningHelpers import *
 #
 # input_stream = FileStream("../testing/anonymousStruct.cmod")
 # text = str(input_stream)
@@ -17,7 +18,7 @@
 # parser = CMODParser(stream)
 # tree = parser.compilationUnit()
 #
-# walker = ParseTreeWalker()
+# walker = ParseTreeWalkerWithPruning()
 # lCodegenHelper = ListenerCodegenHelper("b", SymbolLookupKind.IDENTIFIER, {8: "_anon_struct_0"})
 # d = tree.translationUnit().externalDeclaration(0).declaration()
 # lCodegenHelper.enterDeclaration(d)
@@ -34,7 +35,7 @@ from parser.CMODListener import CMODListener
 from parser.CMODParser import CMODParser
 from collections import defaultdict
 from enum import StrEnum, auto
-from typing import NamedTuple
+from PruningHelpers import *
 
 class SymbolLookupKind(StrEnum):
     STRUCT = auto()
@@ -46,7 +47,9 @@ class SymbolLookupKind(StrEnum):
     def _missing_(cls, value):
         return cls.IDENTIFIER
 
-class ListenerCodegenHelper(CMODListener):
+# NOTE: ParseTreeWalkerWithPruning needs to be used instead of ParseTreeWalker,
+# or you grab unnecessary dependencies
+class ListenerCodegenHelper(CMODListener, ParseTreeListenerWithPruning):
     def __init__(self, definition_name: str, definition_kind: SymbolLookupKind, anonymous_map: dict[int, str]):
         super().__init__()
         self.reset(definition_name, definition_kind, anonymous_map)
@@ -65,6 +68,9 @@ class ListenerCodegenHelper(CMODListener):
         self.declaration_stack: list[ListenerCodegenHelper.SymbolDependencyInfo] = []
         self.negativeIfParentIsDefinition: int = -1
 
+    def shouldContinue(self) -> bool:
+        return self.start_clip_info is None
+
     class SymbolDependencyInfo:
         def __init__(self):
             self.name: str | None = None
@@ -74,10 +80,11 @@ class ListenerCodegenHelper(CMODListener):
     def pushDeclarationStack(self):
         self.declaration_stack.append(self.SymbolDependencyInfo())
     
-    def popDeclarationStack(self):
+    def popDeclarationStack(self, needs_defn_override: bool | None = None):
         sdi = self.declaration_stack.pop()
         if sdi.kind is None or sdi.name is None:
             return
+        needs_defn = sdi.needs_defn if needs_defn_override is None else needs_defn_override
         self.symbol_dependencies[sdi.kind][sdi.name] |= sdi.needs_defn
 
     def enterDeclaration(self, ctx):
@@ -108,7 +115,10 @@ class ListenerCodegenHelper(CMODListener):
         self.pushDeclarationStack()
     
     def exitParameterDeclaration(self, ctx):
-        self.popDeclarationStack(False)
+        if self.negativeIfParentIsDefinition < 0:
+            self.popDeclarationStack()
+        else:
+            self.popDeclarationStack(False)
     
     def enterParameterTypeList(self, ctx):
         self.negativeIfParentIsDefinition += 1
@@ -168,9 +178,6 @@ class ListenerCodegenHelper(CMODListener):
         self.declaration_stack[-1].needs_defn |= needs_defn
 
     def enterStructOrUnionSpecifier(self, ctx: CMODParser.StructOrUnionSpecifierContext):
-        if self.start_clip_info is not None:
-            # Listener traverses entire AST, but we want to skip clipped sections
-            return
         if ctx.Identifier() is None:
             idx = ctx.getSourceInterval()[0]
             if idx not in self.anonymous_map:
@@ -197,9 +204,6 @@ class ListenerCodegenHelper(CMODListener):
                 self.start_clip_info = None
 
     def enterEnumSpecifier(self, ctx: CMODParser.EnumSpecifierContext):
-        if self.start_clip_info is not None:
-            # Listener traverses entire AST, but we want to skip clipped sections
-            return
         if ctx.Identifier() is None:
             idx = ctx.getSourceInterval()[0]
             if idx not in self.anonymous_map:
@@ -226,9 +230,6 @@ class ListenerCodegenHelper(CMODListener):
                 self.start_clip_info = None
 
     def exitTypedefName(self, ctx: CMODParser.TypedefNameContext):
-        if self.start_clip_info is not None:
-            # Listener traverses entire AST, but we want to skip clipped sections
-            return
         name = ctx.getText()
         kind = SymbolLookupKind.IDENTIFIER
         if kind == self.definition_kind and name == self.definition_name:
@@ -237,9 +238,6 @@ class ListenerCodegenHelper(CMODListener):
         self.declaration_stack[-1].kind = kind
 
     def exitSkipTokens(self, ctx: CMODParser.SkipTokensContext):
-        if self.start_clip_info is not None:
-            # Listener traverses entire AST, but we want to skip clipped sections
-            return
         if ctx.Identifier() is None:
             return
         name = ctx.Identifier().getText()
