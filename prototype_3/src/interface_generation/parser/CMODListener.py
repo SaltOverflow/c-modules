@@ -3,7 +3,7 @@ from antlr4 import *
 if "." in __name__:
     from .CMODParser import CMODParser
 else:
-    from CMODParser import CMODParser
+    from prototype_3.src.interface_generation.parser.CMODParser import CMODParser
 
 # This class defines a complete listener for a parse tree produced by CMODParser.
 class CMODListener(ParseTreeListener):

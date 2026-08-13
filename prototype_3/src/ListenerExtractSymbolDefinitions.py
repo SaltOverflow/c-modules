@@ -22,8 +22,8 @@
 # pprint(lExtractSymbolDefinitions.symbol_definitions)
 
 from antlr4 import *
-from parser.CMODListener import CMODListener
-from parser.CMODParser import CMODParser
+from interface_generation.parser.CMODListener import CMODListener
+from interface_generation.parser.CMODParser import CMODParser
 from enum import Enum, auto
 from typing import NamedTuple
 

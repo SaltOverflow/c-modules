@@ -31,8 +31,8 @@
 # pprint([(i, tokens[i].text) for i in range(d.getSourceInterval()[0], d.getSourceInterval()[1]+1)])
 
 from antlr4 import *
-from parser.CMODListener import CMODListener
-from parser.CMODParser import CMODParser
+from interface_generation.parser.CMODListener import CMODListener
+from interface_generation.parser.CMODParser import CMODParser
 from collections import defaultdict
 from enum import StrEnum, auto
 from PruningHelpers import *

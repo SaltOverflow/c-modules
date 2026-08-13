@@ -2,8 +2,8 @@ import argparse
 import os
 from pprint import pprint
 from antlr4 import *
-from parser.CMODLexer import CMODLexer
-from parser.CMODParser import CMODParser
+from interface_generation.parser.CMODLexer import CMODLexer
+from interface_generation.parser.CMODParser import CMODParser
 from ListenerExtractSymbolDefinitions import *
 from ListenerCodegenHelper import *
 from PruningHelpers import *
