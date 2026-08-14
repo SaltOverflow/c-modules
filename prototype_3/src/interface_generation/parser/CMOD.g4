@@ -258,7 +258,7 @@ initDeclaratorList
     ;
 
 initDeclarator
-    : rootDeclarator ('=' initializer)?
+    : declarator ('=' initializer)?
     ;
 
 storageClassSpecifier
@@ -303,8 +303,8 @@ structDeclaratorList
     ;
 
 structDeclarator
-    : rootDeclarator
-    | rootDeclarator? ':' constantExpression
+    : declarator
+    | declarator? ':' constantExpression
     ;
 
 enumSpecifier
@@ -328,10 +328,6 @@ functionSpecifier
     : 'inline'
     ;
 
-rootDeclarator
-    : declarator
-    ;
-
 declarator
     : pointer? directDeclarator
     ;
@@ -343,7 +339,7 @@ directDeclarator
     | directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
     | directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
     | directDeclarator '[' typeQualifierList? '*' ']'
-    | directDeclarator '(' parameterTypeList? ')'
+    | directDeclarator '(' expression? ')'  // int foo(a(b)) is ambiguous, let's skip it because we don't need it anyways
     // | directDeclarator '(' identifierList? ')'  // I'm not supporting K&R syntax
     ;
 
@@ -353,35 +349,6 @@ pointer
 
 typeQualifierList
     : typeQualifier+
-    ;
-
-parameterTypeList
-    : parameterDeclaration (',' parameterDeclaration)* (',' '...')?
-    ;
-
-parameterDeclaration
-    : declarationSpecifiers (rootDeclarator | rootAbstractDeclarator)?
-    ;
-
-rootAbstractDeclarator
-    : abstractDeclarator
-    ;
-
-abstractDeclarator
-    : pointer
-    | pointer? directAbstractDeclarator
-    ;
-
-directAbstractDeclarator
-    : ('(' abstractDeclarator ')' | directAbstractDeclaratorAfter) directAbstractDeclaratorAfter*
-    ;
-
-directAbstractDeclaratorAfter
-    : '[' typeQualifierList? assignmentExpression? ']'
-    | '[' 'static' typeQualifierList? assignmentExpression ']'
-    | '[' typeQualifierList 'static' assignmentExpression ']'
-    | '[' '*' ']'
-    | '(' parameterTypeList? ')'
     ;
 
 typedefName
@@ -437,7 +404,7 @@ externalDeclaration
     ;
 
 functionDefinition
-    : declarationSpecifiers rootDeclarator compoundStatement
+    : declarationSpecifiers declarator compoundStatement
     ;
 
 // Comments and whitespace

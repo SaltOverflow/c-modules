@@ -1,9 +1,9 @@
-# Generated from src/parser/CMOD.g4 by ANTLR 4.13.2
+# Generated from src/interface_generation/parser/CMOD.g4 by ANTLR 4.13.2
 from antlr4 import *
 if "." in __name__:
     from .CMODParser import CMODParser
 else:
-    from prototype_3.src.interface_generation.parser.CMODParser import CMODParser
+    from CMODParser import CMODParser
 
 # This class defines a complete listener for a parse tree produced by CMODParser.
 class CMODListener(ParseTreeListener):
@@ -251,15 +251,6 @@ class CMODListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by CMODParser#rootDeclarator.
-    def enterRootDeclarator(self, ctx:CMODParser.RootDeclaratorContext):
-        pass
-
-    # Exit a parse tree produced by CMODParser#rootDeclarator.
-    def exitRootDeclarator(self, ctx:CMODParser.RootDeclaratorContext):
-        pass
-
-
     # Enter a parse tree produced by CMODParser#declarator.
     def enterDeclarator(self, ctx:CMODParser.DeclaratorContext):
         pass
@@ -293,60 +284,6 @@ class CMODListener(ParseTreeListener):
 
     # Exit a parse tree produced by CMODParser#typeQualifierList.
     def exitTypeQualifierList(self, ctx:CMODParser.TypeQualifierListContext):
-        pass
-
-
-    # Enter a parse tree produced by CMODParser#parameterTypeList.
-    def enterParameterTypeList(self, ctx:CMODParser.ParameterTypeListContext):
-        pass
-
-    # Exit a parse tree produced by CMODParser#parameterTypeList.
-    def exitParameterTypeList(self, ctx:CMODParser.ParameterTypeListContext):
-        pass
-
-
-    # Enter a parse tree produced by CMODParser#parameterDeclaration.
-    def enterParameterDeclaration(self, ctx:CMODParser.ParameterDeclarationContext):
-        pass
-
-    # Exit a parse tree produced by CMODParser#parameterDeclaration.
-    def exitParameterDeclaration(self, ctx:CMODParser.ParameterDeclarationContext):
-        pass
-
-
-    # Enter a parse tree produced by CMODParser#rootAbstractDeclarator.
-    def enterRootAbstractDeclarator(self, ctx:CMODParser.RootAbstractDeclaratorContext):
-        pass
-
-    # Exit a parse tree produced by CMODParser#rootAbstractDeclarator.
-    def exitRootAbstractDeclarator(self, ctx:CMODParser.RootAbstractDeclaratorContext):
-        pass
-
-
-    # Enter a parse tree produced by CMODParser#abstractDeclarator.
-    def enterAbstractDeclarator(self, ctx:CMODParser.AbstractDeclaratorContext):
-        pass
-
-    # Exit a parse tree produced by CMODParser#abstractDeclarator.
-    def exitAbstractDeclarator(self, ctx:CMODParser.AbstractDeclaratorContext):
-        pass
-
-
-    # Enter a parse tree produced by CMODParser#directAbstractDeclarator.
-    def enterDirectAbstractDeclarator(self, ctx:CMODParser.DirectAbstractDeclaratorContext):
-        pass
-
-    # Exit a parse tree produced by CMODParser#directAbstractDeclarator.
-    def exitDirectAbstractDeclarator(self, ctx:CMODParser.DirectAbstractDeclaratorContext):
-        pass
-
-
-    # Enter a parse tree produced by CMODParser#directAbstractDeclaratorAfter.
-    def enterDirectAbstractDeclaratorAfter(self, ctx:CMODParser.DirectAbstractDeclaratorAfterContext):
-        pass
-
-    # Exit a parse tree produced by CMODParser#directAbstractDeclaratorAfter.
-    def exitDirectAbstractDeclaratorAfter(self, ctx:CMODParser.DirectAbstractDeclaratorAfterContext):
         pass
 
 

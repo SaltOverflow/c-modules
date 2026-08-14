@@ -1,3 +1,4 @@
 module anonymousStruct;
 
 export struct { int i; } a, b = a;
+export struct S { int j; } a2, b2 = a2;
