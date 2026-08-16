@@ -2,18 +2,18 @@
 
 # # Example code (execute inside src/interface_generation/)
 # from antlr4 import *
-# from parser.CMODLexer import CMODLexer
-# from parser.CMODParser import CMODParser
+# from parser.CMODInterfaceLexer import CMODInterfaceLexer
+# from parser.CMODInterfaceParser import CMODInterfaceParser
 # from ListenerExtractSymbolDefinitions import *
 # from pprint import pprint
 #
 # input_stream = FileStream("../../testing/clockwiseRule.cmod")
 # text = str(input_stream)
-# lexer = CMODLexer(input_stream)
+# lexer = CMODInterfaceLexer(input_stream)
 # tokens = lexer.getAllTokens()
 # lexer.reset()
 # stream = CommonTokenStream(lexer)
-# parser = CMODParser(stream)
+# parser = CMODInterfaceParser(stream)
 # tree = parser.compilationUnit()
 #
 # walker = ParseTreeWalker()
@@ -22,8 +22,8 @@
 # pprint(lExtractSymbolDefinitions.symbol_definitions)
 
 from antlr4 import *
-from parser.CMODListener import CMODListener
-from parser.CMODParser import CMODParser
+from parser.CMODInterfaceListener import CMODInterfaceListener
+from parser.CMODInterfaceParser import CMODInterfaceParser
 from enum import Enum, auto
 from typing import NamedTuple
 
@@ -43,7 +43,7 @@ class SymbolInfo(NamedTuple):
     ctx: ParserRuleContext  # see SymbolType for disambiguation
     idx: int | None = None  # set in ENUM_CONSTANT, TYPEDEF, VARIABLE
 
-class ListenerExtractSymbolDefinitions(CMODListener):
+class ListenerExtractSymbolDefinitions(CMODInterfaceListener):
     def __init__(self, module_name: str):
         super().__init__()
         self.reset(module_name)
@@ -58,12 +58,12 @@ class ListenerExtractSymbolDefinitions(CMODListener):
         self.export_status = False  # bool, tracks whether symbol should be exported
         self.function_prototype = False  # bool, for error diagnostics when user tries to use function prototypes in modules
 
-    def getNameFromDeclarator(self, ctx: CMODParser.DeclaratorContext) -> str:
-        def recurseDeclarator(ctx: CMODParser.DeclaratorContext) -> str:
+    def getNameFromDeclarator(self, ctx: CMODInterfaceParser.DeclaratorContext) -> str:
+        def recurseDeclarator(ctx: CMODInterfaceParser.DeclaratorContext) -> str:
             if ctx.pointer() is not None:
                 self.function_prototype = False
             return recurseDirectDeclarator(ctx.directDeclarator())
-        def recurseDirectDeclarator(ctx: CMODParser.DirectDeclaratorContext) -> str:
+        def recurseDirectDeclarator(ctx: CMODInterfaceParser.DirectDeclaratorContext) -> str:
             if ctx.Identifier():
                 return ctx.Identifier().getText()
             elif ctx.declarator():
@@ -81,13 +81,13 @@ class ListenerExtractSymbolDefinitions(CMODListener):
         self.function_prototype = False
         return recurseDeclarator(ctx)
 
-    def enterExternalDeclaration(self, ctx: CMODParser.ExternalDeclarationContext):
+    def enterExternalDeclaration(self, ctx: CMODInterfaceParser.ExternalDeclarationContext):
         self.export_status = ctx.getChild(0).getText() == 'export'
     
-    def exitExternalDeclaration(self, ctx: CMODParser.ExternalDeclarationContext):
+    def exitExternalDeclaration(self, ctx: CMODInterfaceParser.ExternalDeclarationContext):
         self.export_status = False
 
-    def exitStructOrUnionSpecifier(self, ctx: CMODParser.StructOrUnionSpecifierContext):
+    def exitStructOrUnionSpecifier(self, ctx: CMODInterfaceParser.StructOrUnionSpecifierContext):
         if not ctx.structDeclaration():
             return
         if ctx.Identifier() is None:
@@ -103,7 +103,7 @@ class ListenerExtractSymbolDefinitions(CMODListener):
         self.symbol_definitions.append(SymbolInfo(name, self.export_status, symbolType, ctx))
         # Nested structs are also in file-level scope (handled automatically)
 
-    def exitEnumSpecifier(self, ctx: CMODParser.EnumSpecifierContext):
+    def exitEnumSpecifier(self, ctx: CMODInterfaceParser.EnumSpecifierContext):
         if ctx.enumeratorList() is None:
             return
         if ctx.Identifier() is None:
@@ -121,14 +121,14 @@ class ListenerExtractSymbolDefinitions(CMODListener):
             self.symbol_definitions.append(SymbolInfo(enum_name, self.export_status, SymbolType.ENUM_CONSTANT, ctx, idx))
         self.enum_constant_names = []
 
-    def exitEnumerationConstant(self, ctx: CMODParser.EnumerationConstantContext):
+    def exitEnumerationConstant(self, ctx: CMODInterfaceParser.EnumerationConstantContext):
         self.enum_constant_names.append(ctx.Identifier().getText())
 
-    def exitFunctionDefinition(self, ctx: CMODParser.FunctionDefinitionContext):
+    def exitFunctionDefinition(self, ctx: CMODInterfaceParser.FunctionDefinitionContext):
         name = self.getNameFromDeclarator(ctx.declarator())
         self.symbol_definitions.append(SymbolInfo(name, self.export_status, SymbolType.FUNCTION, ctx))
 
-    def exitDeclaration(self, ctx: CMODParser.DeclarationContext):
+    def exitDeclaration(self, ctx: CMODInterfaceParser.DeclarationContext):
         if ctx.initDeclaratorList() is None:
             return
         symbolType = SymbolType.VARIABLE

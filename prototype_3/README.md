@@ -14,8 +14,8 @@ The grand vision is to turn this into a true drop-in replacement for header file
     * Run `pip install -e .` (uses `pyproject.toml` to install `src/` as a module).
 * Generating the parser code (see https://github.com/antlr/antlr4/blob/master/doc/getting-started.md for details):
     * Run `pip install antlr4-tools` (gets `antlr4` and `antlr4-parse` executables).
-        * Example command: `antlr4-parse -v 4.13.2 src/interface_generation/parser/CMOD.g4 compilationUnit -gui testing/basic.cmod` .
-    * Run `antlr4 -v 4.13.2 -Dlanguage=Python3 src/interface_generation/parser/CMOD.g4 -listener` (if you installed `antlr4` directly, remove the `-v 4.13.2` argument).
+        * Example command: `antlr4-parse -v 4.13.2 src/interface_generation/parser/CMODInterface.g4 compilationUnit -gui testing/basic.cmod` .
+    * Run `antlr4 -v 4.13.2 -Dlanguage=Python3 src/interface_generation/parser/CMODInterface.g4 -listener` (if you installed `antlr4` directly, remove the `-v 4.13.2` argument).
 * Running the code (adapted steps from https://github.com/antlr/antlr4/blob/master/doc/python-target.md ):
     * Run `pip install -r requirements.txt` .
     * Example command: `python3 src/Driver.py -r testing testing/basic.cmod` .

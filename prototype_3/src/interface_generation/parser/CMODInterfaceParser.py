@@ -1,4 +1,4 @@
-# Generated from src/interface_generation/parser/CMOD.g4 by ANTLR 4.13.2
+# Generated from CMODInterface.g4 by ANTLR 4.13.2
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
@@ -190,9 +190,9 @@ def serializedATN():
         403,408,414,424,428,439,445,457,461
     ]
 
-class CMODParser ( Parser ):
+class CMODInterfaceParser ( Parser ):
 
-    grammarFileName = "CMOD.g4"
+    grammarFileName = "CMODInterface.g4"
 
     atn = ATNDeserializer().deserialize(serializedATN())
 
@@ -414,25 +414,25 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def keyword(self):
-            return self.getTypedRuleContext(CMODParser.KeywordContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.KeywordContext,0)
 
 
         def Identifier(self):
-            return self.getToken(CMODParser.Identifier, 0)
+            return self.getToken(CMODInterfaceParser.Identifier, 0)
 
         def constant(self):
-            return self.getTypedRuleContext(CMODParser.ConstantContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.ConstantContext,0)
 
 
         def StringLiteral(self):
-            return self.getToken(CMODParser.StringLiteral, 0)
+            return self.getToken(CMODInterfaceParser.StringLiteral, 0)
 
         def punctuator(self):
-            return self.getTypedRuleContext(CMODParser.PunctuatorContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.PunctuatorContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_token
+            return CMODInterfaceParser.RULE_token
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterToken" ):
@@ -447,7 +447,7 @@ class CMODParser ( Parser ):
 
     def token(self):
 
-        localctx = CMODParser.TokenContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.TokenContext(self, self._ctx, self.state)
         self.enterRule(localctx, 0, self.RULE_token)
         try:
             self.state = 91
@@ -462,7 +462,7 @@ class CMODParser ( Parser ):
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 87
-                self.match(CMODParser.Identifier)
+                self.match(CMODInterfaceParser.Identifier)
                 pass
 
             elif la_ == 3:
@@ -474,7 +474,7 @@ class CMODParser ( Parser ):
             elif la_ == 4:
                 self.enterOuterAlt(localctx, 4)
                 self.state = 89
-                self.match(CMODParser.StringLiteral)
+                self.match(CMODInterfaceParser.StringLiteral)
                 pass
 
             elif la_ == 5:
@@ -502,7 +502,7 @@ class CMODParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_keyword
+            return CMODInterfaceParser.RULE_keyword
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterKeyword" ):
@@ -517,7 +517,7 @@ class CMODParser ( Parser ):
 
     def keyword(self):
 
-        localctx = CMODParser.KeywordContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.KeywordContext(self, self._ctx, self.state)
         self.enterRule(localctx, 2, self.RULE_keyword)
         self._la = 0 # Token type
         try:
@@ -546,20 +546,20 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def IntegerConstant(self):
-            return self.getToken(CMODParser.IntegerConstant, 0)
+            return self.getToken(CMODInterfaceParser.IntegerConstant, 0)
 
         def FloatingConstant(self):
-            return self.getToken(CMODParser.FloatingConstant, 0)
+            return self.getToken(CMODInterfaceParser.FloatingConstant, 0)
 
         def enumerationConstant(self):
-            return self.getTypedRuleContext(CMODParser.EnumerationConstantContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.EnumerationConstantContext,0)
 
 
         def CharacterConstant(self):
-            return self.getToken(CMODParser.CharacterConstant, 0)
+            return self.getToken(CMODInterfaceParser.CharacterConstant, 0)
 
         def getRuleIndex(self):
-            return CMODParser.RULE_constant
+            return CMODInterfaceParser.RULE_constant
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterConstant" ):
@@ -574,7 +574,7 @@ class CMODParser ( Parser ):
 
     def constant(self):
 
-        localctx = CMODParser.ConstantContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.ConstantContext(self, self._ctx, self.state)
         self.enterRule(localctx, 4, self.RULE_constant)
         try:
             self.state = 99
@@ -583,12 +583,12 @@ class CMODParser ( Parser ):
             if token in [88]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 95
-                self.match(CMODParser.IntegerConstant)
+                self.match(CMODInterfaceParser.IntegerConstant)
                 pass
             elif token in [89]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 96
-                self.match(CMODParser.FloatingConstant)
+                self.match(CMODInterfaceParser.FloatingConstant)
                 pass
             elif token in [87]:
                 self.enterOuterAlt(localctx, 3)
@@ -598,7 +598,7 @@ class CMODParser ( Parser ):
             elif token in [90]:
                 self.enterOuterAlt(localctx, 4)
                 self.state = 98
-                self.match(CMODParser.CharacterConstant)
+                self.match(CMODInterfaceParser.CharacterConstant)
                 pass
             else:
                 raise NoViableAltException(self)
@@ -620,10 +620,10 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def Identifier(self):
-            return self.getToken(CMODParser.Identifier, 0)
+            return self.getToken(CMODInterfaceParser.Identifier, 0)
 
         def getRuleIndex(self):
-            return CMODParser.RULE_enumerationConstant
+            return CMODInterfaceParser.RULE_enumerationConstant
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterEnumerationConstant" ):
@@ -638,12 +638,12 @@ class CMODParser ( Parser ):
 
     def enumerationConstant(self):
 
-        localctx = CMODParser.EnumerationConstantContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.EnumerationConstantContext(self, self._ctx, self.state)
         self.enterRule(localctx, 6, self.RULE_enumerationConstant)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 101
-            self.match(CMODParser.Identifier)
+            self.match(CMODInterfaceParser.Identifier)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -662,7 +662,7 @@ class CMODParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_punctuator
+            return CMODInterfaceParser.RULE_punctuator
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterPunctuator" ):
@@ -677,7 +677,7 @@ class CMODParser ( Parser ):
 
     def punctuator(self):
 
-        localctx = CMODParser.PunctuatorContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.PunctuatorContext(self, self._ctx, self.state)
         self.enterRule(localctx, 8, self.RULE_punctuator)
         self._la = 0 # Token type
         try:
@@ -706,10 +706,10 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def Identifier(self):
-            return self.getToken(CMODParser.Identifier, 0)
+            return self.getToken(CMODInterfaceParser.Identifier, 0)
 
         def getRuleIndex(self):
-            return CMODParser.RULE_skipTokens
+            return CMODInterfaceParser.RULE_skipTokens
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterSkipTokens" ):
@@ -724,7 +724,7 @@ class CMODParser ( Parser ):
 
     def skipTokens(self):
 
-        localctx = CMODParser.SkipTokensContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.SkipTokensContext(self, self._ctx, self.state)
         self.enterRule(localctx, 10, self.RULE_skipTokens)
         self._la = 0 # Token type
         try:
@@ -751,7 +751,7 @@ class CMODParser ( Parser ):
                     self._errHandler.reportMatch(self)
                     self.consume()
                 self.state = 107
-                self.match(CMODParser.Identifier)
+                self.match(CMODInterfaceParser.Identifier)
                 pass
             else:
                 raise NoViableAltException(self)
@@ -774,20 +774,20 @@ class CMODParser ( Parser ):
 
         def skipTokens(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.SkipTokensContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.SkipTokensContext)
             else:
-                return self.getTypedRuleContext(CMODParser.SkipTokensContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.SkipTokensContext,i)
 
 
         def innerExpression(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.InnerExpressionContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.InnerExpressionContext)
             else:
-                return self.getTypedRuleContext(CMODParser.InnerExpressionContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.InnerExpressionContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_constantExpression
+            return CMODInterfaceParser.RULE_constantExpression
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterConstantExpression" ):
@@ -802,7 +802,7 @@ class CMODParser ( Parser ):
 
     def constantExpression(self):
 
-        localctx = CMODParser.ConstantExpressionContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.ConstantExpressionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 12, self.RULE_constantExpression)
         self._la = 0 # Token type
         try:
@@ -821,7 +821,7 @@ class CMODParser ( Parser ):
                         pass
                     elif token in [43]:
                         self.state = 111
-                        self.match(CMODParser.T__42)
+                        self.match(CMODInterfaceParser.T__42)
                         self.state = 113
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
@@ -831,11 +831,11 @@ class CMODParser ( Parser ):
 
 
                         self.state = 115
-                        self.match(CMODParser.T__43)
+                        self.match(CMODInterfaceParser.T__43)
                         pass
                     elif token in [41]:
                         self.state = 116
-                        self.match(CMODParser.T__40)
+                        self.match(CMODInterfaceParser.T__40)
                         self.state = 118
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
@@ -845,11 +845,11 @@ class CMODParser ( Parser ):
 
 
                         self.state = 120
-                        self.match(CMODParser.T__41)
+                        self.match(CMODInterfaceParser.T__41)
                         pass
                     elif token in [45]:
                         self.state = 121
-                        self.match(CMODParser.T__44)
+                        self.match(CMODInterfaceParser.T__44)
                         self.state = 123
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
@@ -859,7 +859,7 @@ class CMODParser ( Parser ):
 
 
                         self.state = 125
-                        self.match(CMODParser.T__45)
+                        self.match(CMODInterfaceParser.T__45)
                         pass
                     else:
                         raise NoViableAltException(self)
@@ -888,11 +888,11 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def constantExpression(self):
-            return self.getTypedRuleContext(CMODParser.ConstantExpressionContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.ConstantExpressionContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_assignmentExpression
+            return CMODInterfaceParser.RULE_assignmentExpression
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterAssignmentExpression" ):
@@ -907,7 +907,7 @@ class CMODParser ( Parser ):
 
     def assignmentExpression(self):
 
-        localctx = CMODParser.AssignmentExpressionContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.AssignmentExpressionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 14, self.RULE_assignmentExpression)
         try:
             self.enterOuterAlt(localctx, 1)
@@ -931,13 +931,13 @@ class CMODParser ( Parser ):
 
         def constantExpression(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.ConstantExpressionContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.ConstantExpressionContext)
             else:
-                return self.getTypedRuleContext(CMODParser.ConstantExpressionContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.ConstantExpressionContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_expression
+            return CMODInterfaceParser.RULE_expression
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterExpression" ):
@@ -952,7 +952,7 @@ class CMODParser ( Parser ):
 
     def expression(self):
 
-        localctx = CMODParser.ExpressionContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.ExpressionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 16, self.RULE_expression)
         try:
             self.enterOuterAlt(localctx, 1)
@@ -970,7 +970,7 @@ class CMODParser ( Parser ):
                         pass
                     elif token in [86]:
                         self.state = 133
-                        self.match(CMODParser.T__85)
+                        self.match(CMODInterfaceParser.T__85)
                         pass
                     else:
                         raise NoViableAltException(self)
@@ -1000,13 +1000,13 @@ class CMODParser ( Parser ):
 
         def expression(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.ExpressionContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.ExpressionContext)
             else:
-                return self.getTypedRuleContext(CMODParser.ExpressionContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.ExpressionContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_innerExpression
+            return CMODInterfaceParser.RULE_innerExpression
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterInnerExpression" ):
@@ -1021,7 +1021,7 @@ class CMODParser ( Parser ):
 
     def innerExpression(self):
 
-        localctx = CMODParser.InnerExpressionContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.InnerExpressionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 18, self.RULE_innerExpression)
         self._la = 0 # Token type
         try:
@@ -1039,7 +1039,7 @@ class CMODParser ( Parser ):
                     pass
                 elif token in [73]:
                     self.state = 139
-                    self.match(CMODParser.T__72)
+                    self.match(CMODInterfaceParser.T__72)
                     pass
                 else:
                     raise NoViableAltException(self)
@@ -1067,15 +1067,15 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def declarationSpecifiers(self):
-            return self.getTypedRuleContext(CMODParser.DeclarationSpecifiersContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.DeclarationSpecifiersContext,0)
 
 
         def initDeclaratorList(self):
-            return self.getTypedRuleContext(CMODParser.InitDeclaratorListContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.InitDeclaratorListContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_declaration
+            return CMODInterfaceParser.RULE_declaration
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterDeclaration" ):
@@ -1090,7 +1090,7 @@ class CMODParser ( Parser ):
 
     def declaration(self):
 
-        localctx = CMODParser.DeclarationContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.DeclarationContext(self, self._ctx, self.state)
         self.enterRule(localctx, 20, self.RULE_declaration)
         self._la = 0 # Token type
         try:
@@ -1106,7 +1106,7 @@ class CMODParser ( Parser ):
 
 
             self.state = 148
-            self.match(CMODParser.T__72)
+            self.match(CMODInterfaceParser.T__72)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -1124,32 +1124,32 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def typeSpecifier(self):
-            return self.getTypedRuleContext(CMODParser.TypeSpecifierContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.TypeSpecifierContext,0)
 
 
         def storageClassSpecifier(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.StorageClassSpecifierContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.StorageClassSpecifierContext)
             else:
-                return self.getTypedRuleContext(CMODParser.StorageClassSpecifierContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.StorageClassSpecifierContext,i)
 
 
         def typeQualifier(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.TypeQualifierContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.TypeQualifierContext)
             else:
-                return self.getTypedRuleContext(CMODParser.TypeQualifierContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.TypeQualifierContext,i)
 
 
         def functionSpecifier(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.FunctionSpecifierContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.FunctionSpecifierContext)
             else:
-                return self.getTypedRuleContext(CMODParser.FunctionSpecifierContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.FunctionSpecifierContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_declarationSpecifiers
+            return CMODInterfaceParser.RULE_declarationSpecifiers
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterDeclarationSpecifiers" ):
@@ -1164,7 +1164,7 @@ class CMODParser ( Parser ):
 
     def declarationSpecifiers(self):
 
-        localctx = CMODParser.DeclarationSpecifiersContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.DeclarationSpecifiersContext(self, self._ctx, self.state)
         self.enterRule(localctx, 22, self.RULE_declarationSpecifiers)
         self._la = 0 # Token type
         try:
@@ -1241,13 +1241,13 @@ class CMODParser ( Parser ):
 
         def initDeclarator(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.InitDeclaratorContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.InitDeclaratorContext)
             else:
-                return self.getTypedRuleContext(CMODParser.InitDeclaratorContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.InitDeclaratorContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_initDeclaratorList
+            return CMODInterfaceParser.RULE_initDeclaratorList
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterInitDeclaratorList" ):
@@ -1262,7 +1262,7 @@ class CMODParser ( Parser ):
 
     def initDeclaratorList(self):
 
-        localctx = CMODParser.InitDeclaratorListContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.InitDeclaratorListContext(self, self._ctx, self.state)
         self.enterRule(localctx, 24, self.RULE_initDeclaratorList)
         self._la = 0 # Token type
         try:
@@ -1274,7 +1274,7 @@ class CMODParser ( Parser ):
             _la = self._input.LA(1)
             while _la==86:
                 self.state = 168
-                self.match(CMODParser.T__85)
+                self.match(CMODInterfaceParser.T__85)
                 self.state = 169
                 self.initDeclarator()
                 self.state = 174
@@ -1298,15 +1298,15 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def declarator(self):
-            return self.getTypedRuleContext(CMODParser.DeclaratorContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.DeclaratorContext,0)
 
 
         def initializer(self):
-            return self.getTypedRuleContext(CMODParser.InitializerContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.InitializerContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_initDeclarator
+            return CMODInterfaceParser.RULE_initDeclarator
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterInitDeclarator" ):
@@ -1321,7 +1321,7 @@ class CMODParser ( Parser ):
 
     def initDeclarator(self):
 
-        localctx = CMODParser.InitDeclaratorContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.InitDeclaratorContext(self, self._ctx, self.state)
         self.enterRule(localctx, 26, self.RULE_initDeclarator)
         self._la = 0 # Token type
         try:
@@ -1333,7 +1333,7 @@ class CMODParser ( Parser ):
             _la = self._input.LA(1)
             if _la==75:
                 self.state = 176
-                self.match(CMODParser.T__74)
+                self.match(CMODInterfaceParser.T__74)
                 self.state = 177
                 self.initializer()
 
@@ -1356,7 +1356,7 @@ class CMODParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_storageClassSpecifier
+            return CMODInterfaceParser.RULE_storageClassSpecifier
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterStorageClassSpecifier" ):
@@ -1371,7 +1371,7 @@ class CMODParser ( Parser ):
 
     def storageClassSpecifier(self):
 
-        localctx = CMODParser.StorageClassSpecifierContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.StorageClassSpecifierContext(self, self._ctx, self.state)
         self.enterRule(localctx, 28, self.RULE_storageClassSpecifier)
         self._la = 0 # Token type
         try:
@@ -1400,19 +1400,19 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def structOrUnionSpecifier(self):
-            return self.getTypedRuleContext(CMODParser.StructOrUnionSpecifierContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.StructOrUnionSpecifierContext,0)
 
 
         def enumSpecifier(self):
-            return self.getTypedRuleContext(CMODParser.EnumSpecifierContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.EnumSpecifierContext,0)
 
 
         def typedefName(self):
-            return self.getTypedRuleContext(CMODParser.TypedefNameContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.TypedefNameContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_typeSpecifier
+            return CMODInterfaceParser.RULE_typeSpecifier
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterTypeSpecifier" ):
@@ -1427,7 +1427,7 @@ class CMODParser ( Parser ):
 
     def typeSpecifier(self):
 
-        localctx = CMODParser.TypeSpecifierContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.TypeSpecifierContext(self, self._ctx, self.state)
         self.enterRule(localctx, 30, self.RULE_typeSpecifier)
         self._la = 0 # Token type
         try:
@@ -1437,7 +1437,7 @@ class CMODParser ( Parser ):
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 182
-                self.match(CMODParser.T__31)
+                self.match(CMODInterfaceParser.T__31)
                 pass
 
             elif la_ == 2:
@@ -1456,7 +1456,7 @@ class CMODParser ( Parser ):
 
 
                 self.state = 186
-                self.match(CMODParser.T__3)
+                self.match(CMODInterfaceParser.T__3)
                 pass
 
             elif la_ == 3:
@@ -1475,13 +1475,13 @@ class CMODParser ( Parser ):
 
 
                 self.state = 190
-                self.match(CMODParser.T__22)
+                self.match(CMODInterfaceParser.T__22)
                 self.state = 192
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==18:
                     self.state = 191
-                    self.match(CMODParser.T__17)
+                    self.match(CMODInterfaceParser.T__17)
 
 
                 pass
@@ -1502,19 +1502,19 @@ class CMODParser ( Parser ):
 
 
                 self.state = 197
-                self.match(CMODParser.T__17)
+                self.match(CMODInterfaceParser.T__17)
                 pass
 
             elif la_ == 5:
                 self.enterOuterAlt(localctx, 5)
                 self.state = 198
-                self.match(CMODParser.T__23)
+                self.match(CMODInterfaceParser.T__23)
                 pass
 
             elif la_ == 6:
                 self.enterOuterAlt(localctx, 6)
                 self.state = 199
-                self.match(CMODParser.T__30)
+                self.match(CMODInterfaceParser.T__30)
                 pass
 
             elif la_ == 7:
@@ -1533,13 +1533,13 @@ class CMODParser ( Parser ):
 
 
                 self.state = 203
-                self.match(CMODParser.T__18)
+                self.match(CMODInterfaceParser.T__18)
                 self.state = 205
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==18:
                     self.state = 204
-                    self.match(CMODParser.T__17)
+                    self.match(CMODInterfaceParser.T__17)
 
 
                 pass
@@ -1560,15 +1560,15 @@ class CMODParser ( Parser ):
 
 
                 self.state = 210
-                self.match(CMODParser.T__18)
+                self.match(CMODInterfaceParser.T__18)
                 self.state = 211
-                self.match(CMODParser.T__18)
+                self.match(CMODInterfaceParser.T__18)
                 self.state = 213
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==18:
                     self.state = 212
-                    self.match(CMODParser.T__17)
+                    self.match(CMODInterfaceParser.T__17)
 
 
                 pass
@@ -1576,27 +1576,27 @@ class CMODParser ( Parser ):
             elif la_ == 9:
                 self.enterOuterAlt(localctx, 9)
                 self.state = 215
-                self.match(CMODParser.T__12)
+                self.match(CMODInterfaceParser.T__12)
                 pass
 
             elif la_ == 10:
                 self.enterOuterAlt(localctx, 10)
                 self.state = 216
-                self.match(CMODParser.T__8)
+                self.match(CMODInterfaceParser.T__8)
                 pass
 
             elif la_ == 11:
                 self.enterOuterAlt(localctx, 11)
                 self.state = 217
-                self.match(CMODParser.T__18)
+                self.match(CMODInterfaceParser.T__18)
                 self.state = 218
-                self.match(CMODParser.T__8)
+                self.match(CMODInterfaceParser.T__8)
                 pass
 
             elif la_ == 12:
                 self.enterOuterAlt(localctx, 12)
                 self.state = 219
-                self.match(CMODParser.T__34)
+                self.match(CMODInterfaceParser.T__34)
                 pass
 
             elif la_ == 13:
@@ -1606,23 +1606,23 @@ class CMODParser ( Parser ):
                 token = self._input.LA(1)
                 if token in [13]:
                     self.state = 220
-                    self.match(CMODParser.T__12)
+                    self.match(CMODInterfaceParser.T__12)
                     pass
                 elif token in [9]:
                     self.state = 221
-                    self.match(CMODParser.T__8)
+                    self.match(CMODInterfaceParser.T__8)
                     pass
                 elif token in [19]:
                     self.state = 222
-                    self.match(CMODParser.T__18)
+                    self.match(CMODInterfaceParser.T__18)
                     self.state = 223
-                    self.match(CMODParser.T__8)
+                    self.match(CMODInterfaceParser.T__8)
                     pass
                 else:
                     raise NoViableAltException(self)
 
                 self.state = 226
-                self.match(CMODParser.T__35)
+                self.match(CMODInterfaceParser.T__35)
                 pass
 
             elif la_ == 14:
@@ -1661,21 +1661,21 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def structOrUnion(self):
-            return self.getTypedRuleContext(CMODParser.StructOrUnionContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.StructOrUnionContext,0)
 
 
         def Identifier(self):
-            return self.getToken(CMODParser.Identifier, 0)
+            return self.getToken(CMODInterfaceParser.Identifier, 0)
 
         def structDeclaration(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.StructDeclarationContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.StructDeclarationContext)
             else:
-                return self.getTypedRuleContext(CMODParser.StructDeclarationContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.StructDeclarationContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_structOrUnionSpecifier
+            return CMODInterfaceParser.RULE_structOrUnionSpecifier
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterStructOrUnionSpecifier" ):
@@ -1690,7 +1690,7 @@ class CMODParser ( Parser ):
 
     def structOrUnionSpecifier(self):
 
-        localctx = CMODParser.StructOrUnionSpecifierContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.StructOrUnionSpecifierContext(self, self._ctx, self.state)
         self.enterRule(localctx, 32, self.RULE_structOrUnionSpecifier)
         self._la = 0 # Token type
         try:
@@ -1706,11 +1706,11 @@ class CMODParser ( Parser ):
                 _la = self._input.LA(1)
                 if _la==87:
                     self.state = 233
-                    self.match(CMODParser.Identifier)
+                    self.match(CMODInterfaceParser.Identifier)
 
 
                 self.state = 236
-                self.match(CMODParser.T__44)
+                self.match(CMODInterfaceParser.T__44)
                 self.state = 238 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -1724,7 +1724,7 @@ class CMODParser ( Parser ):
                         break
 
                 self.state = 242
-                self.match(CMODParser.T__45)
+                self.match(CMODInterfaceParser.T__45)
                 pass
 
             elif la_ == 2:
@@ -1732,7 +1732,7 @@ class CMODParser ( Parser ):
                 self.state = 244
                 self.structOrUnion()
                 self.state = 245
-                self.match(CMODParser.Identifier)
+                self.match(CMODInterfaceParser.Identifier)
                 pass
 
 
@@ -1754,7 +1754,7 @@ class CMODParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_structOrUnion
+            return CMODInterfaceParser.RULE_structOrUnion
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterStructOrUnion" ):
@@ -1769,7 +1769,7 @@ class CMODParser ( Parser ):
 
     def structOrUnion(self):
 
-        localctx = CMODParser.StructOrUnionContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.StructOrUnionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 34, self.RULE_structOrUnion)
         self._la = 0 # Token type
         try:
@@ -1798,15 +1798,15 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def specifierQualifierList(self):
-            return self.getTypedRuleContext(CMODParser.SpecifierQualifierListContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.SpecifierQualifierListContext,0)
 
 
         def structDeclaratorList(self):
-            return self.getTypedRuleContext(CMODParser.StructDeclaratorListContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.StructDeclaratorListContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_structDeclaration
+            return CMODInterfaceParser.RULE_structDeclaration
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterStructDeclaration" ):
@@ -1821,7 +1821,7 @@ class CMODParser ( Parser ):
 
     def structDeclaration(self):
 
-        localctx = CMODParser.StructDeclarationContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.StructDeclarationContext(self, self._ctx, self.state)
         self.enterRule(localctx, 36, self.RULE_structDeclaration)
         try:
             self.enterOuterAlt(localctx, 1)
@@ -1830,7 +1830,7 @@ class CMODParser ( Parser ):
             self.state = 252
             self.structDeclaratorList()
             self.state = 253
-            self.match(CMODParser.T__72)
+            self.match(CMODInterfaceParser.T__72)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -1848,18 +1848,18 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def typeSpecifier(self):
-            return self.getTypedRuleContext(CMODParser.TypeSpecifierContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.TypeSpecifierContext,0)
 
 
         def typeQualifier(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.TypeQualifierContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.TypeQualifierContext)
             else:
-                return self.getTypedRuleContext(CMODParser.TypeQualifierContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.TypeQualifierContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_specifierQualifierList
+            return CMODInterfaceParser.RULE_specifierQualifierList
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterSpecifierQualifierList" ):
@@ -1874,7 +1874,7 @@ class CMODParser ( Parser ):
 
     def specifierQualifierList(self):
 
-        localctx = CMODParser.SpecifierQualifierListContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.SpecifierQualifierListContext(self, self._ctx, self.state)
         self.enterRule(localctx, 38, self.RULE_specifierQualifierList)
         self._la = 0 # Token type
         try:
@@ -1919,13 +1919,13 @@ class CMODParser ( Parser ):
 
         def structDeclarator(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.StructDeclaratorContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.StructDeclaratorContext)
             else:
-                return self.getTypedRuleContext(CMODParser.StructDeclaratorContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.StructDeclaratorContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_structDeclaratorList
+            return CMODInterfaceParser.RULE_structDeclaratorList
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterStructDeclaratorList" ):
@@ -1940,7 +1940,7 @@ class CMODParser ( Parser ):
 
     def structDeclaratorList(self):
 
-        localctx = CMODParser.StructDeclaratorListContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.StructDeclaratorListContext(self, self._ctx, self.state)
         self.enterRule(localctx, 40, self.RULE_structDeclaratorList)
         self._la = 0 # Token type
         try:
@@ -1952,7 +1952,7 @@ class CMODParser ( Parser ):
             _la = self._input.LA(1)
             while _la==86:
                 self.state = 269
-                self.match(CMODParser.T__85)
+                self.match(CMODInterfaceParser.T__85)
                 self.state = 270
                 self.structDeclarator()
                 self.state = 275
@@ -1976,15 +1976,15 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def declarator(self):
-            return self.getTypedRuleContext(CMODParser.DeclaratorContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.DeclaratorContext,0)
 
 
         def constantExpression(self):
-            return self.getTypedRuleContext(CMODParser.ConstantExpressionContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.ConstantExpressionContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_structDeclarator
+            return CMODInterfaceParser.RULE_structDeclarator
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterStructDeclarator" ):
@@ -1999,7 +1999,7 @@ class CMODParser ( Parser ):
 
     def structDeclarator(self):
 
-        localctx = CMODParser.StructDeclaratorContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.StructDeclaratorContext(self, self._ctx, self.state)
         self.enterRule(localctx, 42, self.RULE_structDeclarator)
         self._la = 0 # Token type
         try:
@@ -2023,7 +2023,7 @@ class CMODParser ( Parser ):
 
 
                 self.state = 280
-                self.match(CMODParser.T__71)
+                self.match(CMODInterfaceParser.T__71)
                 self.state = 281
                 self.constantExpression()
                 pass
@@ -2046,14 +2046,14 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def enumeratorList(self):
-            return self.getTypedRuleContext(CMODParser.EnumeratorListContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.EnumeratorListContext,0)
 
 
         def Identifier(self):
-            return self.getToken(CMODParser.Identifier, 0)
+            return self.getToken(CMODInterfaceParser.Identifier, 0)
 
         def getRuleIndex(self):
-            return CMODParser.RULE_enumSpecifier
+            return CMODInterfaceParser.RULE_enumSpecifier
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterEnumSpecifier" ):
@@ -2068,7 +2068,7 @@ class CMODParser ( Parser ):
 
     def enumSpecifier(self):
 
-        localctx = CMODParser.EnumSpecifierContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.EnumSpecifierContext(self, self._ctx, self.state)
         self.enterRule(localctx, 44, self.RULE_enumSpecifier)
         self._la = 0 # Token type
         try:
@@ -2078,17 +2078,17 @@ class CMODParser ( Parser ):
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 284
-                self.match(CMODParser.T__10)
+                self.match(CMODInterfaceParser.T__10)
                 self.state = 286
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==87:
                     self.state = 285
-                    self.match(CMODParser.Identifier)
+                    self.match(CMODInterfaceParser.Identifier)
 
 
                 self.state = 288
-                self.match(CMODParser.T__44)
+                self.match(CMODInterfaceParser.T__44)
                 self.state = 289
                 self.enumeratorList()
                 self.state = 291
@@ -2096,19 +2096,19 @@ class CMODParser ( Parser ):
                 _la = self._input.LA(1)
                 if _la==86:
                     self.state = 290
-                    self.match(CMODParser.T__85)
+                    self.match(CMODInterfaceParser.T__85)
 
 
                 self.state = 293
-                self.match(CMODParser.T__45)
+                self.match(CMODInterfaceParser.T__45)
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 295
-                self.match(CMODParser.T__10)
+                self.match(CMODInterfaceParser.T__10)
                 self.state = 296
-                self.match(CMODParser.Identifier)
+                self.match(CMODInterfaceParser.Identifier)
                 pass
 
 
@@ -2130,13 +2130,13 @@ class CMODParser ( Parser ):
 
         def enumerator(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.EnumeratorContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.EnumeratorContext)
             else:
-                return self.getTypedRuleContext(CMODParser.EnumeratorContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.EnumeratorContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_enumeratorList
+            return CMODInterfaceParser.RULE_enumeratorList
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterEnumeratorList" ):
@@ -2151,7 +2151,7 @@ class CMODParser ( Parser ):
 
     def enumeratorList(self):
 
-        localctx = CMODParser.EnumeratorListContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.EnumeratorListContext(self, self._ctx, self.state)
         self.enterRule(localctx, 46, self.RULE_enumeratorList)
         try:
             self.enterOuterAlt(localctx, 1)
@@ -2163,7 +2163,7 @@ class CMODParser ( Parser ):
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
                     self.state = 300
-                    self.match(CMODParser.T__85)
+                    self.match(CMODInterfaceParser.T__85)
                     self.state = 301
                     self.enumerator() 
                 self.state = 306
@@ -2187,15 +2187,15 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def enumerationConstant(self):
-            return self.getTypedRuleContext(CMODParser.EnumerationConstantContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.EnumerationConstantContext,0)
 
 
         def constantExpression(self):
-            return self.getTypedRuleContext(CMODParser.ConstantExpressionContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.ConstantExpressionContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_enumerator
+            return CMODInterfaceParser.RULE_enumerator
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterEnumerator" ):
@@ -2210,7 +2210,7 @@ class CMODParser ( Parser ):
 
     def enumerator(self):
 
-        localctx = CMODParser.EnumeratorContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.EnumeratorContext(self, self._ctx, self.state)
         self.enterRule(localctx, 48, self.RULE_enumerator)
         self._la = 0 # Token type
         try:
@@ -2222,7 +2222,7 @@ class CMODParser ( Parser ):
             _la = self._input.LA(1)
             if _la==75:
                 self.state = 308
-                self.match(CMODParser.T__74)
+                self.match(CMODInterfaceParser.T__74)
                 self.state = 309
                 self.constantExpression()
 
@@ -2245,7 +2245,7 @@ class CMODParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_typeQualifier
+            return CMODInterfaceParser.RULE_typeQualifier
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterTypeQualifier" ):
@@ -2260,7 +2260,7 @@ class CMODParser ( Parser ):
 
     def typeQualifier(self):
 
-        localctx = CMODParser.TypeQualifierContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.TypeQualifierContext(self, self._ctx, self.state)
         self.enterRule(localctx, 50, self.RULE_typeQualifier)
         self._la = 0 # Token type
         try:
@@ -2290,7 +2290,7 @@ class CMODParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_functionSpecifier
+            return CMODInterfaceParser.RULE_functionSpecifier
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterFunctionSpecifier" ):
@@ -2305,12 +2305,12 @@ class CMODParser ( Parser ):
 
     def functionSpecifier(self):
 
-        localctx = CMODParser.FunctionSpecifierContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.FunctionSpecifierContext(self, self._ctx, self.state)
         self.enterRule(localctx, 52, self.RULE_functionSpecifier)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 314
-            self.match(CMODParser.T__16)
+            self.match(CMODInterfaceParser.T__16)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -2328,15 +2328,15 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def directDeclarator(self):
-            return self.getTypedRuleContext(CMODParser.DirectDeclaratorContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.DirectDeclaratorContext,0)
 
 
         def pointer(self):
-            return self.getTypedRuleContext(CMODParser.PointerContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.PointerContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_declarator
+            return CMODInterfaceParser.RULE_declarator
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterDeclarator" ):
@@ -2351,7 +2351,7 @@ class CMODParser ( Parser ):
 
     def declarator(self):
 
-        localctx = CMODParser.DeclaratorContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.DeclaratorContext(self, self._ctx, self.state)
         self.enterRule(localctx, 54, self.RULE_declarator)
         self._la = 0 # Token type
         try:
@@ -2383,30 +2383,30 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def Identifier(self):
-            return self.getToken(CMODParser.Identifier, 0)
+            return self.getToken(CMODInterfaceParser.Identifier, 0)
 
         def declarator(self):
-            return self.getTypedRuleContext(CMODParser.DeclaratorContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.DeclaratorContext,0)
 
 
         def directDeclarator(self):
-            return self.getTypedRuleContext(CMODParser.DirectDeclaratorContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.DirectDeclaratorContext,0)
 
 
         def typeQualifierList(self):
-            return self.getTypedRuleContext(CMODParser.TypeQualifierListContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.TypeQualifierListContext,0)
 
 
         def assignmentExpression(self):
-            return self.getTypedRuleContext(CMODParser.AssignmentExpressionContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.AssignmentExpressionContext,0)
 
 
         def expression(self):
-            return self.getTypedRuleContext(CMODParser.ExpressionContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.ExpressionContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_directDeclarator
+            return CMODInterfaceParser.RULE_directDeclarator
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterDirectDeclarator" ):
@@ -2421,7 +2421,7 @@ class CMODParser ( Parser ):
     def directDeclarator(self, _p:int=0):
         _parentctx = self._ctx
         _parentState = self.state
-        localctx = CMODParser.DirectDeclaratorContext(self, self._ctx, _parentState)
+        localctx = CMODInterfaceParser.DirectDeclaratorContext(self, self._ctx, _parentState)
         _prevctx = localctx
         _startState = 56
         self.enterRecursionRule(localctx, 56, self.RULE_directDeclarator, _p)
@@ -2433,15 +2433,15 @@ class CMODParser ( Parser ):
             token = self._input.LA(1)
             if token in [87]:
                 self.state = 322
-                self.match(CMODParser.Identifier)
+                self.match(CMODInterfaceParser.Identifier)
                 pass
             elif token in [43]:
                 self.state = 323
-                self.match(CMODParser.T__42)
+                self.match(CMODInterfaceParser.T__42)
                 self.state = 324
                 self.declarator()
                 self.state = 325
-                self.match(CMODParser.T__43)
+                self.match(CMODInterfaceParser.T__43)
                 pass
             else:
                 raise NoViableAltException(self)
@@ -2459,14 +2459,14 @@ class CMODParser ( Parser ):
                     self._errHandler.sync(self)
                     la_ = self._interp.adaptivePredict(self._input,49,self._ctx)
                     if la_ == 1:
-                        localctx = CMODParser.DirectDeclaratorContext(self, _parentctx, _parentState)
+                        localctx = CMODInterfaceParser.DirectDeclaratorContext(self, _parentctx, _parentState)
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_directDeclarator)
                         self.state = 329
                         if not self.precpred(self._ctx, 5):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 5)")
                         self.state = 330
-                        self.match(CMODParser.T__40)
+                        self.match(CMODInterfaceParser.T__40)
                         self.state = 332
                         self._errHandler.sync(self)
                         la_ = self._interp.adaptivePredict(self._input,44,self._ctx)
@@ -2484,20 +2484,20 @@ class CMODParser ( Parser ):
 
 
                         self.state = 337
-                        self.match(CMODParser.T__41)
+                        self.match(CMODInterfaceParser.T__41)
                         pass
 
                     elif la_ == 2:
-                        localctx = CMODParser.DirectDeclaratorContext(self, _parentctx, _parentState)
+                        localctx = CMODInterfaceParser.DirectDeclaratorContext(self, _parentctx, _parentState)
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_directDeclarator)
                         self.state = 338
                         if not self.precpred(self._ctx, 4):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 4)")
                         self.state = 339
-                        self.match(CMODParser.T__40)
+                        self.match(CMODInterfaceParser.T__40)
                         self.state = 340
-                        self.match(CMODParser.T__25)
+                        self.match(CMODInterfaceParser.T__25)
                         self.state = 342
                         self._errHandler.sync(self)
                         la_ = self._interp.adaptivePredict(self._input,46,self._ctx)
@@ -2509,37 +2509,37 @@ class CMODParser ( Parser ):
                         self.state = 344
                         self.assignmentExpression()
                         self.state = 345
-                        self.match(CMODParser.T__41)
+                        self.match(CMODInterfaceParser.T__41)
                         pass
 
                     elif la_ == 3:
-                        localctx = CMODParser.DirectDeclaratorContext(self, _parentctx, _parentState)
+                        localctx = CMODInterfaceParser.DirectDeclaratorContext(self, _parentctx, _parentState)
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_directDeclarator)
                         self.state = 347
                         if not self.precpred(self._ctx, 3):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 3)")
                         self.state = 348
-                        self.match(CMODParser.T__40)
+                        self.match(CMODInterfaceParser.T__40)
                         self.state = 349
                         self.typeQualifierList()
                         self.state = 350
-                        self.match(CMODParser.T__25)
+                        self.match(CMODInterfaceParser.T__25)
                         self.state = 351
                         self.assignmentExpression()
                         self.state = 352
-                        self.match(CMODParser.T__41)
+                        self.match(CMODInterfaceParser.T__41)
                         pass
 
                     elif la_ == 4:
-                        localctx = CMODParser.DirectDeclaratorContext(self, _parentctx, _parentState)
+                        localctx = CMODInterfaceParser.DirectDeclaratorContext(self, _parentctx, _parentState)
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_directDeclarator)
                         self.state = 354
                         if not self.precpred(self._ctx, 2):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 2)")
                         self.state = 355
-                        self.match(CMODParser.T__40)
+                        self.match(CMODInterfaceParser.T__40)
                         self.state = 357
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
@@ -2549,20 +2549,20 @@ class CMODParser ( Parser ):
 
 
                         self.state = 359
-                        self.match(CMODParser.T__51)
+                        self.match(CMODInterfaceParser.T__51)
                         self.state = 360
-                        self.match(CMODParser.T__41)
+                        self.match(CMODInterfaceParser.T__41)
                         pass
 
                     elif la_ == 5:
-                        localctx = CMODParser.DirectDeclaratorContext(self, _parentctx, _parentState)
+                        localctx = CMODInterfaceParser.DirectDeclaratorContext(self, _parentctx, _parentState)
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_directDeclarator)
                         self.state = 361
                         if not self.precpred(self._ctx, 1):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 1)")
                         self.state = 362
-                        self.match(CMODParser.T__42)
+                        self.match(CMODInterfaceParser.T__42)
                         self.state = 364
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
@@ -2572,7 +2572,7 @@ class CMODParser ( Parser ):
 
 
                         self.state = 366
-                        self.match(CMODParser.T__43)
+                        self.match(CMODInterfaceParser.T__43)
                         pass
 
              
@@ -2598,13 +2598,13 @@ class CMODParser ( Parser ):
 
         def typeQualifierList(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.TypeQualifierListContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.TypeQualifierListContext)
             else:
-                return self.getTypedRuleContext(CMODParser.TypeQualifierListContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.TypeQualifierListContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_pointer
+            return CMODInterfaceParser.RULE_pointer
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterPointer" ):
@@ -2619,7 +2619,7 @@ class CMODParser ( Parser ):
 
     def pointer(self):
 
-        localctx = CMODParser.PointerContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.PointerContext(self, self._ctx, self.state)
         self.enterRule(localctx, 58, self.RULE_pointer)
         self._la = 0 # Token type
         try:
@@ -2629,7 +2629,7 @@ class CMODParser ( Parser ):
             _la = self._input.LA(1)
             while True:
                 self.state = 372
-                self.match(CMODParser.T__51)
+                self.match(CMODInterfaceParser.T__51)
                 self.state = 374
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -2662,13 +2662,13 @@ class CMODParser ( Parser ):
 
         def typeQualifier(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.TypeQualifierContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.TypeQualifierContext)
             else:
-                return self.getTypedRuleContext(CMODParser.TypeQualifierContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.TypeQualifierContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_typeQualifierList
+            return CMODInterfaceParser.RULE_typeQualifierList
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterTypeQualifierList" ):
@@ -2683,7 +2683,7 @@ class CMODParser ( Parser ):
 
     def typeQualifierList(self):
 
-        localctx = CMODParser.TypeQualifierListContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.TypeQualifierListContext(self, self._ctx, self.state)
         self.enterRule(localctx, 60, self.RULE_typeQualifierList)
         try:
             self.enterOuterAlt(localctx, 1)
@@ -2718,10 +2718,10 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def Identifier(self):
-            return self.getToken(CMODParser.Identifier, 0)
+            return self.getToken(CMODInterfaceParser.Identifier, 0)
 
         def getRuleIndex(self):
-            return CMODParser.RULE_typedefName
+            return CMODInterfaceParser.RULE_typedefName
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterTypedefName" ):
@@ -2736,12 +2736,12 @@ class CMODParser ( Parser ):
 
     def typedefName(self):
 
-        localctx = CMODParser.TypedefNameContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.TypedefNameContext(self, self._ctx, self.state)
         self.enterRule(localctx, 62, self.RULE_typedefName)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 385
-            self.match(CMODParser.Identifier)
+            self.match(CMODInterfaceParser.Identifier)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -2759,15 +2759,15 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def assignmentExpression(self):
-            return self.getTypedRuleContext(CMODParser.AssignmentExpressionContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.AssignmentExpressionContext,0)
 
 
         def initializerList(self):
-            return self.getTypedRuleContext(CMODParser.InitializerListContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.InitializerListContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_initializer
+            return CMODInterfaceParser.RULE_initializer
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterInitializer" ):
@@ -2782,7 +2782,7 @@ class CMODParser ( Parser ):
 
     def initializer(self):
 
-        localctx = CMODParser.InitializerContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.InitializerContext(self, self._ctx, self.state)
         self.enterRule(localctx, 64, self.RULE_initializer)
         self._la = 0 # Token type
         try:
@@ -2798,7 +2798,7 @@ class CMODParser ( Parser ):
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 388
-                self.match(CMODParser.T__44)
+                self.match(CMODInterfaceParser.T__44)
                 self.state = 389
                 self.initializerList()
                 self.state = 391
@@ -2806,11 +2806,11 @@ class CMODParser ( Parser ):
                 _la = self._input.LA(1)
                 if _la==86:
                     self.state = 390
-                    self.match(CMODParser.T__85)
+                    self.match(CMODInterfaceParser.T__85)
 
 
                 self.state = 393
-                self.match(CMODParser.T__45)
+                self.match(CMODInterfaceParser.T__45)
                 pass
 
 
@@ -2832,20 +2832,20 @@ class CMODParser ( Parser ):
 
         def initializer(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.InitializerContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.InitializerContext)
             else:
-                return self.getTypedRuleContext(CMODParser.InitializerContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.InitializerContext,i)
 
 
         def designation(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.DesignationContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.DesignationContext)
             else:
-                return self.getTypedRuleContext(CMODParser.DesignationContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.DesignationContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_initializerList
+            return CMODInterfaceParser.RULE_initializerList
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterInitializerList" ):
@@ -2860,7 +2860,7 @@ class CMODParser ( Parser ):
 
     def initializerList(self):
 
-        localctx = CMODParser.InitializerListContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.InitializerListContext(self, self._ctx, self.state)
         self.enterRule(localctx, 66, self.RULE_initializerList)
         try:
             self.enterOuterAlt(localctx, 1)
@@ -2880,7 +2880,7 @@ class CMODParser ( Parser ):
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
                     self.state = 401
-                    self.match(CMODParser.T__85)
+                    self.match(CMODInterfaceParser.T__85)
                     self.state = 403
                     self._errHandler.sync(self)
                     la_ = self._interp.adaptivePredict(self._input,57,self._ctx)
@@ -2913,13 +2913,13 @@ class CMODParser ( Parser ):
 
         def designator(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.DesignatorContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.DesignatorContext)
             else:
-                return self.getTypedRuleContext(CMODParser.DesignatorContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.DesignatorContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_designation
+            return CMODInterfaceParser.RULE_designation
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterDesignation" ):
@@ -2934,7 +2934,7 @@ class CMODParser ( Parser ):
 
     def designation(self):
 
-        localctx = CMODParser.DesignationContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.DesignationContext(self, self._ctx, self.state)
         self.enterRule(localctx, 68, self.RULE_designation)
         self._la = 0 # Token type
         try:
@@ -2952,7 +2952,7 @@ class CMODParser ( Parser ):
                     break
 
             self.state = 416
-            self.match(CMODParser.T__74)
+            self.match(CMODInterfaceParser.T__74)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -2970,14 +2970,14 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def constantExpression(self):
-            return self.getTypedRuleContext(CMODParser.ConstantExpressionContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.ConstantExpressionContext,0)
 
 
         def Identifier(self):
-            return self.getToken(CMODParser.Identifier, 0)
+            return self.getToken(CMODInterfaceParser.Identifier, 0)
 
         def getRuleIndex(self):
-            return CMODParser.RULE_designator
+            return CMODInterfaceParser.RULE_designator
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterDesignator" ):
@@ -2992,7 +2992,7 @@ class CMODParser ( Parser ):
 
     def designator(self):
 
-        localctx = CMODParser.DesignatorContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.DesignatorContext(self, self._ctx, self.state)
         self.enterRule(localctx, 70, self.RULE_designator)
         try:
             self.state = 424
@@ -3001,18 +3001,18 @@ class CMODParser ( Parser ):
             if token in [41]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 418
-                self.match(CMODParser.T__40)
+                self.match(CMODInterfaceParser.T__40)
                 self.state = 419
                 self.constantExpression()
                 self.state = 420
-                self.match(CMODParser.T__41)
+                self.match(CMODInterfaceParser.T__41)
                 pass
             elif token in [47]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 422
-                self.match(CMODParser.T__46)
+                self.match(CMODInterfaceParser.T__46)
                 self.state = 423
-                self.match(CMODParser.Identifier)
+                self.match(CMODInterfaceParser.Identifier)
                 pass
             else:
                 raise NoViableAltException(self)
@@ -3034,11 +3034,11 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def innerExpression(self):
-            return self.getTypedRuleContext(CMODParser.InnerExpressionContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.InnerExpressionContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_compoundStatement
+            return CMODInterfaceParser.RULE_compoundStatement
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterCompoundStatement" ):
@@ -3053,13 +3053,13 @@ class CMODParser ( Parser ):
 
     def compoundStatement(self):
 
-        localctx = CMODParser.CompoundStatementContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.CompoundStatementContext(self, self._ctx, self.state)
         self.enterRule(localctx, 72, self.RULE_compoundStatement)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 426
-            self.match(CMODParser.T__44)
+            self.match(CMODInterfaceParser.T__44)
             self.state = 428
             self._errHandler.sync(self)
             _la = self._input.LA(1)
@@ -3069,7 +3069,7 @@ class CMODParser ( Parser ):
 
 
             self.state = 430
-            self.match(CMODParser.T__45)
+            self.match(CMODInterfaceParser.T__45)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -3087,14 +3087,14 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def translationUnit(self):
-            return self.getTypedRuleContext(CMODParser.TranslationUnitContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.TranslationUnitContext,0)
 
 
         def EOF(self):
-            return self.getToken(CMODParser.EOF, 0)
+            return self.getToken(CMODInterfaceParser.EOF, 0)
 
         def getRuleIndex(self):
-            return CMODParser.RULE_compilationUnit
+            return CMODInterfaceParser.RULE_compilationUnit
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterCompilationUnit" ):
@@ -3109,14 +3109,14 @@ class CMODParser ( Parser ):
 
     def compilationUnit(self):
 
-        localctx = CMODParser.CompilationUnitContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.CompilationUnitContext(self, self._ctx, self.state)
         self.enterRule(localctx, 74, self.RULE_compilationUnit)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 432
             self.translationUnit()
             self.state = 433
-            self.match(CMODParser.EOF)
+            self.match(CMODInterfaceParser.EOF)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -3134,25 +3134,25 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def moduleDeclaration(self):
-            return self.getTypedRuleContext(CMODParser.ModuleDeclarationContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.ModuleDeclarationContext,0)
 
 
         def importDeclaration(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.ImportDeclarationContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.ImportDeclarationContext)
             else:
-                return self.getTypedRuleContext(CMODParser.ImportDeclarationContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.ImportDeclarationContext,i)
 
 
         def externalDeclaration(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(CMODParser.ExternalDeclarationContext)
+                return self.getTypedRuleContexts(CMODInterfaceParser.ExternalDeclarationContext)
             else:
-                return self.getTypedRuleContext(CMODParser.ExternalDeclarationContext,i)
+                return self.getTypedRuleContext(CMODInterfaceParser.ExternalDeclarationContext,i)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_translationUnit
+            return CMODInterfaceParser.RULE_translationUnit
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterTranslationUnit" ):
@@ -3167,7 +3167,7 @@ class CMODParser ( Parser ):
 
     def translationUnit(self):
 
-        localctx = CMODParser.TranslationUnitContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.TranslationUnitContext(self, self._ctx, self.state)
         self.enterRule(localctx, 76, self.RULE_translationUnit)
         self._la = 0 # Token type
         try:
@@ -3211,10 +3211,10 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def Identifier(self):
-            return self.getToken(CMODParser.Identifier, 0)
+            return self.getToken(CMODInterfaceParser.Identifier, 0)
 
         def getRuleIndex(self):
-            return CMODParser.RULE_moduleDeclaration
+            return CMODInterfaceParser.RULE_moduleDeclaration
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterModuleDeclaration" ):
@@ -3229,16 +3229,16 @@ class CMODParser ( Parser ):
 
     def moduleDeclaration(self):
 
-        localctx = CMODParser.ModuleDeclarationContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.ModuleDeclarationContext(self, self._ctx, self.state)
         self.enterRule(localctx, 78, self.RULE_moduleDeclaration)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 448
-            self.match(CMODParser.T__37)
+            self.match(CMODInterfaceParser.T__37)
             self.state = 449
-            self.match(CMODParser.Identifier)
+            self.match(CMODInterfaceParser.Identifier)
             self.state = 450
-            self.match(CMODParser.T__72)
+            self.match(CMODInterfaceParser.T__72)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -3256,10 +3256,10 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def Identifier(self):
-            return self.getToken(CMODParser.Identifier, 0)
+            return self.getToken(CMODInterfaceParser.Identifier, 0)
 
         def getRuleIndex(self):
-            return CMODParser.RULE_importDeclaration
+            return CMODInterfaceParser.RULE_importDeclaration
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterImportDeclaration" ):
@@ -3274,16 +3274,16 @@ class CMODParser ( Parser ):
 
     def importDeclaration(self):
 
-        localctx = CMODParser.ImportDeclarationContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.ImportDeclarationContext(self, self._ctx, self.state)
         self.enterRule(localctx, 80, self.RULE_importDeclaration)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 452
-            self.match(CMODParser.T__38)
+            self.match(CMODInterfaceParser.T__38)
             self.state = 453
-            self.match(CMODParser.Identifier)
+            self.match(CMODInterfaceParser.Identifier)
             self.state = 454
-            self.match(CMODParser.T__72)
+            self.match(CMODInterfaceParser.T__72)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -3301,15 +3301,15 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def functionDefinition(self):
-            return self.getTypedRuleContext(CMODParser.FunctionDefinitionContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.FunctionDefinitionContext,0)
 
 
         def declaration(self):
-            return self.getTypedRuleContext(CMODParser.DeclarationContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.DeclarationContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_externalDeclaration
+            return CMODInterfaceParser.RULE_externalDeclaration
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterExternalDeclaration" ):
@@ -3324,7 +3324,7 @@ class CMODParser ( Parser ):
 
     def externalDeclaration(self):
 
-        localctx = CMODParser.ExternalDeclarationContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.ExternalDeclarationContext(self, self._ctx, self.state)
         self.enterRule(localctx, 82, self.RULE_externalDeclaration)
         self._la = 0 # Token type
         try:
@@ -3334,7 +3334,7 @@ class CMODParser ( Parser ):
             _la = self._input.LA(1)
             if _la==40:
                 self.state = 456
-                self.match(CMODParser.T__39)
+                self.match(CMODInterfaceParser.T__39)
 
 
             self.state = 461
@@ -3368,19 +3368,19 @@ class CMODParser ( Parser ):
             self.parser = parser
 
         def declarationSpecifiers(self):
-            return self.getTypedRuleContext(CMODParser.DeclarationSpecifiersContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.DeclarationSpecifiersContext,0)
 
 
         def declarator(self):
-            return self.getTypedRuleContext(CMODParser.DeclaratorContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.DeclaratorContext,0)
 
 
         def compoundStatement(self):
-            return self.getTypedRuleContext(CMODParser.CompoundStatementContext,0)
+            return self.getTypedRuleContext(CMODInterfaceParser.CompoundStatementContext,0)
 
 
         def getRuleIndex(self):
-            return CMODParser.RULE_functionDefinition
+            return CMODInterfaceParser.RULE_functionDefinition
 
         def enterRule(self, listener:ParseTreeListener):
             if hasattr( listener, "enterFunctionDefinition" ):
@@ -3395,7 +3395,7 @@ class CMODParser ( Parser ):
 
     def functionDefinition(self):
 
-        localctx = CMODParser.FunctionDefinitionContext(self, self._ctx, self.state)
+        localctx = CMODInterfaceParser.FunctionDefinitionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 84, self.RULE_functionDefinition)
         try:
             self.enterOuterAlt(localctx, 1)

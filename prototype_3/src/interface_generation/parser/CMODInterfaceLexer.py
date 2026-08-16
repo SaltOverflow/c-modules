@@ -1,4 +1,4 @@
-# Generated from src/interface_generation/parser/CMOD.g4 by ANTLR 4.13.2
+# Generated from CMODInterface.g4 by ANTLR 4.13.2
 from antlr4 import *
 from io import StringIO
 import sys
@@ -358,7 +358,7 @@ def serializedATN():
         873,879,889,893,897,902,908,911,921,935,1,0,1,0
     ]
 
-class CMODLexer(Lexer):
+class CMODInterfaceLexer(Lexer):
 
     atn = ATNDeserializer().deserialize(serializedATN())
 
@@ -510,7 +510,7 @@ class CMODLexer(Lexer):
                   "HexadecimalEscapeSequence", "StringLiteral", "SChar", 
                   "Whitespace", "Newline", "BlockComment", "LineComment" ]
 
-    grammarFileName = "CMOD.g4"
+    grammarFileName = "CMODInterface.g4"
 
     def __init__(self, input=None, output:TextIO = sys.stdout):
         super().__init__(input, output)

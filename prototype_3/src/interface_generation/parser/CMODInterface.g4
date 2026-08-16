@@ -2,7 +2,7 @@
 // Here, we perform a partial parse to extract file-level names
 // We also introduce module syntax to the language
 
-grammar CMOD;
+grammar CMODInterface;
 
 // A.1 Lexical grammar
 

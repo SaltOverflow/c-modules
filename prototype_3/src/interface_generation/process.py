@@ -3,8 +3,8 @@ from typing import NamedTuple
 
 from antlr4 import *
 
-from parser.CMODLexer import CMODLexer
-from parser.CMODParser import CMODParser
+from parser.CMODInterfaceLexer import CMODInterfaceLexer
+from parser.CMODInterfaceParser import CMODInterfaceParser
 from ListenerExtractSymbolDefinitions import ListenerExtractSymbolDefinitions, SymbolInfo, SymbolType
 
 class Definition(NamedTuple):
@@ -89,7 +89,7 @@ def generate_module_interface(text: str):
     return ret
 
 @cache
-def get_module_info(text: str) -> tuple[str, list[Token], CMODParser.CompilationUnitContext]:
+def get_module_info(text: str) -> tuple[str, list[Token], CMODInterfaceParser.CompilationUnitContext]:
     """Parses AST of a given module.
     ```
         text: str, tokens, tree
@@ -99,12 +99,12 @@ def get_module_info(text: str) -> tuple[str, list[Token], CMODParser.Compilation
     ```
     """
     input_stream = InputStream(text)
-    lexer = CMODLexer(input_stream)
+    lexer = CMODInterfaceLexer(input_stream)
     tokens = lexer.getAllTokens()  # list[token: {text, start, stop, line, column}]
                                    # stop is inclusive, just like getSourceInterval
     lexer.reset()
     stream = CommonTokenStream(lexer)
-    parser = CMODParser(stream)
+    parser = CMODInterfaceParser(stream)
     tree = parser.compilationUnit()  # {getSourceInterval, getChildren, getChildCount, getChild, getText}
 
     if parser.getNumberOfSyntaxErrors() > 0:
