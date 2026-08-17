@@ -4,6 +4,12 @@
 
 grammar CMODFull;
 
+// Used as reference to set up semantic actions: https://martinlwx.github.io/en/how-to-use-antlr4-to-make-semantic-actions/
+@header {
+from src.scope_resolution.symbolTable import pushScope, popScope, addSymbol, getSymbol
+from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
+}
+
 // A.1 Lexical grammar
 
 token
@@ -345,6 +351,7 @@ storageClassSpecifier
 
 typeSpecifier
     // Grammar augmented with constraint 6.7.2p2 to avoid multiple typedefNames
+    // Technically, "long const long" is valid, so this is not fully standard. I choose not to support this
     : 'void'
     | ('signed' | 'unsigned')? 'char'
     | ('signed' | 'unsigned')? 'short' 'int'?

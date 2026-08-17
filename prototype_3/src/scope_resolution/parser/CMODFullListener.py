@@ -1,9 +1,13 @@
-# Generated from CMODFull.g4 by ANTLR 4.13.2
+# Generated from src/scope_resolution/parser/CMODFull.g4 by ANTLR 4.13.2
 from antlr4 import *
 if "." in __name__:
     from .CMODFullParser import CMODFullParser
 else:
     from CMODFullParser import CMODFullParser
+
+from src.scope_resolution.symbolTable import pushScope, popScope, addSymbol, getSymbol
+from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
+
 
 # This class defines a complete listener for a parse tree produced by CMODFullParser.
 class CMODFullListener(ParseTreeListener):

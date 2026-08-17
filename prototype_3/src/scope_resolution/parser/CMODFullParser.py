@@ -1,4 +1,4 @@
-# Generated from CMODFull.g4 by ANTLR 4.13.2
+# Generated from src/scope_resolution/parser/CMODFull.g4 by ANTLR 4.13.2
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
@@ -7,6 +7,10 @@ if sys.version_info[1] > 5:
 	from typing import TextIO
 else:
 	from typing.io import TextIO
+
+
+from src.scope_resolution.symbolTable import pushScope, popScope, addSymbol, getSymbol
+from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
 
 def serializedATN():
     return [

@@ -268,6 +268,7 @@ storageClassSpecifier
 
 typeSpecifier
     // Grammar augmented with constraint 6.7.2p2 to avoid multiple typedefNames
+    // Technically, "long const long" is valid, so this is not fully standard. I choose not to support this
     : 'void'
     | ('signed' | 'unsigned')? 'char'
     | ('signed' | 'unsigned')? 'short' 'int'?
