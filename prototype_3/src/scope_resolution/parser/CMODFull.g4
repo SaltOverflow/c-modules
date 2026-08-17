@@ -1,6 +1,6 @@
 // C99 grammar was originally taken from Annex A of C99 standard ( https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf ) and edited.
 // Notable differences: module syntax (ie. module, import, export) added, digraphs/trigraphs/K&R syntax removed.
-// Here, we perform a partial parse to extract file-level names. This means that expression, function bodies and parameter lists are skipped.
+// Here, we perform a full parse by leveraging the symbol table, which should be initialized prior to calling into CMODFull.
 
 grammar CMODFull;
 
@@ -207,7 +207,6 @@ punctuator
 // A.2 Phrase structure grammar
 
 // A.2.1 Expressions
-// The partial parse runs without a symbol table, so just track parentheses
 
 skipTokens
     // This captures CharacterConstant and StringLiteral because those are tokens
@@ -340,7 +339,7 @@ directDeclarator
     | directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
     | directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
     | directDeclarator '[' typeQualifierList? '*' ']'
-    | directDeclarator '(' expression? ')'  // int foo(a(b)) is ambiguous, let's skip parameters because we don't need it anyways
+    | directDeclarator '(' parameterTypeList? ')'
     // | directDeclarator '(' identifierList? ')'  // We don't support K&R syntax
     ;
 
@@ -350,6 +349,41 @@ pointer
 
 typeQualifierList
     : typeQualifier+
+    ;
+
+parameterTypeList
+    : parameterList
+    | parameterList ',' '...'
+    ;
+
+parameterList
+    : parameterDeclaration (',' parameterDeclaration)*
+    ;
+
+parameterDeclaration
+    : declarationSpecifiers declarator
+    | declarationSpecifiers abstractDeclarator?
+    ;
+
+typeName
+    : specifierQualifierList abstractDeclarator?
+    ;
+
+abstractDeclarator
+    : pointer
+    | pointer? directAbstractDeclarator
+    ;
+
+directAbstractDeclarator
+    : ('(' abstractDeclarator ')' | directAbstractDeclaratorAfter) directAbstractDeclaratorAfter*
+    ;
+
+directAbstractDeclaratorAfter
+    : '[' typeQualifierList? assignmentExpression? ']'
+    | '[' 'static' typeQualifierList? assignmentExpression ']'
+    | '[' typeQualifierList 'static' assignmentExpression ']'
+    | '[' '*' ']'
+    | '(' parameterTypeList? ')'
     ;
 
 typedefName
