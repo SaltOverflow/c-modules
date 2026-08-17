@@ -208,38 +208,116 @@ punctuator
 
 // A.2.1 Expressions
 
-skipTokens
-    // This captures CharacterConstant and StringLiteral because those are tokens
-    : ~('(' | ')' | '[' | ']' | '{' | '}' | ',' | ';'
-        | 'struct' | 'union' | 'enum')
-    | ('struct' | 'union' | 'enum') Identifier
+primaryExpression
+    : Identifier
+    | constant
+    | StringLiteral
+    | '(' expression ')'
     ;
 
-constantExpression
-    : (
-        skipTokens
-        | '(' innerExpression? ')'
-        | '[' innerExpression? ']'
-        | '{' innerExpression? '}'
-    )+
+postfixExpression
+    : primaryExpression
+    | postfixExpression '[' expression ']'
+    | postfixExpression '(' argumentExpressionList? ')'
+    | postfixExpression '.' Identifier
+    | postfixExpression '->' Identifier
+    | postfixExpression '++'
+    | postfixExpression '--'
+    | '(' typeName ')' '{' initializerList ','? '}'
+    ;
+
+argumentExpressionList
+    : assignmentExpression (',' assignmentExpression)*
+    ;
+
+unaryExpression
+    : postfixExpression
+    | '++' unaryExpression
+    | '--' unaryExpression
+    | unaryOperator castExpression
+    | 'sizeof' unaryExpression
+    | 'sizeof' '(' typeName ')'
+    ;
+
+unaryOperator
+    : '&' | '*' | '+' | '-' | '~' | '!'
+    ;
+
+castExpression
+    : unaryExpression
+    | '(' typeName ')' castExpression
+    ;
+
+multiplicativeExpression
+    : castExpression
+    | multiplicativeExpression ('*' | '/' | '%') castExpression
+    ;
+
+additiveExpression
+    : multiplicativeExpression
+    | additiveExpression ('+' | '-') multiplicativeExpression
+    ;
+
+shiftExpression
+    : additiveExpression
+    | shiftExpression ('<<' | '>>') additiveExpression
+    ;
+
+relationalExpression
+    : shiftExpression
+    | relationalExpression ('<' | '>' | '<=' | '>=') shiftExpression
+    ;
+
+equalityExpression
+    : relationalExpression
+    | equalityExpression ('==' | '!=') relationalExpression
+    ;
+
+andExpression
+    : equalityExpression
+    | andExpression '&' equalityExpression
+    ;
+
+exclusiveOrExpression
+    : andExpression
+    | exclusiveOrExpression '^' andExpression
+    ;
+
+inclusiveOrExpression
+    : exclusiveOrExpression
+    | inclusiveOrExpression '|' exclusiveOrExpression
+    ;
+
+logicalAndExpression
+    : inclusiveOrExpression
+    | logicalAndExpression '&&' inclusiveOrExpression
+    ;
+
+logicalOrExpression
+    : logicalAndExpression
+    | logicalOrExpression '||' logicalAndExpression
+    ;
+
+conditionalExpression
+    : logicalOrExpression
+    | logicalOrExpression '?' expression ':' conditionalExpression
     ;
 
 assignmentExpression
-    : constantExpression
+    : conditionalExpression
+    | unaryExpression assignmentOperator assignmentExpression
+    ;
+
+assignmentOperator
+    : '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '&=' | '^=' | '|='
     ;
 
 expression
-    : (
-        constantExpression
-        | ','
-    )+
+    : assignmentExpression (',' assignmentExpression)*
     ;
 
-innerExpression
-    : (
-        expression
-        | ';'
-    )+
+constantExpression
+    : conditionalExpression
     ;
 
 // A.2.2 Declarations
@@ -411,9 +489,27 @@ designator
 
 // A.2.3 Statements
 // The partial parse runs without a symbol table, so just track parentheses
+// TODO: replace with real A.2.3 Statements grammar
+
+skipStatementTokens
+    // This captures CharacterConstant and StringLiteral because those are tokens
+    : ~('(' | ')' | '[' | ']' | '{' | '}' | ',' | ';'
+        | 'struct' | 'union' | 'enum')
+    | ('struct' | 'union' | 'enum') Identifier
+    ;
+
+innerStatementTokens
+    : (
+        skipStatementTokens
+        | '(' innerStatementTokens ')'
+        | '[' innerStatementTokens ']'
+        | '{' innerStatementTokens '}'
+        | ',' | ';'
+    )*
+    ;
 
 compoundStatement
-    : '{' innerExpression? '}'
+    : '{' innerStatementTokens '}'
     ;
 
 // A.2.4 External definitions

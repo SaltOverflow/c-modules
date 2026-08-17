@@ -53,21 +53,156 @@ class CMODFullListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by CMODFullParser#skipTokens.
-    def enterSkipTokens(self, ctx:CMODFullParser.SkipTokensContext):
+    # Enter a parse tree produced by CMODFullParser#primaryExpression.
+    def enterPrimaryExpression(self, ctx:CMODFullParser.PrimaryExpressionContext):
         pass
 
-    # Exit a parse tree produced by CMODFullParser#skipTokens.
-    def exitSkipTokens(self, ctx:CMODFullParser.SkipTokensContext):
+    # Exit a parse tree produced by CMODFullParser#primaryExpression.
+    def exitPrimaryExpression(self, ctx:CMODFullParser.PrimaryExpressionContext):
         pass
 
 
-    # Enter a parse tree produced by CMODFullParser#constantExpression.
-    def enterConstantExpression(self, ctx:CMODFullParser.ConstantExpressionContext):
+    # Enter a parse tree produced by CMODFullParser#postfixExpression.
+    def enterPostfixExpression(self, ctx:CMODFullParser.PostfixExpressionContext):
         pass
 
-    # Exit a parse tree produced by CMODFullParser#constantExpression.
-    def exitConstantExpression(self, ctx:CMODFullParser.ConstantExpressionContext):
+    # Exit a parse tree produced by CMODFullParser#postfixExpression.
+    def exitPostfixExpression(self, ctx:CMODFullParser.PostfixExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#argumentExpressionList.
+    def enterArgumentExpressionList(self, ctx:CMODFullParser.ArgumentExpressionListContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#argumentExpressionList.
+    def exitArgumentExpressionList(self, ctx:CMODFullParser.ArgumentExpressionListContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#unaryExpression.
+    def enterUnaryExpression(self, ctx:CMODFullParser.UnaryExpressionContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#unaryExpression.
+    def exitUnaryExpression(self, ctx:CMODFullParser.UnaryExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#unaryOperator.
+    def enterUnaryOperator(self, ctx:CMODFullParser.UnaryOperatorContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#unaryOperator.
+    def exitUnaryOperator(self, ctx:CMODFullParser.UnaryOperatorContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#castExpression.
+    def enterCastExpression(self, ctx:CMODFullParser.CastExpressionContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#castExpression.
+    def exitCastExpression(self, ctx:CMODFullParser.CastExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#multiplicativeExpression.
+    def enterMultiplicativeExpression(self, ctx:CMODFullParser.MultiplicativeExpressionContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#multiplicativeExpression.
+    def exitMultiplicativeExpression(self, ctx:CMODFullParser.MultiplicativeExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#additiveExpression.
+    def enterAdditiveExpression(self, ctx:CMODFullParser.AdditiveExpressionContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#additiveExpression.
+    def exitAdditiveExpression(self, ctx:CMODFullParser.AdditiveExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#shiftExpression.
+    def enterShiftExpression(self, ctx:CMODFullParser.ShiftExpressionContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#shiftExpression.
+    def exitShiftExpression(self, ctx:CMODFullParser.ShiftExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#relationalExpression.
+    def enterRelationalExpression(self, ctx:CMODFullParser.RelationalExpressionContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#relationalExpression.
+    def exitRelationalExpression(self, ctx:CMODFullParser.RelationalExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#equalityExpression.
+    def enterEqualityExpression(self, ctx:CMODFullParser.EqualityExpressionContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#equalityExpression.
+    def exitEqualityExpression(self, ctx:CMODFullParser.EqualityExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#andExpression.
+    def enterAndExpression(self, ctx:CMODFullParser.AndExpressionContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#andExpression.
+    def exitAndExpression(self, ctx:CMODFullParser.AndExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#exclusiveOrExpression.
+    def enterExclusiveOrExpression(self, ctx:CMODFullParser.ExclusiveOrExpressionContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#exclusiveOrExpression.
+    def exitExclusiveOrExpression(self, ctx:CMODFullParser.ExclusiveOrExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#inclusiveOrExpression.
+    def enterInclusiveOrExpression(self, ctx:CMODFullParser.InclusiveOrExpressionContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#inclusiveOrExpression.
+    def exitInclusiveOrExpression(self, ctx:CMODFullParser.InclusiveOrExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#logicalAndExpression.
+    def enterLogicalAndExpression(self, ctx:CMODFullParser.LogicalAndExpressionContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#logicalAndExpression.
+    def exitLogicalAndExpression(self, ctx:CMODFullParser.LogicalAndExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#logicalOrExpression.
+    def enterLogicalOrExpression(self, ctx:CMODFullParser.LogicalOrExpressionContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#logicalOrExpression.
+    def exitLogicalOrExpression(self, ctx:CMODFullParser.LogicalOrExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#conditionalExpression.
+    def enterConditionalExpression(self, ctx:CMODFullParser.ConditionalExpressionContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#conditionalExpression.
+    def exitConditionalExpression(self, ctx:CMODFullParser.ConditionalExpressionContext):
         pass
 
 
@@ -80,6 +215,15 @@ class CMODFullListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by CMODFullParser#assignmentOperator.
+    def enterAssignmentOperator(self, ctx:CMODFullParser.AssignmentOperatorContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#assignmentOperator.
+    def exitAssignmentOperator(self, ctx:CMODFullParser.AssignmentOperatorContext):
+        pass
+
+
     # Enter a parse tree produced by CMODFullParser#expression.
     def enterExpression(self, ctx:CMODFullParser.ExpressionContext):
         pass
@@ -89,12 +233,12 @@ class CMODFullListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by CMODFullParser#innerExpression.
-    def enterInnerExpression(self, ctx:CMODFullParser.InnerExpressionContext):
+    # Enter a parse tree produced by CMODFullParser#constantExpression.
+    def enterConstantExpression(self, ctx:CMODFullParser.ConstantExpressionContext):
         pass
 
-    # Exit a parse tree produced by CMODFullParser#innerExpression.
-    def exitInnerExpression(self, ctx:CMODFullParser.InnerExpressionContext):
+    # Exit a parse tree produced by CMODFullParser#constantExpression.
+    def exitConstantExpression(self, ctx:CMODFullParser.ConstantExpressionContext):
         pass
 
 
@@ -392,6 +536,24 @@ class CMODFullListener(ParseTreeListener):
 
     # Exit a parse tree produced by CMODFullParser#designator.
     def exitDesignator(self, ctx:CMODFullParser.DesignatorContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#skipStatementTokens.
+    def enterSkipStatementTokens(self, ctx:CMODFullParser.SkipStatementTokensContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#skipStatementTokens.
+    def exitSkipStatementTokens(self, ctx:CMODFullParser.SkipStatementTokensContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#innerStatementTokens.
+    def enterInnerStatementTokens(self, ctx:CMODFullParser.InnerStatementTokensContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#innerStatementTokens.
+    def exitInnerStatementTokens(self, ctx:CMODFullParser.InnerStatementTokensContext):
         pass
 
 
