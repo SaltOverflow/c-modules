@@ -1,6 +1,6 @@
-// C99 grammar without trigrams and K&R syntax, originally taken from Annex A of C99 standard and edited
-// Here, we perform a partial parse to extract file-level names
-// We also introduce module syntax to the language
+// C99 grammar was originally taken from Annex A of C99 standard ( https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf ) and edited.
+// Notable differences: module syntax (ie. module, import, export) added, digraphs/trigraphs/K&R syntax removed.
+// Here, we perform a partial parse to extract file-level names. This means that expression, function bodies and parameter lists are skipped.
 
 grammar CMODInterface;
 
@@ -201,6 +201,7 @@ punctuator
     | '?' | ':' | ';' | '...'
     | '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '&=' | '^=' | '|='
     | ','
+    // We don't support digraphs/trigraphs
     ;
 
 // A.2 Phrase structure grammar
@@ -249,7 +250,7 @@ declaration
     ;
 
 declarationSpecifiers
-    // Restrict to at most one typedef name
+    // Restrict to at most one typedef name (see constraint 6.7.2p2)
     : (storageClassSpecifier | typeQualifier | functionSpecifier)* typeSpecifier (storageClassSpecifier | typeQualifier | functionSpecifier)*
     ;
 
@@ -266,7 +267,7 @@ storageClassSpecifier
     ;
 
 typeSpecifier
-    // Grammar augmented with constraint 6.7.2[2] to avoid multiple typedefNames
+    // Grammar augmented with constraint 6.7.2p2 to avoid multiple typedefNames
     : 'void'
     | ('signed' | 'unsigned')? 'char'
     | ('signed' | 'unsigned')? 'short' 'int'?
@@ -294,7 +295,7 @@ structDeclaration
     ;
 
 specifierQualifierList
-    // Restrict to at most one typedef name
+    // Restrict to at most one typedef name (see constraint 6.7.2p2)
     : typeQualifier* typeSpecifier typeQualifier*
     ;
 
@@ -339,8 +340,8 @@ directDeclarator
     | directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
     | directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
     | directDeclarator '[' typeQualifierList? '*' ']'
-    | directDeclarator '(' expression? ')'  // int foo(a(b)) is ambiguous, let's skip it because we don't need it anyways
-    // | directDeclarator '(' identifierList? ')'  // I'm not supporting K&R syntax
+    | directDeclarator '(' expression? ')'  // int foo(a(b)) is ambiguous, let's skip parameters because we don't need it anyways
+    // | directDeclarator '(' identifierList? ')'  // We don't support K&R syntax
     ;
 
 pointer
@@ -404,6 +405,7 @@ externalDeclaration
     ;
 
 functionDefinition
+    // We don't support K&R syntax, so declarationList is removed
     : declarationSpecifiers declarator compoundStatement
     ;
 
