@@ -539,21 +539,21 @@ class CMODFullListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by CMODFullParser#skipStatementTokens.
-    def enterSkipStatementTokens(self, ctx:CMODFullParser.SkipStatementTokensContext):
+    # Enter a parse tree produced by CMODFullParser#statement.
+    def enterStatement(self, ctx:CMODFullParser.StatementContext):
         pass
 
-    # Exit a parse tree produced by CMODFullParser#skipStatementTokens.
-    def exitSkipStatementTokens(self, ctx:CMODFullParser.SkipStatementTokensContext):
+    # Exit a parse tree produced by CMODFullParser#statement.
+    def exitStatement(self, ctx:CMODFullParser.StatementContext):
         pass
 
 
-    # Enter a parse tree produced by CMODFullParser#innerStatementTokens.
-    def enterInnerStatementTokens(self, ctx:CMODFullParser.InnerStatementTokensContext):
+    # Enter a parse tree produced by CMODFullParser#labeledStatement.
+    def enterLabeledStatement(self, ctx:CMODFullParser.LabeledStatementContext):
         pass
 
-    # Exit a parse tree produced by CMODFullParser#innerStatementTokens.
-    def exitInnerStatementTokens(self, ctx:CMODFullParser.InnerStatementTokensContext):
+    # Exit a parse tree produced by CMODFullParser#labeledStatement.
+    def exitLabeledStatement(self, ctx:CMODFullParser.LabeledStatementContext):
         pass
 
 
@@ -563,6 +563,60 @@ class CMODFullListener(ParseTreeListener):
 
     # Exit a parse tree produced by CMODFullParser#compoundStatement.
     def exitCompoundStatement(self, ctx:CMODFullParser.CompoundStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#blockItemList.
+    def enterBlockItemList(self, ctx:CMODFullParser.BlockItemListContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#blockItemList.
+    def exitBlockItemList(self, ctx:CMODFullParser.BlockItemListContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#blockItem.
+    def enterBlockItem(self, ctx:CMODFullParser.BlockItemContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#blockItem.
+    def exitBlockItem(self, ctx:CMODFullParser.BlockItemContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#expressionStatement.
+    def enterExpressionStatement(self, ctx:CMODFullParser.ExpressionStatementContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#expressionStatement.
+    def exitExpressionStatement(self, ctx:CMODFullParser.ExpressionStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#selectionStatement.
+    def enterSelectionStatement(self, ctx:CMODFullParser.SelectionStatementContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#selectionStatement.
+    def exitSelectionStatement(self, ctx:CMODFullParser.SelectionStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#iterationStatement.
+    def enterIterationStatement(self, ctx:CMODFullParser.IterationStatementContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#iterationStatement.
+    def exitIterationStatement(self, ctx:CMODFullParser.IterationStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by CMODFullParser#jumpStatement.
+    def enterJumpStatement(self, ctx:CMODFullParser.JumpStatementContext):
+        pass
+
+    # Exit a parse tree produced by CMODFullParser#jumpStatement.
+    def exitJumpStatement(self, ctx:CMODFullParser.JumpStatementContext):
         pass
 
 

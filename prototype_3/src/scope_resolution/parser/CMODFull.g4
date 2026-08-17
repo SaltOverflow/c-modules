@@ -488,28 +488,58 @@ designator
     ;
 
 // A.2.3 Statements
-// The partial parse runs without a symbol table, so just track parentheses
-// TODO: replace with real A.2.3 Statements grammar
 
-skipStatementTokens
-    // This captures CharacterConstant and StringLiteral because those are tokens
-    : ~('(' | ')' | '[' | ']' | '{' | '}' | ',' | ';'
-        | 'struct' | 'union' | 'enum')
-    | ('struct' | 'union' | 'enum') Identifier
+statement
+    : labeledStatement
+    | compoundStatement
+    | expressionStatement
+    | selectionStatement
+    | iterationStatement
+    | jumpStatement
     ;
 
-innerStatementTokens
-    : (
-        skipStatementTokens
-        | '(' innerStatementTokens ')'
-        | '[' innerStatementTokens ']'
-        | '{' innerStatementTokens '}'
-        | ',' | ';'
-    )*
+labeledStatement
+    : Identifier ':' statement
+    | 'case' constantExpression ':' statement
+    | 'default' ':' statement
     ;
 
 compoundStatement
-    : '{' innerStatementTokens '}'
+    : '{' blockItemList? '}'
+    ;
+
+blockItemList
+    : blockItem+
+    ;
+
+blockItem
+    : declaration
+    | statement
+    ;
+
+expressionStatement
+    : expression? ';'
+    ;
+
+selectionStatement
+    // ANTLR handles dangling else here (binds to closest if statement)
+    : 'if' '(' expression ')' statement ('else' statement)?
+    | 'switch' '(' expression ')' statement
+    ;
+
+iterationStatement
+    : 'while' '(' expression ')' statement
+    | 'do' statement 'while' '(' expression ')' ';'
+    // This shouldn't be ambiguous once we hook up the symbol table
+    | 'for' '(' expression? ';' expression? ';' expression? ')' statement
+    | 'for' '(' declaration expression? ';' expression? ')' statement
+    ;
+
+jumpStatement
+    : 'goto' Identifier ';'
+    | 'continue' ';'
+    | 'break' ';'
+    | 'return' expression? ';'
     ;
 
 // A.2.4 External definitions
