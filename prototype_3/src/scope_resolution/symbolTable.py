@@ -1,8 +1,8 @@
 # Symbol table used for disambiguation when parsing module files fully.
 # We use global variables to communicate with ANTLR.
 
-from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
-from src.interface_generation.process import Definition
+from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType
+from ..interface_generation.process import Definition
 
 fileSymbolTable = {}  # dict[(name: str, QuerySymbolType), (SymbolType, module_name: str)], represents symbol table at file level
                       # QuerySymbolType is SymbolType.STRUCT, UNION, ENUM, VARIABLE only

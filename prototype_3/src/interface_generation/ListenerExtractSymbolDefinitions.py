@@ -22,10 +22,11 @@
 # pprint(lExtractSymbolDefinitions.symbol_definitions)
 
 from antlr4 import *
-from parser.CMODInterfaceListener import CMODInterfaceListener
-from parser.CMODInterfaceParser import CMODInterfaceParser
 from enum import Enum, auto
 from typing import NamedTuple
+
+from .parser.CMODInterfaceListener import CMODInterfaceListener
+from .parser.CMODInterfaceParser import CMODInterfaceParser
 
 class SymbolType(Enum):
     STRUCT = auto()  # ctx: StructOrUnionSpecifierContext

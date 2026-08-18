@@ -3,9 +3,9 @@ from typing import NamedTuple
 
 from antlr4 import *
 
-from parser.CMODInterfaceLexer import CMODInterfaceLexer
-from parser.CMODInterfaceParser import CMODInterfaceParser
-from ListenerExtractSymbolDefinitions import ListenerExtractSymbolDefinitions, SymbolInfo, SymbolType
+from .parser.CMODInterfaceLexer import CMODInterfaceLexer
+from .parser.CMODInterfaceParser import CMODInterfaceParser
+from .ListenerExtractSymbolDefinitions import ListenerExtractSymbolDefinitions, SymbolInfo, SymbolType
 
 class Definition(NamedTuple):
     name: str
