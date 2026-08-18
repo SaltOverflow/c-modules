@@ -5,6 +5,7 @@
 grammar CMODFull;
 
 // Used as reference to set up semantic actions: https://martinlwx.github.io/en/how-to-use-antlr4-to-make-semantic-actions/
+// Also see https://github.com/antlr/antlr4/blob/dev/doc/actions.md and https://github.com/antlr/antlr4/blob/dev/doc/predicates.md
 @header {
 from src.scope_resolution.symbolTable import pushScope, popScope, addSymbol, getSymbol
 from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
@@ -57,7 +58,8 @@ fragment HexQuad
 constant
     : IntegerConstant
     | FloatingConstant
-    | enumerationConstant
+    | {getSymbol(self._input.LT(1).text) == SymbolType.ENUM_CONSTANT}?
+      enumerationConstant
     | CharacterConstant
     ;
 
@@ -157,7 +159,7 @@ fragment FloatingSuffix
     ;
 
 enumerationConstant
-    // This needs disambiguation with identifiers in expressions
+    // ANTLR predicates and actions are placed on the users of this rule
     : Identifier
     ;
 
@@ -215,7 +217,8 @@ punctuator
 // A.2.1 Expressions
 
 primaryExpression
-    : Identifier
+    : {getSymbol(self._input.LT(1).text) in (SymbolType.VARIABLE, SymbolType.FUNCTION)}?
+      Identifier
     | constant
     | StringLiteral
     | '(' expression ')'
@@ -367,7 +370,9 @@ typeSpecifier
 
 structOrUnionSpecifier
     : structOrUnion Identifier? '{' structDeclaration+ '}'
-    | structOrUnion Identifier
+    | {(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, SymbolType.STRUCT) == SymbolType.STRUCT
+        or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, SymbolType.UNION) == SymbolType.UNION)}?
+      structOrUnion Identifier
     ;
 
 structOrUnion
@@ -394,7 +399,8 @@ structDeclarator
 
 enumSpecifier
     : 'enum' Identifier? '{' enumeratorList ','? '}'
-    | 'enum' Identifier
+    | {getSymbol(self._input.LT(2).text, SymbolType.ENUM) == SymbolType.ENUM}?
+      'enum' Identifier
     ;
 
 enumeratorList
@@ -472,8 +478,8 @@ directAbstractDeclaratorAfter
     ;
 
 typedefName
-    // Grammar set up to avoid ambiguity with identifiers for file-level declarations
-    : Identifier
+    : {getSymbol(self._input.LT(1).text) == SymbolType.TYPEDEF}?
+      Identifier
     ;
 
 initializer

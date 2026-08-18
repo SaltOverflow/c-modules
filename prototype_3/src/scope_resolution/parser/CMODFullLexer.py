@@ -1,4 +1,4 @@
-# Generated from src/scope_resolution/parser/CMODFull.g4 by ANTLR 4.13.2
+# Generated from CMODFull.g4 by ANTLR 4.13.2
 from antlr4 import *
 from io import StringIO
 import sys
