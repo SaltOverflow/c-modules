@@ -369,7 +369,9 @@ typeSpecifier
     ;
 
 structOrUnionSpecifier
-    : structOrUnion Identifier? '{' structDeclaration+ '}'
+    : structOrUnion Identifier? '{'
+      {if $Identifier is not None: addSymbol($Identifier.text, SymbolType.STRUCT if $structOrUnion.text == 'struct' else SymbolType.UNION)}
+      structDeclaration+ '}'
     | {(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, SymbolType.STRUCT) == SymbolType.STRUCT
         or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, SymbolType.UNION) == SymbolType.UNION)}?
       structOrUnion Identifier
@@ -398,7 +400,9 @@ structDeclarator
     ;
 
 enumSpecifier
-    : 'enum' Identifier? '{' enumeratorList ','? '}'
+    : 'enum' Identifier? '{'
+      {if $Identifier is not None: addSymbol($Identifier.text, SymbolType.ENUM)}
+      enumeratorList ','? '}'
     | {getSymbol(self._input.LT(2).text, SymbolType.ENUM) == SymbolType.ENUM}?
       'enum' Identifier
     ;
@@ -408,7 +412,9 @@ enumeratorList
     ;
 
 enumerator
-    : enumerationConstant ('=' constantExpression)?
+    : enumerationConstant
+      {addSymbol($enumerationConstant.text, SymbolType.ENUM_CONSTANT)}
+      ('=' constantExpression)?
     ;
 
 typeQualifier
