@@ -5,7 +5,7 @@ if "." in __name__:
 else:
     from CMODFullParser import CMODFullParser
 
-from src.scope_resolution.symbolTable import pushScope, popScope, addSymbol, getSymbol
+from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, updateDeclaratorType, enterParameterRegion, exitParameterRegion
 from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
 
 

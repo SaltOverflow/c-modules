@@ -7,7 +7,7 @@ grammar CMODFull;
 // Used as reference to set up semantic actions: https://martinlwx.github.io/en/how-to-use-antlr4-to-make-semantic-actions/
 // Also see https://github.com/antlr/antlr4/blob/dev/doc/actions.md and https://github.com/antlr/antlr4/blob/dev/doc/predicates.md
 @header {
-from src.scope_resolution.symbolTable import pushScope, popScope, addSymbol, getSymbol
+from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, updateDeclaratorType, enterParameterRegion, exitParameterRegion
 from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
 }
 
@@ -159,7 +159,7 @@ fragment FloatingSuffix
     ;
 
 enumerationConstant
-    // ANTLR predicates and actions are placed on the users of this rule
+    // add/getSymbol is handled by callers of this rule
     : Identifier
     ;
 
@@ -332,7 +332,8 @@ constantExpression
 // A.2.2 Declarations
 
 declaration
-    : declarationSpecifiers initDeclaratorList? ';'
+    : {updateDeclaratorType(SymbolType.VARIABLE)}
+      declarationSpecifiers initDeclaratorList? ';'
     ;
 
 declarationSpecifiers
@@ -349,7 +350,9 @@ initDeclarator
     ;
 
 storageClassSpecifier
-    : 'typedef' | 'extern' | 'static' | 'auto' | 'register'
+    : 'typedef'
+      {updateDeclaratorType(SymbolType.TYPEDEF)}
+    | 'extern' | 'static' | 'auto' | 'register'
     ;
 
 typeSpecifier
@@ -371,7 +374,9 @@ typeSpecifier
 structOrUnionSpecifier
     : structOrUnion Identifier? '{'
       {if $Identifier is not None: addSymbol($Identifier.text, SymbolType.STRUCT if $structOrUnion.text == 'struct' else SymbolType.UNION)}
+      {pushScope()}
       structDeclaration+ '}'
+      {popScope()}
     | {(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, SymbolType.STRUCT) == SymbolType.STRUCT
         or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, SymbolType.UNION) == SymbolType.UNION)}?
       structOrUnion Identifier
@@ -430,13 +435,22 @@ declarator
     ;
 
 directDeclarator
+    // ANTLR's powerful prediction + semantic predicates allows us to grab the correct declaratorType context,
+    // (when parsing a function definition, it doesn't try parsing a declaration before backing out)
+    // It's not the most robust implementation, but it works for now
     : Identifier
+      {addSymbol($Identifier.text, SymbolType.VARIABLE)}
     | '(' declarator ')'
     | directDeclarator '[' typeQualifierList? assignmentExpression? ']'
     | directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
     | directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
     | directDeclarator '[' typeQualifierList? '*' ']'
-    | directDeclarator '(' parameterTypeList? ')'
+    | directDeclarator '('
+      {pushScope()}
+      {enterParameterRegion()}
+      parameterTypeList? ')'
+      {exitParameterRegion()}
+      {popScope(True)}  // order matters here because we want to store the parameters of the function definition
     // | directDeclarator '(' identifierList? ')'  // We don't support K&R syntax
     ;
 
@@ -454,6 +468,7 @@ parameterTypeList
     ;
 
 parameterList
+    // The parameter list might be empty, so we move scope work to directDeclarator and directAbstractDeclaratorAfter
     : parameterDeclaration (',' parameterDeclaration)*
     ;
 
@@ -480,7 +495,12 @@ directAbstractDeclaratorAfter
     | '[' 'static' typeQualifierList? assignmentExpression ']'
     | '[' typeQualifierList 'static' assignmentExpression ']'
     | '[' '*' ']'
-    | '(' parameterTypeList? ')'
+    | '('
+      {pushScope()}
+      {enterParameterRegion()}
+      parameterTypeList? ')'
+      {exitParameterRegion()}
+      {popScope(False)}  // order doesn't technically matter here because it's never part of function scope
     ;
 
 typedefName
@@ -510,7 +530,9 @@ designator
 
 statement
     : labeledStatement
-    | compoundStatement
+    | {pushScope()}
+      compoundStatement
+      {popScope()}
     | expressionStatement
     | selectionStatement
     | iterationStatement
@@ -524,6 +546,7 @@ labeledStatement
     ;
 
 compoundStatement
+    // Scope is handled by the callers of this rule
     : '{' blockItemList? '}'
     ;
 
@@ -532,8 +555,13 @@ blockItemList
     ;
 
 blockItem
-    : declaration
-    | statement
+    // the order of statement and declaration needed to be swapped from the original grammar
+    // I think it's a bug in ANTLR (using 4.13.2), probably caused by the * in declarationSpecifiers
+    // With the original order, it processes the semantic predicate for expressionStatement `d;`,
+    // then claims "no viable alternative" (I presume it was only considering declaration)
+    // Interestingly, I don't see this happen if I swap the order of the for loop rule
+    : statement
+    | declaration
     ;
 
 expressionStatement
@@ -549,9 +577,14 @@ selectionStatement
 iterationStatement
     : 'while' '(' expression ')' statement
     | 'do' statement 'while' '(' expression ')' ';'
-    // This shouldn't be ambiguous once we hook up the symbol table
+    // ANTLR's powerful prediction + semantic predicates allows us to avoid the scenario
+    // where the parser backtracks between pushScope() and popScope().
+    // It's not the most robust implementation, but it works for now
     | 'for' '(' expression? ';' expression? ';' expression? ')' statement
-    | 'for' '(' declaration expression? ';' expression? ')' statement
+    | 'for' '('
+      {pushScope()}
+      declaration expression? ';' expression? ')' statement
+      {popScope()}
     ;
 
 jumpStatement
@@ -585,7 +618,11 @@ externalDeclaration
 
 functionDefinition
     // We don't support K&R syntax, so declarationList is removed
-    : declarationSpecifiers declarator compoundStatement
+    : {updateDeclaratorType(SymbolType.FUNCTION)}
+      declarationSpecifiers declarator
+      {pushFunctionScope()}
+      compoundStatement
+      {popScope()}
     ;
 
 // Comments and whitespace
