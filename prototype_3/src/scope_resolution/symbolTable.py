@@ -82,7 +82,7 @@ def addSymbol(name: str, symbolType: SymbolType):
         # print(f"AFTER addSymbol({name=}, {symbolType=})")
         # pprint(localSymbolTable)
 
-def getSymbol(name: str, querySymbolType: SymbolType = SymbolType.VARIABLE) -> SymbolType | None:
+def getSymbol(name: str, querySymbolType: SymbolType = SymbolType.VARIABLE, updateUses: bool = False) -> SymbolType | None:
     if querySymbolType not in (SymbolType.STRUCT, SymbolType.UNION, SymbolType.ENUM, SymbolType.VARIABLE):
         # Let it keep going
         print(f"// ERROR: implementation error, {querySymbolType=} is invalid, using VARIABLE fallback")
@@ -92,7 +92,8 @@ def getSymbol(name: str, querySymbolType: SymbolType = SymbolType.VARIABLE) -> S
             return st[(name, querySymbolType)]
     if (name, querySymbolType) in fileSymbolTable:
         symbolType, module_name = fileSymbolTable[(name, querySymbolType)]
-        fileSymbolTableUses.append((module_name, name, symbolType))  # calling getSymbol multiple times will create duplicates, but that's ok
+        if updateUses:  # dependency tracking is moved to semantic actions instead of semantic predicates
+            fileSymbolTableUses.append((module_name, name, symbolType))
         return symbolType
     else:
         # No need to emit an error message: the parser's speculative lookahead often checks invalid strings

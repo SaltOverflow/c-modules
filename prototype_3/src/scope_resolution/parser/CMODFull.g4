@@ -60,6 +60,7 @@ constant
     | FloatingConstant
     | {getSymbol(self._input.LT(1).text) == SymbolType.ENUM_CONSTANT}?
       enumerationConstant
+      {getSymbol($enumerationConstant.text, updateUses=True)}
     | CharacterConstant
     ;
 
@@ -219,6 +220,7 @@ punctuator
 primaryExpression
     : {getSymbol(self._input.LT(1).text) in (SymbolType.VARIABLE, SymbolType.FUNCTION)}?
       Identifier
+      {getSymbol($Identifier.text, updateUses=True)}
     | constant
     | StringLiteral
     | '(' expression ')'
@@ -380,6 +382,7 @@ structOrUnionSpecifier
     | {(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, SymbolType.STRUCT) == SymbolType.STRUCT
         or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, SymbolType.UNION) == SymbolType.UNION)}?
       structOrUnion Identifier
+      {getSymbol($Identifier.text, SymbolType.STRUCT if $structOrUnion.text == 'struct' else SymbolType.UNION, updateUses=True)}
     ;
 
 structOrUnion
@@ -410,6 +413,7 @@ enumSpecifier
       enumeratorList ','? '}'
     | {getSymbol(self._input.LT(2).text, SymbolType.ENUM) == SymbolType.ENUM}?
       'enum' Identifier
+      {getSymbol($Identifier.text, SymbolType.ENUM, updateUses=True)}
     ;
 
 enumeratorList
@@ -506,6 +510,7 @@ directAbstractDeclaratorAfter
 typedefName
     : {getSymbol(self._input.LT(1).text) == SymbolType.TYPEDEF}?
       Identifier
+      {getSymbol($Identifier.text, updateUses=True)}
     ;
 
 initializer
