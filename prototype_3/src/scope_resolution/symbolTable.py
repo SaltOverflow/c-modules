@@ -41,6 +41,11 @@ def sanityCheck(tokens: list | None = None):
                 # Let it keep going
                 print(f"// ERROR: fileSymbolTableUses includes {(name, token_idx)}, which differs from {tokens[token_idx].text=}")
                 violations += 1
+            querySymbolType = symbolType if symbolType in (SymbolType.STRUCT, SymbolType.UNION, SymbolType.ENUM) else SymbolType.VARIABLE
+            if (name, querySymbolType) not in fileSymbolTable or fileSymbolTable[(name, querySymbolType)] != (symbolType, module_name):
+                # Let it keep going
+                print(f"// ERROR: fileSymbolTableUses has entry {name} which doesn't exist in fileSymbolTable")
+                violations += 1
     return violations == 0
 
 def addToFileSymbolTable(module_name: str, definition_list: list[Definition], exported_only: bool):
