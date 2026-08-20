@@ -17,13 +17,11 @@ def check(rule_name, text, expect_errors=0, label=None, seed=None, extra_check=N
     if seed:
         seed()
     lexer = CMODFullLexer(InputStream(text))
-    tokens = lexer.getAllTokens()
-    lexer.reset()
     stream = CommonTokenStream(lexer)
     parser = CMODFullParser(stream)
     tree = getattr(parser, rule_name)()
     n = parser.getNumberOfSyntaxErrors()
-    sane = st.sanityCheck(tokens)
+    sane = st.sanityCheck()
     ok = (n == expect_errors) and sane
     if extra_check is not None:
         ok &= extra_check()

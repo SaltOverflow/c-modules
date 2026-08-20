@@ -61,7 +61,7 @@ constant
     // See https://github.com/antlr/antlr4/blob/dev/doc/actions.md for a list of attributes on $enumerationConstant
     | {getSymbol(self._input.LT(1).text) == SymbolType.ENUM_CONSTANT}?
       enumerationConstant
-      {getSymbol($enumerationConstant.text, token_idx=$enumerationConstant.start.tokenIndex)}
+      {getSymbol($enumerationConstant.text, identifierToken=$enumerationConstant.start)}
     | CharacterConstant
     ;
 
@@ -219,11 +219,9 @@ punctuator
 // A.2.1 Expressions
 
 primaryExpression
-    // See https://github.com/antlr/antlr4/blob/dev/doc/actions.md for a list of attributes on $Identifier
-    // Annoyingly, they use .index instead of tokenIndex, which differs from CommonToken fields
     : {getSymbol(self._input.LT(1).text) in (SymbolType.VARIABLE, SymbolType.FUNCTION)}?
       Identifier
-      {getSymbol($Identifier.text, token_idx=$Identifier.index)}
+      {getSymbol($Identifier.text, identifierToken=$Identifier)}
     | constant
     | StringLiteral
     | '(' expression ')'
@@ -385,7 +383,7 @@ structOrUnionSpecifier
     | {(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, SymbolType.STRUCT) == SymbolType.STRUCT
         or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, SymbolType.UNION) == SymbolType.UNION)}?
       structOrUnion Identifier
-      {getSymbol($Identifier.text, SymbolType.STRUCT if $structOrUnion.text == 'struct' else SymbolType.UNION, token_idx=$Identifier.index)}
+      {getSymbol($Identifier.text, SymbolType.STRUCT if $structOrUnion.text == 'struct' else SymbolType.UNION, identifierToken=$Identifier)}
     ;
 
 structOrUnion
@@ -416,7 +414,7 @@ enumSpecifier
       enumeratorList ','? '}'
     | {getSymbol(self._input.LT(2).text, SymbolType.ENUM) == SymbolType.ENUM}?
       'enum' Identifier
-      {getSymbol($Identifier.text, SymbolType.ENUM, token_idx=$Identifier.index)}
+      {getSymbol($Identifier.text, SymbolType.ENUM, identifierToken=$Identifier)}
     ;
 
 enumeratorList
@@ -513,7 +511,7 @@ directAbstractDeclaratorAfter
 typedefName
     : {getSymbol(self._input.LT(1).text) == SymbolType.TYPEDEF}?
       Identifier
-      {getSymbol($Identifier.text, token_idx=$Identifier.index)}
+      {getSymbol($Identifier.text, identifierToken=$Identifier)}
     ;
 
 initializer

@@ -42,14 +42,12 @@ for module_name, (text, interface, fname) in module_data.items():
         st.addToFileSymbolTable(imported_name, imported_interface['definitions'], exported_only=True)
 
     lexer = CMODFullLexer(InputStream(text))
-    tokens = lexer.getAllTokens()
-    lexer.reset()
     stream = CommonTokenStream(lexer)
     parser = CMODFullParser(stream)
     tree = parser.compilationUnit()
     n = parser.getNumberOfSyntaxErrors()
     total_errors += n
-    st.sanityCheck(tokens)
+    st.sanityCheck()
     print(f'{fname} (module {module_name}): errors={n}')
 
 print()
