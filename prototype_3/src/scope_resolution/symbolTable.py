@@ -15,15 +15,17 @@ declaratorType = SymbolType.VARIABLE  # DeclaratorSymbolType, used for determini
                                       # DeclaratorSymbolType is SymbolType.TYPEDEF, VARIABLE, FUNCTION only
 positiveIfParameter = 0  # int >= 0, declarators in parameters are always variables
 functionSymbolTable = None  # dict[(name: str, QuerySymbolType), SymbolType] | None, function definitions have a scope that's split across () and {}
+positiveIfStruct = 0  # int >= 0, declarators in struct bodies aren't part of symbol tables
 
 def reset():
-    global fileSymbolTable, localSymbolTable, fileSymbolTableUses, declaratorType, positiveIfParameter, functionSymbolTable
+    global fileSymbolTable, localSymbolTable, fileSymbolTableUses, declaratorType, positiveIfParameter, functionSymbolTable, positiveIfStruct
     fileSymbolTable = {}
     localSymbolTable = []
     fileSymbolTableUses = []
     declaratorType = SymbolType.VARIABLE
     positiveIfParameter = 0
     functionSymbolTable = None
+    positiveIfStruct = 0
 
 def sanityCheck(tokens: list | None = None):
     violations = 0
@@ -33,7 +35,11 @@ def sanityCheck(tokens: list | None = None):
         violations += 1
     if positiveIfParameter != 0:
         # Let it keep going
-        print(f"// ERROR: positiveIfParameter is not 0: {positiveIfParameter}")
+        print(f"// ERROR: {positiveIfParameter=} is not 0")
+        violations += 1
+    if positiveIfStruct != 0:
+        # Let it keep going
+        print(f"// ERROR: {positiveIfStruct=} is not 0")
         violations += 1
     if tokens is not None:
         for module_name, name, symbolType, token_idx in fileSymbolTableUses:
@@ -82,6 +88,8 @@ def addSymbol(name: str, symbolType: SymbolType):
         # This means we have a declarator, so consult internal state
         if positiveIfParameter <= 0:
             symbolType = declaratorType
+        if positiveIfStruct > 0:
+            return  # declarators in struct bodies aren't part of symbol tables
     if len(localSymbolTable) == 0:  # we're still at file scope, skip
         if (name, querySymbolType) not in fileSymbolTable or fileSymbolTable[(name, querySymbolType)][0] != symbolType:
             # Let it keep going
@@ -133,3 +141,15 @@ def exitParameterRegion():
         # Let it keep going
         print(f"// ERROR: implementation error, {positiveIfParameter=} is less than 0, resetting")
         positiveIfParameter = 0
+
+def enterStructRegion():
+    global positiveIfStruct
+    positiveIfStruct += 1
+
+def exitStructRegion():
+    global positiveIfStruct
+    positiveIfStruct -= 1
+    if positiveIfStruct < 0:
+        # Let it keep going
+        print(f"// ERROR: implementation error, {positiveIfStruct=} is less than 0, resetting")
+        positiveIfStruct = 0

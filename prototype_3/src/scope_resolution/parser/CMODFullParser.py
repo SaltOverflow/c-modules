@@ -9,7 +9,7 @@ else:
 	from typing.io import TextIO
 
 
-from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, updateDeclaratorType, enterParameterRegion, exitParameterRegion
+from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, updateDeclaratorType, enterParameterRegion, exitParameterRegion, enterStructRegion, exitStructRegion
 from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
 
 def serializedATN():
@@ -3202,7 +3202,7 @@ class CMODFullParser ( Parser ):
                 self.state = 493
                 self.match(CMODFullParser.T__44)
                 if localctx._Identifier is not None: addSymbol((None if localctx._Identifier is None else localctx._Identifier.text), SymbolType.STRUCT if (None if localctx._structOrUnion is None else self._input.getText(localctx._structOrUnion.start,localctx._structOrUnion.stop)) == 'struct' else SymbolType.UNION)
-                pushScope()
+                enterStructRegion()
                 self.state = 497 
                 self._errHandler.sync(self)
                 _alt = 1
@@ -3219,7 +3219,7 @@ class CMODFullParser ( Parser ):
 
                 self.state = 501
                 self.match(CMODFullParser.T__45)
-                popScope()
+                exitStructRegion()
                 pass
 
             elif la_ == 2:

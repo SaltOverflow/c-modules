@@ -8,7 +8,7 @@ else:
     from typing.io import TextIO
 
 
-from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, updateDeclaratorType, enterParameterRegion, exitParameterRegion
+from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, updateDeclaratorType, enterParameterRegion, exitParameterRegion, enterStructRegion, exitStructRegion
 from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
 
 

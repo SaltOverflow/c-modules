@@ -7,7 +7,7 @@ grammar CMODFull;
 // Used as reference to set up semantic actions: https://martinlwx.github.io/en/how-to-use-antlr4-to-make-semantic-actions/
 // Also see https://github.com/antlr/antlr4/blob/dev/doc/actions.md and https://github.com/antlr/antlr4/blob/dev/doc/predicates.md
 @header {
-from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, updateDeclaratorType, enterParameterRegion, exitParameterRegion
+from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, updateDeclaratorType, enterParameterRegion, exitParameterRegion, enterStructRegion, exitStructRegion
 from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
 }
 
@@ -379,9 +379,9 @@ typeSpecifier
 structOrUnionSpecifier
     : structOrUnion Identifier? '{'
       {if $Identifier is not None: addSymbol($Identifier.text, SymbolType.STRUCT if $structOrUnion.text == 'struct' else SymbolType.UNION)}
-      {pushScope()}
+      {enterStructRegion()}
       structDeclaration+ '}'
-      {popScope()}
+      {exitStructRegion()}
     | {(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, SymbolType.STRUCT) == SymbolType.STRUCT
         or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, SymbolType.UNION) == SymbolType.UNION)}?
       structOrUnion Identifier
