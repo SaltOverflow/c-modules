@@ -123,11 +123,13 @@ def getSymbol(name: str, querySymbolType: SymbolType = SymbolType.VARIABLE, toke
         return None
 
 def updateDeclaratorType(declaratorSymbolType: SymbolType):
-    global declaratorType
+    global declaratorType, functionSymbolTable
     if declaratorSymbolType not in (SymbolType.TYPEDEF, SymbolType.VARIABLE, SymbolType.FUNCTION):
         # Let it keep going
         print(f"// ERROR: implementation error, {declaratorSymbolType=} is invalid, using VARIABLE fallback")
         declaratorSymbolType = SymbolType.VARIABLE
+    if declaratorSymbolType == SymbolType.FUNCTION:
+        functionSymbolTable = None  # Quick fix so function definition doesn't grab the parameter list of some previous variable
     declaratorType = declaratorSymbolType
 
 def enterParameterRegion():

@@ -1,5 +1,7 @@
 module defineInsideFunction;
 
+void (*fnptr)(long double ld);
+
 void foo(double d) {
     struct S { long long ll; } s = { 42 };
     struct S ss;
