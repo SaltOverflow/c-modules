@@ -823,7 +823,7 @@ class CMODFullParser ( Parser ):
                     raise FailedPredicateException(self, "getSymbol(self._input.LT(1).text) == SymbolType.ENUM_CONSTANT")
                 self.state = 160
                 localctx._enumerationConstant = self.enumerationConstant()
-                getSymbol((None if localctx._enumerationConstant is None else self._input.getText(localctx._enumerationConstant.start,localctx._enumerationConstant.stop)), identifierToken=(None if localctx._enumerationConstant is None else localctx._enumerationConstant.start))
+                getSymbol((None if localctx._enumerationConstant is None else self._input.getText(localctx._enumerationConstant.start,localctx._enumerationConstant.stop)), identifierParent=localctx.enumerationConstant())
                 pass
 
             elif la_ == 4:
@@ -980,7 +980,7 @@ class CMODFullParser ( Parser ):
                     raise FailedPredicateException(self, "getSymbol(self._input.LT(1).text) in (SymbolType.VARIABLE, SymbolType.FUNCTION)")
                 self.state = 171
                 localctx._Identifier = self.match(CMODFullParser.Identifier)
-                getSymbol((None if localctx._Identifier is None else localctx._Identifier.text), identifierToken=localctx._Identifier)
+                getSymbol((None if localctx._Identifier is None else localctx._Identifier.text), identifierParent=localctx)
                 pass
 
             elif la_ == 2:
@@ -3233,7 +3233,7 @@ class CMODFullParser ( Parser ):
                 localctx._structOrUnion = self.structOrUnion()
                 self.state = 506
                 localctx._Identifier = self.match(CMODFullParser.Identifier)
-                getSymbol((None if localctx._Identifier is None else localctx._Identifier.text), SymbolType.STRUCT if (None if localctx._structOrUnion is None else self._input.getText(localctx._structOrUnion.start,localctx._structOrUnion.stop)) == 'struct' else SymbolType.UNION, identifierToken=localctx._Identifier)
+                getSymbol((None if localctx._Identifier is None else localctx._Identifier.text), SymbolType.STRUCT if (None if localctx._structOrUnion is None else self._input.getText(localctx._structOrUnion.start,localctx._structOrUnion.stop)) == 'struct' else SymbolType.UNION, identifierParent=localctx)
                 pass
 
 
@@ -3617,7 +3617,7 @@ class CMODFullParser ( Parser ):
                 self.match(CMODFullParser.T__10)
                 self.state = 560
                 localctx._Identifier = self.match(CMODFullParser.Identifier)
-                getSymbol((None if localctx._Identifier is None else localctx._Identifier.text), SymbolType.ENUM, identifierToken=localctx._Identifier)
+                getSymbol((None if localctx._Identifier is None else localctx._Identifier.text), SymbolType.ENUM, identifierParent=localctx)
                 pass
 
 
@@ -4793,7 +4793,7 @@ class CMODFullParser ( Parser ):
                 raise FailedPredicateException(self, "getSymbol(self._input.LT(1).text) == SymbolType.TYPEDEF")
             self.state = 741
             localctx._Identifier = self.match(CMODFullParser.Identifier)
-            getSymbol((None if localctx._Identifier is None else localctx._Identifier.text), identifierToken=localctx._Identifier)
+            getSymbol((None if localctx._Identifier is None else localctx._Identifier.text), identifierParent=localctx)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)

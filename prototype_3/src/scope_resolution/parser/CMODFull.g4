@@ -61,7 +61,7 @@ constant
     // See https://github.com/antlr/antlr4/blob/dev/doc/actions.md for a list of attributes on $enumerationConstant
     | {getSymbol(self._input.LT(1).text) == SymbolType.ENUM_CONSTANT}?
       enumerationConstant
-      {getSymbol($enumerationConstant.text, identifierToken=$enumerationConstant.start)}
+      {getSymbol($enumerationConstant.text, identifierParent=$ctx.enumerationConstant())}
     | CharacterConstant
     ;
 
@@ -221,7 +221,7 @@ punctuator
 primaryExpression
     : {getSymbol(self._input.LT(1).text) in (SymbolType.VARIABLE, SymbolType.FUNCTION)}?
       Identifier
-      {getSymbol($Identifier.text, identifierToken=$Identifier)}
+      {getSymbol($Identifier.text, identifierParent=$ctx)}
     | constant
     | StringLiteral
     | '(' expression ')'
@@ -383,7 +383,7 @@ structOrUnionSpecifier
     | {(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, SymbolType.STRUCT) == SymbolType.STRUCT
         or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, SymbolType.UNION) == SymbolType.UNION)}?
       structOrUnion Identifier
-      {getSymbol($Identifier.text, SymbolType.STRUCT if $structOrUnion.text == 'struct' else SymbolType.UNION, identifierToken=$Identifier)}
+      {getSymbol($Identifier.text, SymbolType.STRUCT if $structOrUnion.text == 'struct' else SymbolType.UNION, identifierParent=$ctx)}
     ;
 
 structOrUnion
@@ -414,7 +414,7 @@ enumSpecifier
       enumeratorList ','? '}'
     | {getSymbol(self._input.LT(2).text, SymbolType.ENUM) == SymbolType.ENUM}?
       'enum' Identifier
-      {getSymbol($Identifier.text, SymbolType.ENUM, identifierToken=$Identifier)}
+      {getSymbol($Identifier.text, SymbolType.ENUM, identifierParent=$ctx)}
     ;
 
 enumeratorList
@@ -511,7 +511,7 @@ directAbstractDeclaratorAfter
 typedefName
     : {getSymbol(self._input.LT(1).text) == SymbolType.TYPEDEF}?
       Identifier
-      {getSymbol($Identifier.text, identifierToken=$Identifier)}
+      {getSymbol($Identifier.text, identifierParent=$ctx)}
     ;
 
 initializer

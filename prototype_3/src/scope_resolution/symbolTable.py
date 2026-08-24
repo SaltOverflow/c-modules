@@ -8,7 +8,7 @@ from ..interface_generation.process import Definition
 fileSymbolTable = {}  # dict[(name: str, QuerySymbolType), (SymbolType, module_name: str)], represents symbol table at file level
                       # QuerySymbolType is SymbolType.STRUCT, UNION, ENUM, VARIABLE only
 localSymbolTable = []  # list[dict[(name: str, QuerySymbolType), SymbolType]], represents the stack of local symbol tables
-fileSymbolTableUses = []  # list[(module_name: str, name: str, SymbolType, identifierToken: Token)], so we can figure out what is being used
+fileSymbolTableUses = []  # list[(module_name: str, name: str, SymbolType, identifierParent: ParseRulContext)], so we can figure out what is being used
 # Rest are ad-hoc patches, which work but are not robust.
 # Alternatively, we could replace these with AST introspection if it becomes a problem.
 declaratorType = SymbolType.VARIABLE  # DeclaratorSymbolType, used for determining the type of a declarator
@@ -16,6 +16,9 @@ declaratorType = SymbolType.VARIABLE  # DeclaratorSymbolType, used for determini
 positiveIfParameter = 0  # int >= 0, declarators in parameters are always variables
 functionSymbolTable = None  # dict[(name: str, QuerySymbolType), SymbolType] | None, function definitions have a scope that's split across () and {}
 positiveIfStruct = 0  # int >= 0, declarators in struct bodies aren't part of symbol tables
+
+def getQuerySymbolType(symbolType: SymbolType) -> SymbolType:
+    return symbolType if symbolType in (SymbolType.STRUCT, SymbolType.UNION, SymbolType.ENUM) else SymbolType.VARIABLE
 
 def reset():
     global fileSymbolTable, localSymbolTable, fileSymbolTableUses, declaratorType, positiveIfParameter, functionSymbolTable, positiveIfStruct
@@ -41,14 +44,14 @@ def sanityCheck() -> bool:
         # Let it keep going
         print(f"// ERROR: {positiveIfStruct=} is not 0")
         violations += 1
-    for module_name, name, symbolType, identifierToken in fileSymbolTableUses:
-        if str(type(identifierToken)) != "<class 'antlr4.Token.CommonToken'>":
+    for module_name, name, symbolType, identifierParent in fileSymbolTableUses:
+        if identifierParent.Identifier() is None:
             # Let it keep going
-            print(f"// ERROR: {identifierToken=} does not have type CommonToken?")
+            print(f"// ERROR: {identifierParent=} is missing Identifier?")
             violations += 1
-        if name != identifierToken.text:
+        if name != identifierParent.Identifier().getText():
             # Let it keep going
-            print(f"// ERROR: fileSymbolTableUses has {name=}, which has a different name than {identifierToken.text=}")
+            print(f"// ERROR: fileSymbolTableUses has {name=}, which has a different name than {identifierParent.Identifier().getText()=}")
             violations += 1
         querySymbolType = symbolType if symbolType in (SymbolType.STRUCT, SymbolType.UNION, SymbolType.ENUM) else SymbolType.VARIABLE
         if (name, querySymbolType) not in fileSymbolTable or fileSymbolTable[(name, querySymbolType)] != (symbolType, module_name):
@@ -108,7 +111,7 @@ def addSymbol(name: str, symbolType: SymbolType):
         # print(f"AFTER addSymbol({name=}, {symbolType=})")
         # pprint(localSymbolTable)
 
-def getSymbol(name: str, querySymbolType: SymbolType = SymbolType.VARIABLE, identifierToken = None) -> SymbolType | None:
+def getSymbol(name: str, querySymbolType: SymbolType = SymbolType.VARIABLE, identifierParent = None) -> SymbolType | None:
     if querySymbolType not in (SymbolType.STRUCT, SymbolType.UNION, SymbolType.ENUM, SymbolType.VARIABLE):
         # Let it keep going
         print(f"// ERROR: implementation error, {querySymbolType=} is invalid, using VARIABLE fallback")
@@ -118,8 +121,8 @@ def getSymbol(name: str, querySymbolType: SymbolType = SymbolType.VARIABLE, iden
             return st[(name, querySymbolType)]
     if (name, querySymbolType) in fileSymbolTable:
         symbolType, module_name = fileSymbolTable[(name, querySymbolType)]
-        if identifierToken is not None:  # dependency tracking is moved to semantic actions instead of semantic predicates
-            fileSymbolTableUses.append((module_name, name, symbolType, identifierToken))
+        if identifierParent is not None:  # dependency tracking is moved to semantic actions instead of semantic predicates
+            fileSymbolTableUses.append((module_name, name, symbolType, identifierParent))
         return symbolType
     else:
         # No need to emit an error message: the parser's speculative lookahead often checks invalid strings

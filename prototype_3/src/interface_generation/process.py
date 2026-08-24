@@ -1,7 +1,6 @@
+from antlr4 import InputStream, CommonTokenStream, Token, ParseTreeWalker
 from functools import cache
 from typing import NamedTuple
-
-from antlr4 import *
 
 from .parser.CMODInterfaceLexer import CMODInterfaceLexer
 from .parser.CMODInterfaceParser import CMODInterfaceParser
@@ -13,7 +12,19 @@ class Definition(NamedTuple):
     symbolType: SymbolType
     text: str  # defines exactly the symbol and no others (eg. "struct foo value;"), unless symbolType is ENUM_CONSTANT (eg. "enum_name 4", where 4 is the idx)
 
+@cache
 def generate_module_interface(text: str):
+    """Extracts file-level symbol info for a single module.
+    ```
+        {
+            'module': str,
+            'imports': list[module_name: str],
+            'definitions': list[Definition],
+        }
+        (Definition is (name, is_exported, symbolType, text))
+        (text of Definition always defines exactly one symbol, unless symbolType is ENUM_CONSTANT)
+    ```
+    """
     ret = {}
     text, tokens, tree = get_module_info(text)
     ret['module'] = tree.translationUnit().moduleDeclaration().getChild(1).getText()
