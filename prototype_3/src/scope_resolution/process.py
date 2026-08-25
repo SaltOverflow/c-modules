@@ -77,8 +77,7 @@ def generate_dependency_graph(module_name: str, module_data):
         elif symbolType == SymbolType.ENUM:
             graph[node_key_decl] = GraphInfo(None, [node_key_defn])
         elif symbolType == SymbolType.TYPEDEF:
-            # technically not correct, but the way I have it set up, it's the same
-            graph[node_key_decl] = GraphInfo(None, [node_key_defn])
+            declarator_end = len(text) - 1
         elif symbolType == SymbolType.FUNCTION:
             declarator_end = externalDeclaration.functionDefinition().declarator().stop.stop
         elif symbolType == SymbolType.VARIABLE:
@@ -96,13 +95,19 @@ def generate_dependency_graph(module_name: str, module_data):
             dependency = GraphNode(dep_module_name, dep_name, dep_symbolType, depType)
             dependencies_defn.append(dependency)
             if dep_identifierParent.Identifier().symbol.stop <= declarator_end:
-                dependencies_decl.append(dependency)
+                if symbolType == SymbolType.TYPEDEF:
+                    # a typedef declaration creates an alias but doesn't need any definition
+                    dependencies_decl.append(GraphNode(dep_module_name, dep_name, dep_symbolType, DepType.DECLARATION))
+                else:
+                    dependencies_decl.append(dependency)
         if symbolType == SymbolType.FUNCTION and externalDeclaration.functionDefinition().declarationSpecifiers().functionSpecifier():
             extra_text = f"extern {text[:declarator_end+1]};"
         else:
             extra_text = None
         graph[node_key_defn] = GraphInfo(text, dependencies_defn, extra_text)
-        if symbolType == SymbolType.FUNCTION:
+        if symbolType == SymbolType.TYPEDEF:
+            graph[node_key_decl] = GraphInfo(text, dependencies_decl)
+        elif symbolType == SymbolType.FUNCTION:
             graph[node_key_decl] = GraphInfo(f"{text[:declarator_end+1]};", dependencies_decl)
         elif symbolType == SymbolType.VARIABLE:
             graph[node_key_decl] = GraphInfo(f"extern {text[:declarator_end+1]};", dependencies_decl)
