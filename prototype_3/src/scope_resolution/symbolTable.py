@@ -3,7 +3,7 @@
 # Alternatively, you could use @Parser::members in the grammar instead.
 
 from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType
-from ..interface_generation.process import Definition
+from ..interface_generation.interface_generation import Definition
 
 fileSymbolTable = {}  # dict[(name: str, QuerySymbolType), (SymbolType, module_name: str)], represents symbol table at file level
                       # QuerySymbolType is SymbolType.STRUCT, UNION, ENUM, VARIABLE only

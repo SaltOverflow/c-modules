@@ -1,7 +1,7 @@
 import glob, os
 from pprint import pprint
-from src.interface_generation.process import generate_module_interface
-from src.scope_resolution.process import generate_dependency_graph
+from src.interface_generation.interface_generation import generate_module_interface
+from src.scope_resolution.scope_resolution import generate_dependency_graph
 
 cmod_files = sorted(glob.glob('testing/*.cmod'))
 cmod_files = [f for f in cmod_files if 'justC' not in os.path.basename(f) and 'invalid' not in os.path.basename(f)]

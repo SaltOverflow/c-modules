@@ -1,8 +1,8 @@
 import glob, os, argparse
 from pprint import pprint
-from src.interface_generation.process import generate_module_interface
-from src.scope_resolution.process import generate_dependency_graph
-from src.dependency_tracing.process import generate_module_text
+from src.interface_generation.interface_generation import generate_module_interface
+from src.scope_resolution.scope_resolution import generate_dependency_graph
+from src.dependency_tracing.dependency_tracing import generate_module_text
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--modules', nargs='+', help='List of modules to display dependency trace on')

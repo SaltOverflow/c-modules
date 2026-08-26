@@ -1,5 +1,5 @@
 from ..scope_resolution import symbolTable as st
-from ..scope_resolution.process import GraphNode, GraphInfo, DepType
+from ..scope_resolution.scope_resolution import GraphNode, GraphInfo, DepType
 
 
 def generate_module_text(module_name: str, module_data: dict, module_graph: dict[GraphNode, GraphInfo]) -> list[str]:

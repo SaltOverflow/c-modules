@@ -4,7 +4,7 @@
 import sys, glob, os, argparse
 
 from src.scope_resolution import symbolTable as st
-from src.interface_generation.process import generate_module_interface
+from src.interface_generation.interface_generation import generate_module_interface
 from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
 
 from antlr4 import *
