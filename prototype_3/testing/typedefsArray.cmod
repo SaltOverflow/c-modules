@@ -1,0 +1,13 @@
+module typedefsArray;
+
+// Despite ArrType being used as declaration, struct S needs to be exposed because of the array type
+export ArrType *a;
+export typedef struct S ArrType[3];
+int i;  // ad-hoc indicator for dependency tracing (struct S's definition should come before this)
+export struct S { int x; };
+
+// Without the array type, 
+export NotArrType *other_a;
+export typedef struct other_S NotArrType;
+int other_i;  // ad-hoc indicator for dependency tracing (struct other_S's definition should come after this)
+export struct other_S { int x; };

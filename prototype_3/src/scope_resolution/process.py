@@ -91,12 +91,12 @@ def generate_dependency_graph(module_name: str, module_data):
             if dep_symbolType in (SymbolType.ENUM_CONSTANT, SymbolType.VARIABLE, SymbolType.FUNCTION):
                 depType = DepType.DECLARATION
             else:
-                depType = analyzeTypeSpecifier(dep_identifierParent.parentCtx)
+                depType = DepType.DECLARATION if onlyNeedsIncompleteType(dep_identifierParent.parentCtx) else DepType.DEFINITION
             dependency = GraphNode(dep_module_name, dep_name, dep_symbolType, depType)
             dependencies_defn.append(dependency)
             if dep_identifierParent.Identifier().symbol.stop <= declarator_end:
-                if symbolType == SymbolType.TYPEDEF:
-                    # a typedef declaration creates an alias but doesn't need any definition
+                if symbolType == SymbolType.TYPEDEF and not usesArrayType:
+                    # typedef declarations don't need definitions, unless we're dealing with an array type (6.7.5.2p1)
                     dependencies_decl.append(GraphNode(dep_module_name, dep_name, dep_symbolType, DepType.DECLARATION))
                 else:
                     dependencies_decl.append(dependency)
@@ -114,49 +114,60 @@ def generate_dependency_graph(module_name: str, module_data):
 
     return graph
 
-def analyzeTypeSpecifier(typeSpecifier: CMODFullParser.TypeSpecifierContext) -> DepType:
-    """Determine the dependency on the given type.
-    
-    At the moment, it returns DECLARATION iff (at least one declarator and all declarators are pointers)"""
-    def analyzeDeclarator(declarator: CMODFullParser.DeclaratorContext) -> DepType:
+usesArrayType = False
+def onlyNeedsIncompleteType(typeSpecifier: CMODFullParser.TypeSpecifierContext) -> bool:
+    # In essence, it's whether all declarators are pointers
+    # When there are no declarators, it depends on more context
+    # Also has side effect of assigning usesArrayType (dirty hack to handle case where array types always need complete type)
+    global usesArrayType
+    usesArrayType = False
+    def declarator_isPointer(declarator: CMODFullParser.DeclaratorContext) -> bool:
+        global usesArrayType
         if declarator.pointer() is not None:
-            return DepType.DECLARATION
+            return True
         if (nested_declarator := declarator.directDeclarator().declarator()) is not None:
-            return analyzeDeclarator(nested_declarator)
-        return DepType.DEFINITION
-    def analyzeAbstractDeclarator(abstractDeclarator: CMODFullParser.AbstractDeclaratorContext) -> DepType:
+            return declarator_isPointer(nested_declarator)
+        if declarator.directDeclarator().getChildCount() >= 2 and declarator.directDeclarator().getChild(1).getText() == '[':
+            usesArrayType = True
+        return False
+    def abstractDeclarator_isPointer(abstractDeclarator: CMODFullParser.AbstractDeclaratorContext) -> bool:
+        global usesArrayType
         if abstractDeclarator.pointer() is not None:
-            return DepType.DECLARATION
-        if (nested_abstractDeclarator := abstractDeclarator.directAbstractDeclarator().abstractDeclarator()) is not None:
-            return analyzeAbstractDeclarator(nested_abstractDeclarator)
-        return DepType.DEFINITION
+            return True
+        if (abstractDeclarator_nested := abstractDeclarator.directAbstractDeclarator().abstractDeclarator()) is not None:
+            return abstractDeclarator_isPointer(abstractDeclarator_nested)
+        if abstractDeclarator.directAbstractDeclarator().directAbstractDeclaratorAfter()[-1].getChild(0).getText() == '[':
+            usesArrayType = True
+        return False
     assert type(typeSpecifier) == CMODFullParser.TypeSpecifierContext
     if type(structDeclaration := typeSpecifier.parentCtx.parentCtx) == CMODFullParser.StructDeclarationContext:
         for sd in structDeclaration.structDeclaratorList().structDeclarator():
             if sd.declarator() is None:
-                return DepType.DEFINITION
-            if analyzeDeclarator(sd.declarator()) == DepType.DEFINITION:
-                return DepType.DEFINITION
-        return DepType.DECLARATION
+                continue  # meaningless case because anonymous bitfields can't use user-defined types
+            if not declarator_isPointer(sd.declarator()):
+                return False
+        # TODO: these declarations produce warnings on GCC because they're useless. Interface generation should be updated to remove these
+        #   on a related note, forward declarations link to the wrong symbol right now
+        return True
     elif type(typeName := typeSpecifier.parentCtx.parentCtx) == CMODFullParser.TypeNameContext:
         if typeName.abstractDeclarator() is None:
-            return DepType.DEFINITION
-        return analyzeAbstractDeclarator(typeName.abstractDeclarator())
+            return False
+        return abstractDeclarator_isPointer(typeName.abstractDeclarator())
     elif type(declaration := typeSpecifier.parentCtx.parentCtx) == CMODFullParser.DeclarationContext:
         if declaration.initDeclaratorList() is None:
-            return DepType.DEFINITION
+            return True
         for id in declaration.initDeclaratorList().initDeclarator():
-            if analyzeDeclarator(id.declarator()) == DepType.DEFINITION:
-                return DepType.DEFINITION
-        return DepType.DECLARATION
+            if not declarator_isPointer(id.declarator()):
+                return False
+        return True
     elif type(parameterDeclaration := typeSpecifier.parentCtx.parentCtx) == CMODFullParser.ParameterDeclarationContext:
         if parameterDeclaration.declarator() is not None:
-            return analyzeDeclarator(parameterDeclaration.declarator())
+            return declarator_isPointer(parameterDeclaration.declarator())
         elif parameterDeclaration.abstractDeclarator() is not None:
-            return analyzeAbstractDeclarator(parameterDeclaration.abstractDeclarator())
+            return abstractDeclarator_isPointer(parameterDeclaration.abstractDeclarator())
         else:
             assert False, "shouldn't be reachable"
     elif type(functionDefinition := typeSpecifier.parentCtx.parentCtx) == CMODFullParser.FunctionDefinitionContext:
-        return analyzeDeclarator(functionDefinition.declarator())
+        return declarator_isPointer(functionDefinition.declarator())
     else:
         assert False, "shouldn't be reachable"
