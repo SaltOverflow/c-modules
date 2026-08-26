@@ -1,3 +1,4 @@
+from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType
 from ..scope_resolution import symbolTable as st
 from ..scope_resolution.scope_resolution import GraphNode, GraphInfo, DepType
 
@@ -37,7 +38,15 @@ def generate_module_text(module_name: str, module_data: dict, module_graph: dict
         for dependency in dependencies:
             visit(dependency)
         if text is not None:
-            output.append(text)
+            if originalNode.depType == DepType.DECLARATION and originalNode._replace(depType=DepType.DEFINITION) in visited:
+                pass  # avoid redundant declarations (harmless but adds clutter)
+            elif (originalNode.symbolType == SymbolType.TYPEDEF and
+                  originalNode._replace(depType=DepType.DEFINITION 
+                                        if originalNode.depType == DepType.DECLARATION
+                                        else DepType.DECLARATION) in visited):
+                pass  # duplicate typedef definitions are technically not C99 compliant (6.7p3), even if compilers support it
+            else:
+                output.append(text)
         if extra_text is not None:
             output.append(extra_text)
         visiting.discard(originalNode)
