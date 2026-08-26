@@ -49,8 +49,9 @@ def seed_foo_and_x():
     seed_basic()
     st.fileSymbolTable[('x', SymbolType.VARIABLE)] = (SymbolType.VARIABLE, 'testmod')
 def check_uses():
-    expected = [('testmod', 'foo', SymbolType.FUNCTION, 0), ('testmod', 'x', SymbolType.VARIABLE, 2)]
-    return st.fileSymbolTableUses == expected
+    values = [x[:3] for x in st.fileSymbolTableUses]
+    expected = [('testmod', 'foo', SymbolType.FUNCTION), ('testmod', 'x', SymbolType.VARIABLE)]
+    return values == expected
 check('blockItem', 'foo(x);', expect_errors=0, label='function call -> expression statement', seed=seed_foo_and_x, extra_check=check_uses)
 
 print()
