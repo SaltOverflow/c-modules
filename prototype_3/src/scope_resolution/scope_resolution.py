@@ -39,7 +39,7 @@ def generate_dependency_graph(module_name: str, module_data):
     interface = module_data[module_name]
 
     graph = {}
-    for name, is_exported, symbolType, text in interface['definitions']:
+    for name, is_exported, symbolType, text in interface.definitions:
         querySymbolType = st.getQuerySymbolType(symbolType)
         node_key_decl = GraphNode(module_name, name, querySymbolType, DepType.DECLARATION)
         node_key_defn = GraphNode(module_name, name, querySymbolType, DepType.DEFINITION)
@@ -52,13 +52,13 @@ def generate_dependency_graph(module_name: str, module_data):
             continue
 
         st.reset()
-        st.addToFileSymbolTable(module_name, interface['definitions'], exported_only=False)
-        for imported_name in interface['imports']:
+        st.addToFileSymbolTable(module_name, interface.definitions, exported_only=False)
+        for imported_name in interface.imports:
             if imported_name not in module_data:
                 print(f"// WARNING: {module_name} imports unknown module {imported_name}")
                 continue
             imported_interface = module_data[imported_name]
-            st.addToFileSymbolTable(imported_name, imported_interface['definitions'], exported_only=True)
+            st.addToFileSymbolTable(imported_name, imported_interface.definitions, exported_only=True)
 
         lexer = CMODFullLexer(InputStream(text))
         stream = CommonTokenStream(lexer)

@@ -25,7 +25,7 @@ module_data = {}
 for f in cmod_files:
     text = open(f).read()
     interface = generate_module_interface(text)
-    module_data[interface['module']] = (text, interface, f)
+    module_data[interface.module] = (text, interface, f)
 
 print('Discovered modules:', list(module_data.keys()))
 print()
@@ -33,13 +33,13 @@ print()
 total_errors = 0
 for module_name, (text, interface, fname) in module_data.items():
     st.reset()
-    st.addToFileSymbolTable(module_name, interface['definitions'], exported_only=False)
-    for imported_name in interface['imports']:
+    st.addToFileSymbolTable(module_name, interface.definitions, exported_only=False)
+    for imported_name in interface.imports:
         if imported_name not in module_data:
             print(f'// WARNING: {module_name} imports unknown module {imported_name}')
             continue
         _, imported_interface, _ = module_data[imported_name]
-        st.addToFileSymbolTable(imported_name, imported_interface['definitions'], exported_only=True)
+        st.addToFileSymbolTable(imported_name, imported_interface.definitions, exported_only=True)
 
     lexer = CMODFullLexer(InputStream(text))
     stream = CommonTokenStream(lexer)

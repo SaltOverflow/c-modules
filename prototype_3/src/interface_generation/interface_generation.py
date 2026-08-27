@@ -12,23 +12,25 @@ class Definition(NamedTuple):
     symbolType: SymbolType
     text: str  # defines exactly the symbol and no others (eg. "struct foo value;"), unless symbolType is ENUM_CONSTANT (eg. "enum_name 4", where 4 is the idx)
 
+class ModuleInterface(NamedTuple):
+    module: str
+    imports: list[str]
+    definitions: list[Definition]
+
 @cache
-def generate_module_interface(text: str):
+def generate_module_interface(text: str) -> ModuleInterface:
     """Extracts file-level symbol info for a single module.
     ```
-        {
-            'module': str,
-            'imports': list[module_name: str],
-            'definitions': list[Definition],
-        }
-        (Definition is (name, is_exported, symbolType, text))
-        (text of Definition always defines exactly one symbol, unless symbolType is ENUM_CONSTANT)
+        ModuleInterface(
+            module: str,
+            imports: list[module_name: str],
+            definitions: list[Definition],
+        )
     ```
     """
-    ret = {}
     text, tokens, tree = get_module_info(text)
-    ret['module'] = tree.translationUnit().moduleDeclaration().getChild(1).getText()
-    ret['imports'] = get_imports(text)
+    module = tree.translationUnit().moduleDeclaration().getChild(1).getText()
+    imports = get_imports(text)
     symbol_list = get_symbol_list(text)
     anonymous_map = get_anonymous_map(text)
 
@@ -96,8 +98,7 @@ def generate_module_interface(text: str):
             region_start, region_end = symbolInfo.ctx.getSourceInterval()
             symbol_text = render_region(region_start, region_end, self_index) + ';'
         definitions.append(Definition(symbolInfo.name, symbolInfo.is_exported, symbolInfo.symbolType, symbol_text))
-    ret['definitions'] = definitions
-    return ret
+    return ModuleInterface(module, imports, definitions)
 
 @cache
 def get_module_info(text: str) -> tuple[str, list[Token], CMODInterfaceParser.CompilationUnitContext]:

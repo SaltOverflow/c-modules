@@ -53,7 +53,7 @@ def generate_module_text(module_name: str, module_data: dict, module_graph: dict
         visited.add(originalNode)
 
     interface = module_data[module_name]
-    for name, is_exported, symbolType, _ in interface['definitions']:
+    for name, is_exported, symbolType, _ in interface.definitions:
         visit(GraphNode(module_name, name, symbolType, DepType.DEFINITION))
 
     return output

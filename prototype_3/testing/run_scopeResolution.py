@@ -10,7 +10,7 @@ module_data = {}
 for f in cmod_files:
     text = open(f).read()
     interface = generate_module_interface(text)
-    module_data[interface['module']] = interface
+    module_data[interface.module] = interface
 
 for module_name in module_data:
     graph = generate_dependency_graph(module_name, module_data)

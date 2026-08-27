@@ -14,7 +14,8 @@ cmod_files = [f for f in cmod_files if 'justC' not in os.path.basename(f) and 'i
 module_data = {}
 for f in cmod_files:
     text = open(f).read()
-    module_data[generate_module_interface(text)['module']] = generate_module_interface(text)
+    interface = generate_module_interface(text)
+    module_data[interface.module] = interface
 
 module_graph = {}
 for module_name in module_data:
