@@ -9,7 +9,7 @@ else:
 
 
 from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, updateDeclaratorType, enterParameterRegion, exitParameterRegion, enterStructRegion, exitStructRegion
-from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
+from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 
 
 def serializedATN():

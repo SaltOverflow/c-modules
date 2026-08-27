@@ -5,7 +5,7 @@ from antlr4 import InputStream, CommonTokenStream
 from src.scope_resolution import symbolTable as st
 from src.scope_resolution.parser.CMODFullLexer import CMODFullLexer
 from src.scope_resolution.parser.CMODFullParser import CMODFullParser
-from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
+from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 
 passed = 0
 failed = 0
@@ -35,11 +35,11 @@ def check(rule_name, text, expect_errors=0, label=None, seed=None, extra_check=N
 
 
 def seed_basic():
-    st.fileSymbolTable[('MyType', SymbolType.VARIABLE)] = (SymbolType.TYPEDEF, 'testmod')
-    st.fileSymbolTable[('foo', SymbolType.VARIABLE)] = (SymbolType.FUNCTION, 'testmod')
-    st.fileSymbolTable[('S', SymbolType.STRUCT)] = (SymbolType.STRUCT, 'testmod')
-    st.fileSymbolTable[('U', SymbolType.UNION)] = (SymbolType.UNION, 'testmod')
-    st.fileSymbolTable[('E', SymbolType.ENUM)] = (SymbolType.ENUM, 'testmod')
+    st.fileSymbolTable[('MyType', QuerySymbolType.NAME)] = (SymbolType.TYPEDEF, 'testmod')
+    st.fileSymbolTable[('foo', QuerySymbolType.NAME)] = (SymbolType.FUNCTION, 'testmod')
+    st.fileSymbolTable[('S', QuerySymbolType.STRUCT)] = (SymbolType.STRUCT, 'testmod')
+    st.fileSymbolTable[('U', QuerySymbolType.UNION)] = (SymbolType.UNION, 'testmod')
+    st.fileSymbolTable[('E', QuerySymbolType.ENUM)] = (SymbolType.ENUM, 'testmod')
 
 
 print('=== typedefs ===')
@@ -47,7 +47,7 @@ check('typeSpecifier', 'MyType', label='known typedef used as type', seed=seed_b
 check('blockItem', 'MyType x;', label='typedef -> declaration', seed=seed_basic)
 def seed_foo_and_x():
     seed_basic()
-    st.fileSymbolTable[('x', SymbolType.VARIABLE)] = (SymbolType.VARIABLE, 'testmod')
+    st.fileSymbolTable[('x', QuerySymbolType.NAME)] = (SymbolType.VARIABLE, 'testmod')
 def check_uses():
     values = [x[:3] for x in st.fileSymbolTableUses]
     expected = [('testmod', 'foo', SymbolType.FUNCTION), ('testmod', 'x', SymbolType.VARIABLE)]
@@ -70,7 +70,7 @@ check('enumSpecifier', 'enum { A, B, C }', label='anonymous enum definition')
 print()
 print('=== enum constants ===')
 def seed_enum_const():
-    st.fileSymbolTable[('RED', SymbolType.VARIABLE)] = (SymbolType.ENUM_CONSTANT, 'testmod')
+    st.fileSymbolTable[('RED', QuerySymbolType.NAME)] = (SymbolType.ENUM_CONSTANT, 'testmod')
 check('primaryExpression', 'RED', label='enum constant used as expression', seed=seed_enum_const)
 check('enumerator', 'NEWCONST', label='defining a brand new enum constant')
 check('enumSpecifier', 'enum Color { RED, GREEN, BLUE }', label='full enum definition with constants')

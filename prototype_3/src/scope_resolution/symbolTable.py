@@ -2,7 +2,7 @@
 # We use global variables to communicate with ANTLR.
 # Alternatively, you could use @Parser::members in the grammar instead.
 
-from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType
+from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 from ..interface_generation.interface_generation import Definition
 
 fileSymbolTable = {}  # dict[(name: str, QuerySymbolType), (SymbolType, module_name: str)], represents symbol table at file level
@@ -16,9 +16,6 @@ declaratorType = SymbolType.VARIABLE  # DeclaratorSymbolType, used for determini
 positiveIfParameter = 0  # int >= 0, declarators in parameters are always variables
 functionSymbolTable = None  # dict[(name: str, QuerySymbolType), SymbolType] | None, function definitions have a scope that's split across () and {}
 positiveIfStruct = 0  # int >= 0, declarators in struct bodies aren't part of symbol tables
-
-def getQuerySymbolType(symbolType: SymbolType) -> SymbolType:
-    return symbolType if symbolType in (SymbolType.STRUCT, SymbolType.UNION, SymbolType.ENUM) else SymbolType.VARIABLE
 
 def reset():
     global fileSymbolTable, localSymbolTable, fileSymbolTableUses, declaratorType, positiveIfParameter, functionSymbolTable, positiveIfStruct
@@ -53,7 +50,7 @@ def sanityCheck() -> bool:
             # Let it keep going
             print(f"// ERROR: fileSymbolTableUses has {name=}, which has a different name than {identifierParent.Identifier().getText()=}")
             violations += 1
-        querySymbolType = symbolType if symbolType in (SymbolType.STRUCT, SymbolType.UNION, SymbolType.ENUM) else SymbolType.VARIABLE
+        querySymbolType = symbolType.toQuerySymbolType()
         if (name, querySymbolType) not in fileSymbolTable or fileSymbolTable[(name, querySymbolType)] != (symbolType, module_name):
             # Let it keep going
             print(f"// ERROR: fileSymbolTableUses has entry {name} which doesn't exist in fileSymbolTable")
@@ -64,7 +61,7 @@ def addToFileSymbolTable(module_name: str, definition_list: list[Definition], ex
     for name, is_exported, symbolType, _ in definition_list:
         if exported_only and not is_exported:
             continue
-        querySymbolType = symbolType if symbolType in (SymbolType.STRUCT, SymbolType.UNION, SymbolType.ENUM) else SymbolType.VARIABLE
+        querySymbolType = symbolType.toQuerySymbolType()
         if (name, querySymbolType) in fileSymbolTable:
             # Let it keep going
             print(f"// ERROR: fileSymbolTable collision with {(name, querySymbolType)} -> {fileSymbolTable[(name, querySymbolType)]}")
@@ -89,7 +86,7 @@ def pushFunctionScope():
     functionSymbolTable = None
 
 def addSymbol(name: str, symbolType: SymbolType):
-    querySymbolType = symbolType if symbolType in (SymbolType.STRUCT, SymbolType.UNION, SymbolType.ENUM) else SymbolType.VARIABLE
+    querySymbolType = symbolType.toQuerySymbolType()
     if symbolType == SymbolType.VARIABLE:
         # This means we have a declarator, so consult internal state
         if positiveIfParameter <= 0:
@@ -111,11 +108,7 @@ def addSymbol(name: str, symbolType: SymbolType):
         # print(f"AFTER addSymbol({name=}, {symbolType=})")
         # pprint(localSymbolTable)
 
-def getSymbol(name: str, querySymbolType: SymbolType = SymbolType.VARIABLE, identifierParent = None) -> SymbolType | None:
-    if querySymbolType not in (SymbolType.STRUCT, SymbolType.UNION, SymbolType.ENUM, SymbolType.VARIABLE):
-        # Let it keep going
-        print(f"// ERROR: implementation error, {querySymbolType=} is invalid, using VARIABLE fallback")
-        querySymbolType = SymbolType.VARIABLE
+def getSymbol(name: str, querySymbolType: QuerySymbolType = QuerySymbolType.NAME, identifierParent = None) -> SymbolType | None:
     for st in reversed(localSymbolTable):
         if (name, querySymbolType) in st:
             return st[(name, querySymbolType)]

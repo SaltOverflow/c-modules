@@ -6,7 +6,7 @@ from typing import NamedTuple
 from . import symbolTable as st
 from .parser.CMODFullLexer import CMODFullLexer
 from .parser.CMODFullParser import CMODFullParser
-from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType
+from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 
 class DepType(Enum):
     # A dependency that is set as DECLARATION needs at least a declaration,
@@ -40,7 +40,7 @@ def generate_dependency_graph(module_name: str, module_data):
 
     graph = {}
     for name, is_exported, symbolType, text in interface.definitions:
-        querySymbolType = st.getQuerySymbolType(symbolType)
+        querySymbolType = symbolType.toQuerySymbolType()
         node_key_decl = GraphNode(module_name, name, querySymbolType, DepType.DECLARATION)
         node_key_defn = GraphNode(module_name, name, querySymbolType, DepType.DEFINITION)
 

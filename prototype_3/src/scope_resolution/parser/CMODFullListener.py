@@ -6,7 +6,7 @@ else:
     from CMODFullParser import CMODFullParser
 
 from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, updateDeclaratorType, enterParameterRegion, exitParameterRegion, enterStructRegion, exitStructRegion
-from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
+from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 
 
 # This class defines a complete listener for a parse tree produced by CMODFullParser.

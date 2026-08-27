@@ -8,7 +8,7 @@ grammar CMODFull;
 // Also see https://github.com/antlr/antlr4/blob/dev/doc/actions.md and https://github.com/antlr/antlr4/blob/dev/doc/predicates.md
 @header {
 from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, updateDeclaratorType, enterParameterRegion, exitParameterRegion, enterStructRegion, exitStructRegion
-from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
+from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 }
 
 // A.1 Lexical grammar
@@ -380,10 +380,10 @@ structOrUnionSpecifier
       {enterStructRegion()}
       structDeclaration+ '}'
       {exitStructRegion()}
-    | {(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, SymbolType.STRUCT) == SymbolType.STRUCT
-        or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, SymbolType.UNION) == SymbolType.UNION)}?
+    | {(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, QuerySymbolType.STRUCT) == SymbolType.STRUCT
+        or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, QuerySymbolType.UNION) == SymbolType.UNION)}?
       structOrUnion Identifier
-      {getSymbol($Identifier.text, SymbolType.STRUCT if $structOrUnion.text == 'struct' else SymbolType.UNION, identifierParent=$ctx)}
+      {getSymbol($Identifier.text, QuerySymbolType.STRUCT if $structOrUnion.text == 'struct' else QuerySymbolType.UNION, identifierParent=$ctx)}
     ;
 
 structOrUnion
@@ -412,9 +412,9 @@ enumSpecifier
     : 'enum' Identifier? '{'
       {if $Identifier is not None: addSymbol($Identifier.text, SymbolType.ENUM)}
       enumeratorList ','? '}'
-    | {getSymbol(self._input.LT(2).text, SymbolType.ENUM) == SymbolType.ENUM}?
+    | {getSymbol(self._input.LT(2).text, QuerySymbolType.ENUM) == SymbolType.ENUM}?
       'enum' Identifier
-      {getSymbol($Identifier.text, SymbolType.ENUM, identifierParent=$ctx)}
+      {getSymbol($Identifier.text, QuerySymbolType.ENUM, identifierParent=$ctx)}
     ;
 
 enumeratorList

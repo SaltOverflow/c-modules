@@ -19,7 +19,7 @@ def generate_module_text(module_name: str, module_data: dict, module_graph: dict
     visited = set()  # set[GraphNode], nodes whose text (and dependencies) have already been emitted
 
     def visit(originalNode: GraphNode):
-        queryNode = originalNode._replace(symbolType=st.getQuerySymbolType(originalNode.symbolType))
+        queryNode = originalNode._replace(symbolType=originalNode.symbolType.toQuerySymbolType())
         if originalNode in visited:
             return
         if originalNode in visiting:

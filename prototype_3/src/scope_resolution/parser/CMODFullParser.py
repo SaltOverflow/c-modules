@@ -10,7 +10,7 @@ else:
 
 
 from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, updateDeclaratorType, enterParameterRegion, exitParameterRegion, enterStructRegion, exitStructRegion
-from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
+from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 
 def serializedATN():
     return [
@@ -3225,15 +3225,15 @@ class CMODFullParser ( Parser ):
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 504
-                if not (self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, SymbolType.STRUCT) == SymbolType.STRUCT
-                        or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, SymbolType.UNION) == SymbolType.UNION):
+                if not (self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, QuerySymbolType.STRUCT) == SymbolType.STRUCT
+                        or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, QuerySymbolType.UNION) == SymbolType.UNION):
                     from antlr4.error.Errors import FailedPredicateException
-                    raise FailedPredicateException(self, "(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, SymbolType.STRUCT) == SymbolType.STRUCT\n        or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, SymbolType.UNION) == SymbolType.UNION)")
+                    raise FailedPredicateException(self, "(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, QuerySymbolType.STRUCT) == SymbolType.STRUCT\n        or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, QuerySymbolType.UNION) == SymbolType.UNION)")
                 self.state = 505
                 localctx._structOrUnion = self.structOrUnion()
                 self.state = 506
                 localctx._Identifier = self.match(CMODFullParser.Identifier)
-                getSymbol((None if localctx._Identifier is None else localctx._Identifier.text), SymbolType.STRUCT if (None if localctx._structOrUnion is None else self._input.getText(localctx._structOrUnion.start,localctx._structOrUnion.stop)) == 'struct' else SymbolType.UNION, identifierParent=localctx)
+                getSymbol((None if localctx._Identifier is None else localctx._Identifier.text), QuerySymbolType.STRUCT if (None if localctx._structOrUnion is None else self._input.getText(localctx._structOrUnion.start,localctx._structOrUnion.stop)) == 'struct' else QuerySymbolType.UNION, identifierParent=localctx)
                 pass
 
 
@@ -3610,14 +3610,14 @@ class CMODFullParser ( Parser ):
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 558
-                if not getSymbol(self._input.LT(2).text, SymbolType.ENUM) == SymbolType.ENUM:
+                if not getSymbol(self._input.LT(2).text, QuerySymbolType.ENUM) == SymbolType.ENUM:
                     from antlr4.error.Errors import FailedPredicateException
-                    raise FailedPredicateException(self, "getSymbol(self._input.LT(2).text, SymbolType.ENUM) == SymbolType.ENUM")
+                    raise FailedPredicateException(self, "getSymbol(self._input.LT(2).text, QuerySymbolType.ENUM) == SymbolType.ENUM")
                 self.state = 559
                 self.match(CMODFullParser.T__10)
                 self.state = 560
                 localctx._Identifier = self.match(CMODFullParser.Identifier)
-                getSymbol((None if localctx._Identifier is None else localctx._Identifier.text), SymbolType.ENUM, identifierParent=localctx)
+                getSymbol((None if localctx._Identifier is None else localctx._Identifier.text), QuerySymbolType.ENUM, identifierParent=localctx)
                 pass
 
 
@@ -6264,13 +6264,13 @@ class CMODFullParser ( Parser ):
 
     def structOrUnionSpecifier_sempred(self, localctx:StructOrUnionSpecifierContext, predIndex:int):
             if predIndex == 18:
-                return (self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, SymbolType.STRUCT) == SymbolType.STRUCT
-                or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, SymbolType.UNION) == SymbolType.UNION)
+                return (self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, QuerySymbolType.STRUCT) == SymbolType.STRUCT
+                or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, QuerySymbolType.UNION) == SymbolType.UNION)
          
 
     def enumSpecifier_sempred(self, localctx:EnumSpecifierContext, predIndex:int):
             if predIndex == 19:
-                return getSymbol(self._input.LT(2).text, SymbolType.ENUM) == SymbolType.ENUM
+                return getSymbol(self._input.LT(2).text, QuerySymbolType.ENUM) == SymbolType.ENUM
          
 
     def directDeclarator_sempred(self, localctx:DirectDeclaratorContext, predIndex:int):
