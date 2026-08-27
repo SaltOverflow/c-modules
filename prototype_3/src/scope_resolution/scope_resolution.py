@@ -7,6 +7,7 @@ from . import symbolTable as st
 from .parser.CMODFullLexer import CMODFullLexer
 from .parser.CMODFullParser import CMODFullParser
 from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
+from ..interface_generation.interface_generation import ModuleInterface
 
 class DepType(Enum):
     # A dependency that is set as DECLARATION needs at least a declaration,
@@ -15,25 +16,25 @@ class DepType(Enum):
     DECLARATION = auto()
     DEFINITION = auto()
 
-class GraphNode(NamedTuple):
+class GraphNode[T: (SymbolType, QuerySymbolType)](NamedTuple):  # This is Python 3.12+ syntax
+    # QuerySymbolType is the key into the graph (for namespace lookup)
+    # SymbolType is for values of the graph (the actual nodes)
     module_name: str
     name: str
-    symbolType: SymbolType  # Note that dictionary keys are restricted to QuerySymbolType
-                            # dictionary values use the full SymbolType
+    symbolType: T
     depType: DepType
 
 class GraphInfo(NamedTuple):
     text: str | None
-    dependencies: list[GraphNode]
+    dependencies: list[GraphNode[SymbolType]]
     extra_text: str | None = None  # inline functions need to explicitly emit their symbol
 
-def generate_dependency_graph(module_name: str, module_data):
+def generate_dependency_graph(module_name: str, module_data: dict[str, ModuleInterface]) -> dict[GraphNode[QuerySymbolType], GraphInfo]:
     """Builds a dependency graph for a single module.
     ```
-        module_data: dict[module_name: str, interface: <generate_module_interface>], should contain at least
+        module_data: dict[module_name: str, ModuleInterface], should contain at least
             module_name itself and every module it imports (extra entries are ignored)
-        returns: dict[GraphNode, GraphInfo]
-        (the key GraphNode's symbolType field is restricted to QuerySymbolType)
+        returns: dict[GraphNode[QuerySymbolType], GraphInfo]
     ```
     """
     interface = module_data[module_name]
@@ -75,7 +76,7 @@ def generate_dependency_graph(module_name: str, module_data):
         elif symbolType == SymbolType.UNION:
             graph[node_key_decl] = GraphInfo(f"union {name};", [])
         elif symbolType == SymbolType.ENUM:
-            graph[node_key_decl] = GraphInfo(None, [node_key_defn])
+            graph[node_key_decl] = GraphInfo(None, [GraphNode(module_name, name, SymbolType.ENUM, DepType.DEFINITION)])
         elif symbolType == SymbolType.TYPEDEF:
             declarator_end = len(text) - 1
         elif symbolType == SymbolType.FUNCTION:

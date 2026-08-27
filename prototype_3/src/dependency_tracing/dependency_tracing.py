@@ -1,25 +1,26 @@
-from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType
+from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
+from ..interface_generation.interface_generation import ModuleInterface
 from ..scope_resolution import symbolTable as st
 from ..scope_resolution.scope_resolution import GraphNode, GraphInfo, DepType
 
 
-def generate_module_text(module_name: str, module_data: dict, module_graph: dict[GraphNode, GraphInfo]) -> list[str]:
+def generate_module_text(module_name: str, module_data: dict[str, ModuleInterface], module_graph: dict[GraphNode[QuerySymbolType], GraphInfo]) -> list[str]:
     """Performs a post-order traversal of module_graph, starting from module_name's own
     definitions, to produce a flat, dependency-ordered list of C text fragments.
     ```
-        module_data: dict[module_name: str, interface: <generate_module_interface>]
-        module_graph: dict[GraphNode, GraphInfo], the merged dependency graphs (via
+        module_data: dict[module_name: str, ModuleInterface]
+        module_graph: dict[GraphNode[QuerySymbolType], GraphInfo], the merged dependency graphs (via
             generate_dependency_graph) of module_name and everything it could transitively
             depend on (its own imports, their imports, etc.)
         returns: list[text: str], such that '\\n'.join(output) produces valid, dependency-ordered C code
     ```
     """
     output = []
-    visiting = set()  # set[GraphNode], nodes currently on the DFS stack (used to detect cycles)
-    visited = set()  # set[GraphNode], nodes whose text (and dependencies) have already been emitted
+    visiting: set[GraphNode[SymbolType]] = set()  # nodes currently on the DFS stack (used to detect cycles)
+    visited: set[GraphNode[SymbolType]] = set()  # nodes whose text (and dependencies) have already been emitted
 
-    def visit(originalNode: GraphNode):
-        queryNode = originalNode._replace(symbolType=originalNode.symbolType.toQuerySymbolType())
+    def visit(originalNode: GraphNode[SymbolType]):
+        queryNode: GraphNode[QuerySymbolType] = originalNode._replace(symbolType=originalNode.symbolType.toQuerySymbolType())
         if originalNode in visited:
             return
         if originalNode in visiting:
