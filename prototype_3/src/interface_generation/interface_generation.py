@@ -44,7 +44,7 @@ def generate_module_interface(text: str) -> ModuleInterface:
             other_start, other_end = other.ctx.getSourceInterval()
             if other_start < region_start:
                 break
-            if other.symbolType not in (SymbolType.STRUCT, SymbolType.UNION, SymbolType.ENUM):
+            if not other.symbolType.isTag():
                 continue
             if other_end > region_end:
                 continue  # declarations that define multiple symbols hit this case, but we want it to keep going
@@ -60,7 +60,7 @@ def generate_module_interface(text: str) -> ModuleInterface:
 
         pieces = []
         token_idx = region_start
-        if symbol_list[self_index].symbolType in (SymbolType.STRUCT, SymbolType.UNION, SymbolType.ENUM):
+        if symbol_list[self_index].symbolType.isTag():
             anon_name = anonymous_map.get(region_start)
             if anon_name is not None:
                 # struct/union/enum will always be the first token
