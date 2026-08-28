@@ -35,6 +35,9 @@ class QuerySymbolType(Enum):
     Q_ENUM = auto()
     Q_NAME = auto()
 
+    def __str__(self) -> str:
+        return self.name
+
     def isTag(self) -> bool:
         return self in (QuerySymbolType.Q_STRUCT, QuerySymbolType.Q_UNION, QuerySymbolType.Q_ENUM)
 
@@ -46,6 +49,9 @@ class SymbolType(Enum):
     TYPEDEF = auto()  # ctx: DeclarationContext
     VARIABLE = auto()  # ctx: DeclarationContext
     FUNCTION = auto()  # ctx: FunctionDefinitionContext
+
+    def __str__(self) -> str:
+        return self.name
 
     def isTag(self) -> bool:
         """struct/union/enum exist in a separate tag namespace (see C99 6.2.3)."""
@@ -68,6 +74,9 @@ class SymbolInfo(NamedTuple):
     symbolType: SymbolType
     ctx: ParserRuleContext  # see SymbolType for disambiguation
     idx: int | None = None  # set in ENUM_CONSTANT, TYPEDEF, VARIABLE
+
+    def __str__(self) -> str:
+        return f"({self.symbolType}, {self.name}, {"is" if self.is_exported else "not"} exported)"
 
 class ListenerExtractSymbolDefinitions(CMODInterfaceListener):
     def __init__(self, module_name: str):

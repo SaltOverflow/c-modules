@@ -16,6 +16,9 @@ class DepType(Enum):
     DECLARATION = auto()
     DEFINITION = auto()
 
+    def __str__(self) -> str:
+        return self.name
+
 class GraphNode[T: (SymbolType, QuerySymbolType)](NamedTuple):  # This is Python 3.12+ syntax
     # QuerySymbolType is the key into the graph (for namespace lookup)
     # SymbolType is for values of the graph (the actual nodes)
@@ -24,10 +27,16 @@ class GraphNode[T: (SymbolType, QuerySymbolType)](NamedTuple):  # This is Python
     symbolType: T
     depType: DepType
 
+    def __str__(self) -> str:  # type: ignore[misc]  # mypy 2.3.1 has trouble with methods on generic NamedTuples (PEP 695)
+        return f"({self.symbolType}, {self.module_name}.{self.name}, {self.depType})"
+
 class GraphInfo(NamedTuple):
     text: str | None
     dependencies: list[GraphNode[SymbolType]]
     extra_text: str | None = None  # inline functions need to explicitly emit their symbol
+
+    def __str__(self) -> str:
+        return f"[{', '.join(str(d) for d in self.dependencies)}]"
 
 def generate_dependency_graph(module_name: str, module_data: dict[str, ModuleInterface]) -> dict[GraphNode[QuerySymbolType], GraphInfo]:
     """Builds a dependency graph for a single module.

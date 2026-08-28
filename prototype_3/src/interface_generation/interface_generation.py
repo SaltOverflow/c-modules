@@ -12,10 +12,16 @@ class Definition(NamedTuple):
     symbolType: SymbolType
     text: str  # defines exactly the symbol and no others (eg. "struct foo value;"), unless symbolType is ENUM_CONSTANT (eg. "enum_name 4", where 4 is the idx)
 
+    def __str__(self) -> str:
+        return f"({self.symbolType}, {self.name}, {"is" if self.is_exported else "not"} exported)"
+
 class ModuleInterface(NamedTuple):
     module: str
     imports: list[str]
     definitions: list[Definition]
+
+    def __str__(self) -> str:
+        return f"({self.module}, {self.imports}, [{', '.join(str(d) for d in self.definitions)}])"
 
 @cache
 def generate_module_interface(text: str) -> ModuleInterface:
