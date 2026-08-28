@@ -1,5 +1,6 @@
 import glob, os
 from pprint import pprint
+import src.logging as logging
 from src.interface_generation.interface_generation import generate_module_interface, ModuleInterface
 from src.scope_resolution.scope_resolution import generate_dependency_graph
 
@@ -16,4 +17,4 @@ for module_name in module_data:
     graph = generate_dependency_graph(module_name, module_data)
     for k, v in graph.items():
         print(f"{k}: {v}")
-    print(f'{module_name}: {len(graph)} nodes')
+    print(f'{module_name}: {len(graph)} nodes, {logging.errorCount} errors so far')

@@ -1,5 +1,4 @@
-# Centralized error logging, so callers can count/filter "// ERROR: ..." diagnostics
-# instead of every module printing directly.
+# Centralized error logging so we can count the number of errors emitted
 
 errorCount = 0
 printEnabled = True

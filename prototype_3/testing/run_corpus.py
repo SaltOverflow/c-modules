@@ -26,11 +26,12 @@ for f in cmod_files:
     text = open(f).read()
     interface = generate_module_interface(text)
     module_data[interface.module] = (text, interface, f)
+if logging.errorCount > 0:
+    print(f"{logging.errorCount} errors after generating interfaces!")
 
 print('Discovered modules:', list(module_data.keys()))
 print()
 
-total_errors = 0
 for module_name, (text, interface, fname) in module_data.items():
     st.reset()
     st.addToFileSymbolTable(module_name, interface.definitions, exported_only=False)
@@ -45,10 +46,10 @@ for module_name, (text, interface, fname) in module_data.items():
     stream = CommonTokenStream(lexer)
     parser = CMODFullParser(stream)
     tree = parser.compilationUnit()
-    n = parser.getNumberOfSyntaxErrors()
-    total_errors += n
+    if parser.getNumberOfSyntaxErrors() > 0:
+        logging.error(f"syntax errors running CMODFull on {text!r}")
     st.sanityCheck()
-    print(f'{fname} (module {module_name}): errors={n}')
+    print(f'{fname} (module {module_name}): errors so far={logging.errorCount}')
 
 print()
-print('TOTAL ERRORS:', total_errors)
+print('TOTAL ERRORS:', logging.errorCount)

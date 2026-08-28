@@ -31,34 +31,28 @@ def reset():
     positiveIfStruct = 0
 
 def sanityCheck() -> bool:
-    violations = 0
+    startingErrorCount = logging.errorCount
     if len(localSymbolTable) != 0:
         # Let it keep going
         logging.error(f"localSymbolTable is not empty: {localSymbolTable}")
-        violations += 1
     if positiveIfParameter != 0:
         # Let it keep going
         logging.error(f"{positiveIfParameter=} is not 0")
-        violations += 1
     if positiveIfStruct != 0:
         # Let it keep going
         logging.error(f"{positiveIfStruct=} is not 0")
-        violations += 1
     for module_name, name, symbolType, identifierParent in fileSymbolTableUses:
         if identifierParent.Identifier() is None:
             # Let it keep going
             logging.error(f"{identifierParent=} is missing Identifier?")
-            violations += 1
         if name != identifierParent.Identifier().getText():
             # Let it keep going
             logging.error(f"fileSymbolTableUses has {name=}, which has a different name than {identifierParent.Identifier().getText()=}")
-            violations += 1
         querySymbolType = symbolType.toQuerySymbolType()
         if (name, querySymbolType) not in fileSymbolTable or fileSymbolTable[(name, querySymbolType)] != (symbolType, module_name):
             # Let it keep going
             logging.error(f"fileSymbolTableUses has entry {name} which doesn't exist in fileSymbolTable")
-            violations += 1
-    return violations == 0
+    return logging.errorCount == startingErrorCount
 
 def addToFileSymbolTable(module_name: str, definition_list: list[Definition], exported_only: bool):
     for name, is_exported, symbolType, _ in definition_list:

@@ -1,5 +1,6 @@
 import glob, os, argparse
 from pprint import pprint
+import src.logging as logging
 from src.interface_generation.interface_generation import generate_module_interface, ModuleInterface
 from src.scope_resolution.scope_resolution import generate_dependency_graph, GraphNode, QuerySymbolType, GraphInfo
 from src.dependency_tracing.dependency_tracing import generate_module_text
@@ -24,13 +25,14 @@ for module_name in module_data:
         for k, v in graph.items():
             print(f"{k}: {v}")
     module_graph.update(graph)
+print('errors after building dependency graphs:', logging.errorCount)
 
 if args.modules:
     for module_name in args.modules:
         output = generate_module_text(module_name, module_data, module_graph)
         pprint(output)
+        print(f'{module_name}: errors so far={logging.errorCount}')
 else:
     for module_name in module_data:
         output = generate_module_text(module_name, module_data, module_graph)
-        errors = [line for line in output if line.startswith('// ERROR')]
-        print(f'{module_name}: {len(output)} lines, {len(errors)} errors')
+        print(f'{module_name}: {len(output)} lines, errors so far={logging.errorCount}')
