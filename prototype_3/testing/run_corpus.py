@@ -3,6 +3,7 @@
 
 import glob, os, argparse
 
+import src.logging as logging
 from src.scope_resolution import symbolTable as st
 from src.interface_generation.interface_generation import generate_module_interface, ModuleInterface
 from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
@@ -35,7 +36,7 @@ for module_name, (text, interface, fname) in module_data.items():
     st.addToFileSymbolTable(module_name, interface.definitions, exported_only=False)
     for imported_name in interface.imports:
         if imported_name not in module_data:
-            print(f'// WARNING: {module_name} imports unknown module {imported_name}')
+            logging.error(f'{module_name} imports unknown module {imported_name}')
             continue
         _, imported_interface, _ = module_data[imported_name]
         st.addToFileSymbolTable(imported_name, imported_interface.definitions, exported_only=True)

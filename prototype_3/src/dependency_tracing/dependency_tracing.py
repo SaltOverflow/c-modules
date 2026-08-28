@@ -1,3 +1,4 @@
+from .. import logging
 from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 from ..interface_generation.interface_generation import ModuleInterface
 from ..scope_resolution.scope_resolution import GraphNode, GraphInfo, DepType
@@ -20,17 +21,17 @@ def generate_module_text(module_name: str, module_data: dict[str, ModuleInterfac
 
     def visit(originalNode: GraphNode[SymbolType]):
         queryNode: GraphNode[QuerySymbolType] = GraphNode(originalNode.module_name, originalNode.name,
-                                                           originalNode.symbolType.toQuerySymbolType(), originalNode.depType)
+                                                          originalNode.symbolType.toQuerySymbolType(), originalNode.depType)
         if originalNode in visited:
             return
         if originalNode in visiting:
             # Let it keep going
-            print(f"// ERROR: cyclic dependency detected at {originalNode} (stack: {list(visiting)})")
+            logging.error(f"cyclic dependency detected at {originalNode} (stack: {list(visiting)})")
             output.append(f"// ERROR: cyclic dependency detected at {originalNode}")
             return
         if queryNode not in module_graph:
             # Let it keep going
-            print(f"// ERROR: {queryNode=} (from {originalNode=}) not found in module_graph")
+            logging.error(f"{queryNode=} (from {originalNode=}) not found in module_graph")
             output.append(f"// ERROR: {queryNode=} (from {originalNode=}) not found in module_graph")
             return
 

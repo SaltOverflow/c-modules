@@ -25,6 +25,7 @@ from antlr4 import ParserRuleContext
 from enum import Enum, auto
 from typing import NamedTuple
 
+from .. import logging
 from .parser.CMODInterfaceListener import CMODInterfaceListener
 from .parser.CMODInterfaceParser import CMODInterfaceParser
 
@@ -111,7 +112,7 @@ class ListenerExtractSymbolDefinitions(CMODInterfaceListener):
                 return recurseDirectDeclarator(ctx.directDeclarator())
             else:
                 # Let it keep going
-                print(f"// ERROR: implementation error when parsing {repr(ctx.getText())}")
+                logging.error(f"implementation error when parsing {repr(ctx.getText())}")
                 return "error_symbol"
         self.function_prototype = False
         return recurseDeclarator(ctx)
@@ -133,7 +134,7 @@ class ListenerExtractSymbolDefinitions(CMODInterfaceListener):
             name = ctx.Identifier().getText()
             if name.startswith('_anon_'):
                 # Let it keep going
-                print(f"// ERROR: name starts with _anon_ for {name}")
+                logging.error(f"name starts with _anon_ for {name}")
         symbolType = SymbolType.STRUCT if ctx.structOrUnion().getText() == 'struct' else SymbolType.UNION
         self.symbol_definitions.append(SymbolInfo(name, self.export_status, symbolType, ctx))
         # Nested structs are also in file-level scope (handled automatically)
@@ -149,7 +150,7 @@ class ListenerExtractSymbolDefinitions(CMODInterfaceListener):
             name = ctx.Identifier().getText()
             if name.startswith('_anon_'):
                 # Let it keep going
-                print(f"// ERROR: name starts with _anon_ for {name}")
+                logging.error(f"name starts with _anon_ for {name}")
         self.symbol_definitions.append(SymbolInfo(name, self.export_status, SymbolType.ENUM, ctx))
         # Enumeration constants are also in file-level scope
         for idx, enum_name in enumerate(self.enum_constant_names):
@@ -172,12 +173,12 @@ class ListenerExtractSymbolDefinitions(CMODInterfaceListener):
                 symbolType = SymbolType.TYPEDEF
             elif storageClassSpecifier.getText() == 'extern':
                 # Let it keep going
-                print(f"// ERROR: extern declarations don't actually define the symbol, for {repr(ctx.getText())}")
+                logging.error(f"extern declarations don't actually define the symbol, for {repr(ctx.getText())}")
                 return
         for idx, initDeclarator in enumerate(ctx.initDeclaratorList().initDeclarator()):
             name = self.getNameFromDeclarator(initDeclarator.declarator())
             if self.function_prototype:
                 # Let it keep going
-                print(f"// ERROR: found function protoype at declarator index {idx} of {repr(ctx.getText())}")
+                logging.error(f"found function protoype at declarator index {idx} of {repr(ctx.getText())}")
                 continue
             self.symbol_definitions.append(SymbolInfo(name, self.export_status, symbolType, ctx, idx))

@@ -4,6 +4,7 @@ from enum import Enum, auto
 from typing import NamedTuple
 
 from . import symbolTable as st
+from .. import logging
 from .parser.CMODFullLexer import CMODFullLexer
 from .parser.CMODFullParser import CMODFullParser
 from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
@@ -65,7 +66,7 @@ def generate_dependency_graph(module_name: str, module_data: dict[str, ModuleInt
         st.addToFileSymbolTable(module_name, interface.definitions, exported_only=False)
         for imported_name in interface.imports:
             if imported_name not in module_data:
-                print(f"// WARNING: {module_name} imports unknown module {imported_name}")
+                logging.error(f"{module_name} imports unknown module {imported_name}")
                 continue
             imported_interface = module_data[imported_name]
             st.addToFileSymbolTable(imported_name, imported_interface.definitions, exported_only=True)
@@ -75,7 +76,7 @@ def generate_dependency_graph(module_name: str, module_data: dict[str, ModuleInt
         fullParser = CMODFullParser(stream)
         externalDeclaration = fullParser.externalDeclaration()
         if fullParser.getNumberOfSyntaxErrors() > 0:
-            print(f"// ERROR: syntax errors parsing definition text for {node_key_defn}: {text!r}")
+            logging.error(f"syntax errors parsing definition text for {node_key_defn}: {text!r}")
         st.sanityCheck()
 
         # Special cases for decls

@@ -4,6 +4,7 @@
 
 from antlr4 import ParserRuleContext
 from typing import Literal
+from .. import logging
 from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 from ..interface_generation.interface_generation import Definition
 
@@ -33,29 +34,29 @@ def sanityCheck() -> bool:
     violations = 0
     if len(localSymbolTable) != 0:
         # Let it keep going
-        print(f"// ERROR: localSymbolTable is not empty: {localSymbolTable}")
+        logging.error(f"localSymbolTable is not empty: {localSymbolTable}")
         violations += 1
     if positiveIfParameter != 0:
         # Let it keep going
-        print(f"// ERROR: {positiveIfParameter=} is not 0")
+        logging.error(f"{positiveIfParameter=} is not 0")
         violations += 1
     if positiveIfStruct != 0:
         # Let it keep going
-        print(f"// ERROR: {positiveIfStruct=} is not 0")
+        logging.error(f"{positiveIfStruct=} is not 0")
         violations += 1
     for module_name, name, symbolType, identifierParent in fileSymbolTableUses:
         if identifierParent.Identifier() is None:
             # Let it keep going
-            print(f"// ERROR: {identifierParent=} is missing Identifier?")
+            logging.error(f"{identifierParent=} is missing Identifier?")
             violations += 1
         if name != identifierParent.Identifier().getText():
             # Let it keep going
-            print(f"// ERROR: fileSymbolTableUses has {name=}, which has a different name than {identifierParent.Identifier().getText()=}")
+            logging.error(f"fileSymbolTableUses has {name=}, which has a different name than {identifierParent.Identifier().getText()=}")
             violations += 1
         querySymbolType = symbolType.toQuerySymbolType()
         if (name, querySymbolType) not in fileSymbolTable or fileSymbolTable[(name, querySymbolType)] != (symbolType, module_name):
             # Let it keep going
-            print(f"// ERROR: fileSymbolTableUses has entry {name} which doesn't exist in fileSymbolTable")
+            logging.error(f"fileSymbolTableUses has entry {name} which doesn't exist in fileSymbolTable")
             violations += 1
     return violations == 0
 
@@ -66,7 +67,7 @@ def addToFileSymbolTable(module_name: str, definition_list: list[Definition], ex
         querySymbolType = symbolType.toQuerySymbolType()
         if (name, querySymbolType) in fileSymbolTable:
             # Let it keep going
-            print(f"// ERROR: fileSymbolTable collision with {(name, querySymbolType)} -> {fileSymbolTable[(name, querySymbolType)]}")
+            logging.error(f"fileSymbolTable collision with {(name, querySymbolType)} -> {fileSymbolTable[(name, querySymbolType)]}")
         else:
             fileSymbolTable[(name, querySymbolType)] = (symbolType, module_name)
 
@@ -83,7 +84,7 @@ def pushFunctionScope():
     global functionSymbolTable
     if functionSymbolTable is None:
         # Let it keep going
-        print(f"// ERROR: function does not have a parameter list!")
+        logging.error(f"function does not have a parameter list!")
     localSymbolTable.append(functionSymbolTable)
     functionSymbolTable = None
 
@@ -98,11 +99,11 @@ def addSymbol(name: str, symbolType: SymbolType):
     if len(localSymbolTable) == 0:  # we're still at file scope, skip
         if (name, querySymbolType) not in fileSymbolTable or fileSymbolTable[(name, querySymbolType)][0] != symbolType:
             # Let it keep going
-            print(f"// ERROR: encountered symbol {(name, symbolType)} not already in fileSymbolTable")
+            logging.error(f"encountered symbol {(name, symbolType)} not already in fileSymbolTable")
         return
     if (name, querySymbolType) in localSymbolTable[-1]:
         # Let it keep going
-        print(f"// ERROR: symbol name clash in local scope for {name}")
+        logging.error(f"symbol name clash in local scope for {name}")
     else:
         localSymbolTable[-1][(name, querySymbolType)] = symbolType
         # # Debugging
@@ -127,7 +128,7 @@ def updateDeclaratorType(declaratorSymbolType: DeclaratorSymbolType):
     global declaratorType, functionSymbolTable
     if declaratorSymbolType not in (SymbolType.TYPEDEF, SymbolType.VARIABLE, SymbolType.FUNCTION):
         # Let it keep going
-        print(f"// ERROR: implementation error, {declaratorSymbolType=} is invalid, using VARIABLE fallback")
+        logging.error(f"implementation error, {declaratorSymbolType=} is invalid, using VARIABLE fallback")
         declaratorSymbolType = SymbolType.VARIABLE
     if declaratorSymbolType == SymbolType.FUNCTION:
         functionSymbolTable = None  # Quick fix so function definition doesn't grab the parameter list of some previous variable
@@ -142,7 +143,7 @@ def exitParameterRegion():
     positiveIfParameter -= 1
     if positiveIfParameter < 0:
         # Let it keep going
-        print(f"// ERROR: implementation error, {positiveIfParameter=} is less than 0, resetting")
+        logging.error(f"implementation error, {positiveIfParameter=} is less than 0, resetting")
         positiveIfParameter = 0
 
 def enterStructRegion():
@@ -154,5 +155,5 @@ def exitStructRegion():
     positiveIfStruct -= 1
     if positiveIfStruct < 0:
         # Let it keep going
-        print(f"// ERROR: implementation error, {positiveIfStruct=} is less than 0, resetting")
+        logging.error(f"implementation error, {positiveIfStruct=} is less than 0, resetting")
         positiveIfStruct = 0

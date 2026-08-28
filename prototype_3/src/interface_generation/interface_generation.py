@@ -2,6 +2,7 @@ from antlr4 import InputStream, CommonTokenStream, Token, ParseTreeWalker
 from functools import cache
 from typing import NamedTuple
 
+from .. import logging
 from .parser.CMODInterfaceLexer import CMODInterfaceLexer
 from .parser.CMODInterfaceParser import CMODInterfaceParser
 from .ListenerExtractSymbolDefinitions import ListenerExtractSymbolDefinitions, SymbolInfo, SymbolType
@@ -131,7 +132,7 @@ def get_module_info(text: str) -> tuple[str, list[Token], CMODInterfaceParser.Co
 
     if parser.getNumberOfSyntaxErrors() > 0:
         # Let it keep going with errors
-        print(f"// ERROR: syntax errors for module text")
+        logging.error(f"syntax errors for module text")
     return text, tokens, tree
 
 @cache
