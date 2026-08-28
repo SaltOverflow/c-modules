@@ -110,7 +110,7 @@ def addSymbol(name: str, symbolType: SymbolType):
         # print(f"AFTER addSymbol({name=}, {symbolType=})")
         # pprint(localSymbolTable)
 
-def getSymbol(name: str, querySymbolType: QuerySymbolType = QuerySymbolType.NAME, identifierParent: ParserRuleContext | None = None) -> SymbolType | None:
+def getSymbol(name: str, querySymbolType: QuerySymbolType = QuerySymbolType.Q_NAME, identifierParent: ParserRuleContext | None = None) -> SymbolType | None:
     for st in reversed(localSymbolTable):
         if (name, querySymbolType) in st:
             return st[(name, querySymbolType)]

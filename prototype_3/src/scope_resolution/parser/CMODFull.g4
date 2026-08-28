@@ -380,10 +380,10 @@ structOrUnionSpecifier
       {enterStructRegion()}
       structDeclaration+ '}'
       {exitStructRegion()}
-    | {(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, QuerySymbolType.STRUCT) == SymbolType.STRUCT
-        or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, QuerySymbolType.UNION) == SymbolType.UNION)}?
+    | {(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, QuerySymbolType.Q_STRUCT) == SymbolType.STRUCT
+        or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, QuerySymbolType.Q_UNION) == SymbolType.UNION)}?
       structOrUnion Identifier
-      {getSymbol($Identifier.text, QuerySymbolType.STRUCT if $structOrUnion.text == 'struct' else QuerySymbolType.UNION, identifierParent=$ctx)}
+      {getSymbol($Identifier.text, QuerySymbolType.Q_STRUCT if $structOrUnion.text == 'struct' else QuerySymbolType.Q_UNION, identifierParent=$ctx)}
     ;
 
 structOrUnion
@@ -412,9 +412,9 @@ enumSpecifier
     : 'enum' Identifier? '{'
       {if $Identifier is not None: addSymbol($Identifier.text, SymbolType.ENUM)}
       enumeratorList ','? '}'
-    | {getSymbol(self._input.LT(2).text, QuerySymbolType.ENUM) == SymbolType.ENUM}?
+    | {getSymbol(self._input.LT(2).text, QuerySymbolType.Q_ENUM) == SymbolType.ENUM}?
       'enum' Identifier
-      {getSymbol($Identifier.text, QuerySymbolType.ENUM, identifierParent=$ctx)}
+      {getSymbol($Identifier.text, QuerySymbolType.Q_ENUM, identifierParent=$ctx)}
     ;
 
 enumeratorList

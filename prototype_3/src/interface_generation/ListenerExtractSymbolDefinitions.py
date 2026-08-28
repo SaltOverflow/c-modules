@@ -30,13 +30,13 @@ from .parser.CMODInterfaceParser import CMODInterfaceParser
 
 class QuerySymbolType(Enum):
     """struct/union/enum exist in a separate tag namespace (see C99 6.2.3)"""
-    STRUCT = auto()
-    UNION = auto()
-    ENUM = auto()
-    NAME = auto()
+    Q_STRUCT = auto()
+    Q_UNION = auto()
+    Q_ENUM = auto()
+    Q_NAME = auto()
 
     def isTag(self) -> bool:
-        return self in (QuerySymbolType.STRUCT, QuerySymbolType.UNION, QuerySymbolType.ENUM)
+        return self in (QuerySymbolType.Q_STRUCT, QuerySymbolType.Q_UNION, QuerySymbolType.Q_ENUM)
 
 class SymbolType(Enum):
     STRUCT = auto()  # ctx: StructOrUnionSpecifierContext
@@ -54,13 +54,13 @@ class SymbolType(Enum):
     def toQuerySymbolType(self) -> QuerySymbolType:
         """Extracts the namespace that a symbol lives in (see C99 6.2.3)"""
         if self == SymbolType.STRUCT:
-            return QuerySymbolType.STRUCT
+            return QuerySymbolType.Q_STRUCT
         elif self == SymbolType.UNION:
-            return QuerySymbolType.UNION
+            return QuerySymbolType.Q_UNION
         elif self == SymbolType.ENUM:
-            return QuerySymbolType.ENUM
+            return QuerySymbolType.Q_ENUM
         else:
-            return QuerySymbolType.NAME
+            return QuerySymbolType.Q_NAME
 
 class SymbolInfo(NamedTuple):
     name: str
