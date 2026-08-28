@@ -1,15 +1,15 @@
 # Grab all symbol definitions in the AST
 
 # # Example code (execute inside src/interface_generation/)
-# from antlr4 import *
+# from antlr4 import InputStream, CommonTokenStream
 # from parser.CMODInterfaceLexer import CMODInterfaceLexer
 # from parser.CMODInterfaceParser import CMODInterfaceParser
-# from ListenerExtractSymbolDefinitions import *
+# from ListenerExtractSymbolDefinitions import ListenerExtractSymbolDefinitions
 # from pprint import pprint
 #
-# input_stream = FileStream("../../testing/clockwiseRule.cmod")
-# text = str(input_stream)
-# lexer = CMODInterfaceLexer(input_stream)
+# f = "../../testing/clockwiseRule.cmod"
+# text = open(f).read()
+# lexer = CMODInterfaceLexer(InputStream(text))
 # tokens = lexer.getAllTokens()
 # lexer.reset()
 # stream = CommonTokenStream(lexer)
@@ -21,7 +21,7 @@
 # walker.walk(lExtractSymbolDefinitions, tree)
 # pprint(lExtractSymbolDefinitions.symbol_definitions)
 
-from antlr4 import *
+from antlr4 import ParserRuleContext
 from enum import Enum, auto
 from typing import NamedTuple
 
@@ -76,11 +76,11 @@ class ListenerExtractSymbolDefinitions(CMODInterfaceListener):
     
     def reset(self, module_name: str):
         self.symbol_definitions: list[SymbolInfo] = []  # list[SymbolInfo]
-        self.anonymous_map = {}  # dict[start_token_idx: int, str]
+        self.anonymous_map: dict[int, str] = {}  # dict[start_token_idx: int, str]
         # The rest are for internal computation
         self.module_name = module_name  # str, for generating fresh anoymous names
         self.anonymous_id = 0  # int
-        self.enum_constant_names = []  # list[name: str], enum constants get added to symbol table
+        self.enum_constant_names: list[str] = []  # list[name: str], enum constants get added to symbol table
         self.export_status = False  # bool, tracks whether symbol should be exported
         self.function_prototype = False  # bool, for error diagnostics when user tries to use function prototypes in modules
 
@@ -117,11 +117,11 @@ class ListenerExtractSymbolDefinitions(CMODInterfaceListener):
         if not ctx.structDeclaration():
             return
         if ctx.Identifier() is None:
-            name = '_anon_' + ctx.structOrUnion().getText() + '_' + self.module_name + '_' + str(self.anonymous_id)
+            name: str = '_anon_' + ctx.structOrUnion().getText() + '_' + self.module_name + '_' + str(self.anonymous_id)
             self.anonymous_map[ctx.getSourceInterval()[0]] = name
             self.anonymous_id += 1
         else:
-            name: str = ctx.Identifier().getText()
+            name = ctx.Identifier().getText()
             if name.startswith('_anon_'):
                 # Let it keep going
                 print(f"// ERROR: name starts with _anon_ for {name}")
@@ -133,11 +133,11 @@ class ListenerExtractSymbolDefinitions(CMODInterfaceListener):
         if ctx.enumeratorList() is None:
             return
         if ctx.Identifier() is None:
-            name = '_anon_enum_' + self.module_name + '_' + str(self.anonymous_id)
+            name: str = '_anon_enum_' + self.module_name + '_' + str(self.anonymous_id)
             self.anonymous_map[ctx.getSourceInterval()[0]] = name
             self.anonymous_id += 1
         else:
-            name: str = ctx.Identifier().getText()
+            name = ctx.Identifier().getText()
             if name.startswith('_anon_'):
                 # Let it keep going
                 print(f"// ERROR: name starts with _anon_ for {name}")

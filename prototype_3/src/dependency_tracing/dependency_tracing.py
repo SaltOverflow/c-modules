@@ -1,6 +1,5 @@
 from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 from ..interface_generation.interface_generation import ModuleInterface
-from ..scope_resolution import symbolTable as st
 from ..scope_resolution.scope_resolution import GraphNode, GraphInfo, DepType
 
 
@@ -15,12 +14,13 @@ def generate_module_text(module_name: str, module_data: dict[str, ModuleInterfac
         returns: list[text: str], such that '\\n'.join(output) produces valid, dependency-ordered C code
     ```
     """
-    output = []
+    output: list[str] = []
     visiting: set[GraphNode[SymbolType]] = set()  # nodes currently on the DFS stack (used to detect cycles)
     visited: set[GraphNode[SymbolType]] = set()  # nodes whose text (and dependencies) have already been emitted
 
     def visit(originalNode: GraphNode[SymbolType]):
-        queryNode: GraphNode[QuerySymbolType] = originalNode._replace(symbolType=originalNode.symbolType.toQuerySymbolType())
+        queryNode: GraphNode[QuerySymbolType] = GraphNode(originalNode.module_name, originalNode.name,
+                                                           originalNode.symbolType.toQuerySymbolType(), originalNode.depType)
         if originalNode in visited:
             return
         if originalNode in visiting:

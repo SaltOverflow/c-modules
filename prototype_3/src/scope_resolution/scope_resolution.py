@@ -39,7 +39,7 @@ def generate_dependency_graph(module_name: str, module_data: dict[str, ModuleInt
     """
     interface = module_data[module_name]
 
-    graph = {}
+    graph: dict[GraphNode[QuerySymbolType], GraphInfo] = {}
     for name, is_exported, symbolType, text in interface.definitions:
         querySymbolType = symbolType.toQuerySymbolType()
         node_key_decl = GraphNode(module_name, name, querySymbolType, DepType.DECLARATION)
@@ -86,8 +86,8 @@ def generate_dependency_graph(module_name: str, module_data: dict[str, ModuleInt
         else:
             assert False, "shouldn't be reachable"
 
-        dependencies_defn = []
-        dependencies_decl = []
+        dependencies_defn: list[GraphNode[SymbolType]] = []
+        dependencies_decl: list[GraphNode[SymbolType]] = []
         for dep_module_name, dep_name, dep_symbolType, dep_identifierParent in st.fileSymbolTableUses:
             if dep_symbolType in (SymbolType.ENUM_CONSTANT, SymbolType.VARIABLE, SymbolType.FUNCTION):
                 depType = DepType.DECLARATION

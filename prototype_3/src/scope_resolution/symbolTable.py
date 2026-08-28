@@ -2,19 +2,21 @@
 # We use global variables to communicate with ANTLR.
 # Alternatively, you could use @Parser::members in the grammar instead.
 
+from antlr4 import ParserRuleContext
+from typing import Literal
 from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 from ..interface_generation.interface_generation import Definition
 
-fileSymbolTable = {}  # dict[(name: str, QuerySymbolType), (SymbolType, module_name: str)], represents symbol table at file level
+fileSymbolTable: dict[tuple[str, QuerySymbolType], tuple[SymbolType, str]] = {}  # dict[(name: str, QuerySymbolType), (SymbolType, module_name: str)], represents symbol table at file level
                       # QuerySymbolType is SymbolType.STRUCT, UNION, ENUM, VARIABLE only
-localSymbolTable = []  # list[dict[(name: str, QuerySymbolType), SymbolType]], represents the stack of local symbol tables
-fileSymbolTableUses = []  # list[(module_name: str, name: str, SymbolType, identifierParent: ParseRulContext)], so we can figure out what is being used
+localSymbolTable: list[dict[tuple[str, QuerySymbolType], SymbolType]] = []  # list[dict[(name: str, QuerySymbolType), SymbolType]], represents the stack of local symbol tables
+fileSymbolTableUses: list[tuple[str, str, SymbolType, ParserRuleContext]] = []  # list[(module_name: str, name: str, SymbolType, identifierParent: ParserRuleContext)], so we can figure out what is being used
 # Rest are ad-hoc patches, which work but are not robust.
 # Alternatively, we could replace these with AST introspection if it becomes a problem.
-declaratorType = SymbolType.VARIABLE  # DeclaratorSymbolType, used for determining the type of a declarator
-                                      # DeclaratorSymbolType is SymbolType.TYPEDEF, VARIABLE, FUNCTION only
+type DeclaratorSymbolType = Literal[SymbolType.TYPEDEF, SymbolType.VARIABLE, SymbolType.FUNCTION]  # Python 3.12 syntax
+declaratorType: DeclaratorSymbolType = SymbolType.VARIABLE  # DeclaratorSymbolType, used for determining the type of a declarator
 positiveIfParameter = 0  # int >= 0, declarators in parameters are always variables
-functionSymbolTable = None  # dict[(name: str, QuerySymbolType), SymbolType] | None, function definitions have a scope that's split across () and {}
+functionSymbolTable: dict[tuple[str, QuerySymbolType], SymbolType] | None = None  # dict[(name: str, QuerySymbolType), SymbolType] | None, function definitions have a scope that's split across () and {}
 positiveIfStruct = 0  # int >= 0, declarators in struct bodies aren't part of symbol tables
 
 def reset():
@@ -108,7 +110,7 @@ def addSymbol(name: str, symbolType: SymbolType):
         # print(f"AFTER addSymbol({name=}, {symbolType=})")
         # pprint(localSymbolTable)
 
-def getSymbol(name: str, querySymbolType: QuerySymbolType = QuerySymbolType.NAME, identifierParent = None) -> SymbolType | None:
+def getSymbol(name: str, querySymbolType: QuerySymbolType = QuerySymbolType.NAME, identifierParent: ParserRuleContext | None = None) -> SymbolType | None:
     for st in reversed(localSymbolTable):
         if (name, querySymbolType) in st:
             return st[(name, querySymbolType)]
@@ -121,7 +123,7 @@ def getSymbol(name: str, querySymbolType: QuerySymbolType = QuerySymbolType.NAME
         # No need to emit an error message: the parser's speculative lookahead often checks invalid strings
         return None
 
-def updateDeclaratorType(declaratorSymbolType: SymbolType):
+def updateDeclaratorType(declaratorSymbolType: DeclaratorSymbolType):
     global declaratorType, functionSymbolTable
     if declaratorSymbolType not in (SymbolType.TYPEDEF, SymbolType.VARIABLE, SymbolType.FUNCTION):
         # Let it keep going

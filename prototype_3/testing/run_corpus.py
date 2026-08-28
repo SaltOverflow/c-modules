@@ -1,13 +1,13 @@
 # Run `python3 testing/run_corpus.py` while in venv
 # Can also do `python3 testing/run_corpus.py --files testing/defineInsideFunction.cmod`
 
-import sys, glob, os, argparse
+import glob, os, argparse
 
 from src.scope_resolution import symbolTable as st
-from src.interface_generation.interface_generation import generate_module_interface
+from src.interface_generation.interface_generation import generate_module_interface, ModuleInterface
 from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType
 
-from antlr4 import *
+from antlr4 import InputStream, CommonTokenStream
 from src.scope_resolution.parser.CMODFullLexer import CMODFullLexer
 from src.scope_resolution.parser.CMODFullParser import CMODFullParser
 
@@ -20,8 +20,7 @@ cmod_files = [f for f in cmod_files if 'justC' not in os.path.basename(f) and 'i
 if args.files is not None:
     cmod_files = args.files
 
-# Build module_name -> (text, interface) map for all files upfront
-module_data = {}
+module_data: dict[str, tuple[str, ModuleInterface, str]] = {}  # dict[module_name: str, (text: str, ModuleInterface, file_name: str)]
 for f in cmod_files:
     text = open(f).read()
     interface = generate_module_interface(text)

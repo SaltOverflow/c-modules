@@ -36,7 +36,11 @@ def generate_module_interface(text: str) -> ModuleInterface:
 
     def render_region(region_start: int, region_end: int, self_index: int) -> str:
         # symbol_list is generated from a post-order traversal, so scanning backwards from the current index gets the nested definitions
-        clips = []  # list[(brace_open_idx: int, brace_close_idx: int, anon_name_or_None: str | None)]
+        class ClipRegion(NamedTuple):
+            brace_open_token_idx: int
+            brace_close_token_idx: int
+            anon_name_or_None: str | None
+        clips: list[ClipRegion] = []  # list[(brace_open_idx: int, brace_close_idx: int, anon_name_or_None: str | None)]
         j = self_index - 1
         while j >= 0:
             other = symbol_list[j]
@@ -55,10 +59,10 @@ def generate_module_interface(text: str) -> ModuleInterface:
                 brace_open = other.ctx.getChild(2).getSourceInterval()[0]
                 anon_name = None
             brace_close = other_end
-            clips.append((brace_open, brace_close, anon_name))
+            clips.append(ClipRegion(brace_open, brace_close, anon_name))
         clips.reverse()
 
-        pieces = []
+        pieces: list[str] = []
         token_idx = region_start
         if symbol_list[self_index].symbolType.isTag():
             anon_name = anonymous_map.get(region_start)
@@ -78,7 +82,7 @@ def generate_module_interface(text: str) -> ModuleInterface:
             pieces.append(text[tokens[token_idx].start:tokens[region_end].stop+1])
         return ''.join(pieces)
 
-    definitions = []
+    definitions: list[Definition] = []
     for self_index, symbolInfo in enumerate(symbol_list):
         if symbolInfo.symbolType == SymbolType.ENUM_CONSTANT:
             enum_name = (symbolInfo.ctx.Identifier().getText() if symbolInfo.ctx.Identifier() is not None
@@ -132,7 +136,7 @@ def get_imports(text: str) -> list[str]:
     ```
     """
     _, _, tree = get_module_info(text)
-    import_names = []  # list[module_name: str]
+    import_names: list[str] = []  # list[module_name: str]
     for importDeclaration in tree.translationUnit().importDeclaration():
         import_names.append(importDeclaration.Identifier().getText())
     return import_names
