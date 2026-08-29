@@ -131,7 +131,6 @@ def get_module_info(text: str) -> tuple[str, list[Token], CMODInterfaceParser.Co
     tree = parser.compilationUnit()  # {getSourceInterval, getChildren, getChildCount, getChild, getText}
 
     if parser.getNumberOfSyntaxErrors() > 0:
-        # Let it keep going with errors
         logging.error(f"syntax errors running CMODInterface on {text!r}")
     return text, tokens, tree
 

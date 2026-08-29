@@ -30,29 +30,15 @@ def reset():
     functionSymbolTable = None
     positiveIfStruct = 0
 
-def sanityCheck() -> bool:
-    startingErrorCount = logging.errorCount
-    if len(localSymbolTable) != 0:
-        # Let it keep going
-        logging.error(f"localSymbolTable is not empty: {localSymbolTable}")
-    if positiveIfParameter != 0:
-        # Let it keep going
-        logging.error(f"{positiveIfParameter=} is not 0")
-    if positiveIfStruct != 0:
-        # Let it keep going
-        logging.error(f"{positiveIfStruct=} is not 0")
+def sanityCheck():
+    assert len(localSymbolTable) == 0, f"localSymbolTable is not empty: {localSymbolTable}"
+    assert positiveIfParameter == 0, f"{positiveIfParameter=} is not 0"
+    assert positiveIfStruct == 0, f"{positiveIfStruct=} is not 0"
     for module_name, name, symbolType, identifierParent in fileSymbolTableUses:
-        if identifierParent.Identifier() is None:
-            # Let it keep going
-            logging.error(f"{identifierParent=} is missing Identifier?")
-        if name != identifierParent.Identifier().getText():
-            # Let it keep going
-            logging.error(f"fileSymbolTableUses has {name=}, which has a different name than {identifierParent.Identifier().getText()=}")
+        assert identifierParent.Identifier() is not None, f"{identifierParent=} is missing Identifier?"
+        assert name == identifierParent.Identifier().getText(), f"fileSymbolTableUses has {name=}, which has a different name than {identifierParent.Identifier().getText()=}"
         querySymbolType = symbolType.toQuerySymbolType()
-        if (name, querySymbolType) not in fileSymbolTable or fileSymbolTable[(name, querySymbolType)] != (symbolType, module_name):
-            # Let it keep going
-            logging.error(f"fileSymbolTableUses has entry {name} which doesn't exist in fileSymbolTable")
-    return logging.errorCount == startingErrorCount
+        assert (name, querySymbolType) in fileSymbolTable and fileSymbolTable[(name, querySymbolType)] == (symbolType, module_name), f"fileSymbolTableUses has entry {name} which doesn't exist in fileSymbolTable"
 
 def addToFileSymbolTable(module_name: str, definition_list: list[Definition], exported_only: bool):
     for name, is_exported, symbolType, _ in definition_list:
@@ -60,7 +46,6 @@ def addToFileSymbolTable(module_name: str, definition_list: list[Definition], ex
             continue
         querySymbolType = symbolType.toQuerySymbolType()
         if (name, querySymbolType) in fileSymbolTable:
-            # Let it keep going
             logging.error(f"fileSymbolTable collision with {(name, querySymbolType)} -> {fileSymbolTable[(name, querySymbolType)]}")
         else:
             fileSymbolTable[(name, querySymbolType)] = (symbolType, module_name)
@@ -77,7 +62,6 @@ def popScope(maybeScopeContinues: bool = False):
 def pushFunctionScope():
     global functionSymbolTable
     if functionSymbolTable is None:
-        # Let it keep going
         logging.error(f"function does not have a parameter list!")
     localSymbolTable.append(functionSymbolTable)
     functionSymbolTable = None
@@ -92,12 +76,10 @@ def addSymbol(name: str, symbolType: SymbolType):
             return  # declarators in struct bodies aren't part of symbol tables
     if len(localSymbolTable) == 0:  # we're still at file scope, skip
         if (name, querySymbolType) not in fileSymbolTable or fileSymbolTable[(name, querySymbolType)][0] != symbolType:
-            # Let it keep going
             logging.error(f"encountered symbol {(name, symbolType)} not already in fileSymbolTable")
         return
     if (name, querySymbolType) in localSymbolTable[-1]:
-        # Let it keep going
-        logging.error(f"symbol name clash in local scope for {name}")
+        logging.error(f"symbol name clash in local scope for {(name, querySymbolType)}")
     else:
         localSymbolTable[-1][(name, querySymbolType)] = symbolType
         # # Debugging
@@ -120,10 +102,7 @@ def getSymbol(name: str, querySymbolType: QuerySymbolType = QuerySymbolType.Q_NA
 
 def updateDeclaratorType(declaratorSymbolType: DeclaratorSymbolType):
     global declaratorType, functionSymbolTable
-    if declaratorSymbolType not in (SymbolType.TYPEDEF, SymbolType.VARIABLE, SymbolType.FUNCTION):
-        # Let it keep going
-        logging.error(f"implementation error, {declaratorSymbolType=} is invalid, using VARIABLE fallback")
-        declaratorSymbolType = SymbolType.VARIABLE
+    assert declaratorSymbolType in (SymbolType.TYPEDEF, SymbolType.VARIABLE, SymbolType.FUNCTION), f"implementation error, {declaratorSymbolType=} is invalid"
     if declaratorSymbolType == SymbolType.FUNCTION:
         functionSymbolTable = None  # Quick fix so function definition doesn't grab the parameter list of some previous variable
     declaratorType = declaratorSymbolType
@@ -135,10 +114,7 @@ def enterParameterRegion():
 def exitParameterRegion():
     global positiveIfParameter
     positiveIfParameter -= 1
-    if positiveIfParameter < 0:
-        # Let it keep going
-        logging.error(f"implementation error, {positiveIfParameter=} is less than 0, resetting")
-        positiveIfParameter = 0
+    assert positiveIfParameter >= 0, f"implementation error, {positiveIfParameter=} is less than 0"
 
 def enterStructRegion():
     global positiveIfStruct
@@ -147,7 +123,4 @@ def enterStructRegion():
 def exitStructRegion():
     global positiveIfStruct
     positiveIfStruct -= 1
-    if positiveIfStruct < 0:
-        # Let it keep going
-        logging.error(f"implementation error, {positiveIfStruct=} is less than 0, resetting")
-        positiveIfStruct = 0
+    assert positiveIfStruct >= 0, f"implementation error, {positiveIfStruct=} is less than 0"

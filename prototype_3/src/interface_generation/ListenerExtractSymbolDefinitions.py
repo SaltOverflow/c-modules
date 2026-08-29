@@ -111,9 +111,7 @@ class ListenerExtractSymbolDefinitions(CMODInterfaceListener):
                     self.function_prototype = False
                 return recurseDirectDeclarator(ctx.directDeclarator())
             else:
-                # Let it keep going
-                logging.error(f"implementation error when parsing {repr(ctx.getText())}")
-                return "error_symbol"
+                assert False, "should not be reachable"
         self.function_prototype = False
         return recurseDeclarator(ctx)
 
@@ -133,7 +131,7 @@ class ListenerExtractSymbolDefinitions(CMODInterfaceListener):
         else:
             name = ctx.Identifier().getText()
             if name.startswith('_anon_'):
-                # Let it keep going
+                # we could change this to a renaming
                 logging.error(f"name starts with _anon_ for {name}")
         symbolType = SymbolType.STRUCT if ctx.structOrUnion().getText() == 'struct' else SymbolType.UNION
         self.symbol_definitions.append(SymbolInfo(name, self.export_status, symbolType, ctx))
@@ -149,7 +147,7 @@ class ListenerExtractSymbolDefinitions(CMODInterfaceListener):
         else:
             name = ctx.Identifier().getText()
             if name.startswith('_anon_'):
-                # Let it keep going
+                # we could change this to a renaming
                 logging.error(f"name starts with _anon_ for {name}")
         self.symbol_definitions.append(SymbolInfo(name, self.export_status, SymbolType.ENUM, ctx))
         # Enumeration constants are also in file-level scope
@@ -172,13 +170,11 @@ class ListenerExtractSymbolDefinitions(CMODInterfaceListener):
             if storageClassSpecifier.getText() == 'typedef':
                 symbolType = SymbolType.TYPEDEF
             elif storageClassSpecifier.getText() == 'extern':
-                # Let it keep going
                 logging.error(f"extern declarations don't actually define the symbol, for {repr(ctx.getText())}")
                 return
         for idx, initDeclarator in enumerate(ctx.initDeclaratorList().initDeclarator()):
             name = self.getNameFromDeclarator(initDeclarator.declarator())
             if self.function_prototype:
-                # Let it keep going
                 logging.error(f"found function protoype at declarator index {idx} of {repr(ctx.getText())}")
                 continue
             self.symbol_definitions.append(SymbolInfo(name, self.export_status, symbolType, ctx, idx))

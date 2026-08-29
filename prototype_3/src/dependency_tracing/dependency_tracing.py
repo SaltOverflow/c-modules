@@ -25,15 +25,10 @@ def generate_module_text(module_name: str, module_data: dict[str, ModuleInterfac
         if originalNode in visited:
             return
         if originalNode in visiting:
-            # Let it keep going
             logging.error(f"cyclic dependency detected at {originalNode} (stack: {list(visiting)})")
             output.append(f"// ERROR: cyclic dependency detected at {originalNode}")
             return
-        if queryNode not in module_graph:
-            # Let it keep going
-            logging.error(f"{queryNode=} (from {originalNode=}) not found in module_graph")
-            output.append(f"// ERROR: {queryNode=} (from {originalNode=}) not found in module_graph")
-            return
+        assert queryNode in module_graph, f"{queryNode=} (from {originalNode=}) not found in module_graph"
 
         visiting.add(originalNode)
         text, dependencies, extra_text = module_graph[queryNode]

@@ -26,8 +26,8 @@ def check(rule_name, text, expect_errors=False, label=None, seed=None, extra_che
     tree = getattr(parser, rule_name)()
     if parser.getNumberOfSyntaxErrors():
         logging.error(f"syntax errors running CMODFull on {text!r}")
+    st.sanityCheck()
     got_errors = logging.errorCount != 0
-    got_errors &= st.sanityCheck()
     if extra_check is not None:
         got_errors &= extra_check()
     ok = (got_errors == expect_errors)
