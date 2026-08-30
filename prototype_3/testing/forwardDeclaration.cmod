@@ -1,0 +1,6 @@
+module forwardDeclaration;
+
+void foo() {
+    struct S;
+    struct S *s;
+}

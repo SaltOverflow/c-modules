@@ -10,7 +10,7 @@ from ..interface_generation.interface_generation import Definition
 
 fileSymbolTable: dict[tuple[str, QuerySymbolType], tuple[SymbolType, str]] = {}  # dict[(name: str, QuerySymbolType), (SymbolType, module_name: str)], represents symbol table at file level
                       # QuerySymbolType is SymbolType.STRUCT, UNION, ENUM, VARIABLE only
-localSymbolTable: list[dict[tuple[str, QuerySymbolType], SymbolType]] = []  # list[dict[(name: str, QuerySymbolType), SymbolType]], represents the stack of local symbol tables
+localSymbolTable: list[dict[tuple[str, QuerySymbolType], tuple[SymbolType, bool]]] = []  # list[dict[(name: str, QuerySymbolType), (SymbolType, is_decl: bool)]], represents the stack of local symbol tables
 fileSymbolTableUses: list[tuple[str, str, SymbolType, ParserRuleContext]] = []  # list[(module_name: str, name: str, SymbolType, identifierParent: ParserRuleContext)], so we can figure out what is being used
 # Rest are ad-hoc patches, which work but are not robust.
 # Alternatively, we could replace these with AST introspection if it becomes a problem.
@@ -78,10 +78,10 @@ def addSymbol(name: str, symbolType: SymbolType):
         if (name, querySymbolType) not in fileSymbolTable or fileSymbolTable[(name, querySymbolType)][0] != symbolType:
             logging.error(f"encountered symbol {(name, symbolType)} not already in fileSymbolTable")
         return
-    if (name, querySymbolType) in localSymbolTable[-1]:
+    if (name, querySymbolType) in localSymbolTable[-1] and not localSymbolTable[-1][(name, querySymbolType)][1]:
         logging.error(f"symbol name clash in local scope for {(name, querySymbolType)}")
     else:
-        localSymbolTable[-1][(name, querySymbolType)] = symbolType
+        localSymbolTable[-1][(name, querySymbolType)] = symbolType, False
         # # Debugging
         # from pprint import pprint
         # print(f"AFTER addSymbol({name=}, {symbolType=})")
@@ -90,7 +90,7 @@ def addSymbol(name: str, symbolType: SymbolType):
 def getSymbol(name: str, querySymbolType: QuerySymbolType = QuerySymbolType.Q_NAME, identifierParent: ParserRuleContext | None = None) -> SymbolType | None:
     for st in reversed(localSymbolTable):
         if (name, querySymbolType) in st:
-            return st[(name, querySymbolType)]
+            return st[(name, querySymbolType)][0]
     if (name, querySymbolType) in fileSymbolTable:
         symbolType, module_name = fileSymbolTable[(name, querySymbolType)]
         if identifierParent is not None:  # dependency tracking is moved to semantic actions instead of semantic predicates
@@ -99,6 +99,18 @@ def getSymbol(name: str, querySymbolType: QuerySymbolType = QuerySymbolType.Q_NA
     else:
         # No need to emit an error message: the parser's speculative lookahead often checks invalid strings
         return None
+
+def addForwardDeclaration(name: str, symbolType: SymbolType):
+    assert symbolType in (SymbolType.STRUCT, SymbolType.UNION), f"cannot add forward declaration of type {symbolType} for {name}"
+    querySymbolType = symbolType.toQuerySymbolType()
+    if len(localSymbolTable) == 0:  # we're still at file scope, skip
+        if (name, querySymbolType) not in fileSymbolTable or fileSymbolTable[(name, querySymbolType)][0] != symbolType:
+            logging.error(f"encountered symbol {(name, symbolType)} not already in fileSymbolTable")
+        return
+    if (name, querySymbolType) in localSymbolTable[-1] and not localSymbolTable[-1][(name, querySymbolType)][1]:
+        pass  # skip, it's already defined
+    else:
+        localSymbolTable[-1][(name, querySymbolType)] = symbolType, True
 
 def updateDeclaratorType(declaratorSymbolType: DeclaratorSymbolType):
     global declaratorType, functionSymbolTable

@@ -7,7 +7,7 @@ grammar CMODFull;
 // Used as reference to set up semantic actions: https://martinlwx.github.io/en/how-to-use-antlr4-to-make-semantic-actions/
 // Also see https://github.com/antlr/antlr4/blob/dev/doc/actions.md and https://github.com/antlr/antlr4/blob/dev/doc/predicates.md
 @header {
-from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, updateDeclaratorType, enterParameterRegion, exitParameterRegion, enterStructRegion, exitStructRegion
+from src.scope_resolution.symbolTable import pushScope, popScope, pushFunctionScope, addSymbol, getSymbol, addForwardDeclaration, updateDeclaratorType, enterParameterRegion, exitParameterRegion, enterStructRegion, exitStructRegion
 from src.interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 }
 
@@ -380,6 +380,9 @@ structOrUnionSpecifier
       {enterStructRegion()}
       structDeclaration+ '}'
       {exitStructRegion()}
+    | {self._input.LT(3).text == ';'}?
+      structOrUnion Identifier  // order matters here
+      {addForwardDeclaration($Identifier.text, SymbolType.STRUCT if $structOrUnion.text == 'struct' else SymbolType.UNION)}
     | {(self._input.LT(1).text == 'struct' and getSymbol(self._input.LT(2).text, QuerySymbolType.Q_STRUCT) == SymbolType.STRUCT
         or self._input.LT(1).text == 'union' and getSymbol(self._input.LT(2).text, QuerySymbolType.Q_UNION) == SymbolType.UNION)}?
       structOrUnion Identifier
