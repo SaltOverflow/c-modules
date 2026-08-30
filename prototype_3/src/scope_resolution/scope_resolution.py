@@ -34,7 +34,7 @@ class GraphNode[T: (SymbolType, QuerySymbolType)](NamedTuple):  # This is Python
 class GraphInfo(NamedTuple):
     text: str | None
     dependencies: list[GraphNode[SymbolType]]
-    extra_text: str | None = None  # inline functions need to explicitly emit their symbol
+    module_specific_text: str | None = None  # inline functions need to explicitly emit their symbol
 
     def __str__(self) -> str:
         return f"[{', '.join(str(d) for d in self.dependencies)}]"
@@ -112,10 +112,10 @@ def generate_dependency_graph(module_name: str, module_data: dict[str, ModuleInt
                 else:
                     dependencies_decl.append(dependency)
         if symbolType == SymbolType.FUNCTION and externalDeclaration.functionDefinition().declarationSpecifiers().functionSpecifier():
-            extra_text = f"extern {text[:declarator_end+1]};"
+            module_specific_text = f"extern {text[:declarator_end+1]};"
         else:
-            extra_text = None
-        graph[node_key_defn] = GraphInfo(text, dependencies_defn, extra_text)
+            module_specific_text = None
+        graph[node_key_defn] = GraphInfo(text, dependencies_defn, module_specific_text)
         if symbolType == SymbolType.TYPEDEF:
             graph[node_key_decl] = GraphInfo(text, dependencies_decl)
         elif symbolType == SymbolType.FUNCTION:

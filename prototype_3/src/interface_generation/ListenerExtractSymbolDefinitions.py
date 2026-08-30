@@ -39,9 +39,6 @@ class QuerySymbolType(Enum):
     def __str__(self) -> str:
         return self.name
 
-    def isTag(self) -> bool:
-        return self in (QuerySymbolType.Q_STRUCT, QuerySymbolType.Q_UNION, QuerySymbolType.Q_ENUM)
-
 class SymbolType(Enum):
     STRUCT = auto()  # ctx: StructOrUnionSpecifierContext
     UNION = auto()  # ctx: StructOrUnionSpecifierContext
@@ -57,6 +54,9 @@ class SymbolType(Enum):
     def isTag(self) -> bool:
         """struct/union/enum exist in a separate tag namespace (see C99 6.2.3)."""
         return self in (SymbolType.STRUCT, SymbolType.UNION, SymbolType.ENUM)
+
+    def isType(self) -> bool:
+        return self.isTag() or self == SymbolType.TYPEDEF
 
     def toQuerySymbolType(self) -> QuerySymbolType:
         """Extracts the namespace that a symbol lives in (see C99 6.2.3)"""

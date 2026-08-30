@@ -1,0 +1,20 @@
+module lateBind;
+
+// the definition of bar() is moved right after foo(), then the definitions
+// of the other structs get moved before struct ShouldBeLast.
+
+void foo() {
+    bar();
+}
+
+struct ShouldBeLast {int a;};
+
+inline void bar() {
+    struct SByPtr *sByPtr;
+    struct S s;
+}
+
+struct SByPtr {int i;};
+struct S {struct SS ss; struct SSS *sss;};
+struct SS {int j;};
+struct SSS {int k;};
