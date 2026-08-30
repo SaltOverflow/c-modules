@@ -121,7 +121,11 @@ def generate_dependency_graph(module_name: str, module_data: dict[str, ModuleInt
         elif symbolType == SymbolType.FUNCTION:
             graph[node_key_decl] = GraphInfo(f"{text[:declarator_end+1]};", dependencies_decl)
         elif symbolType == SymbolType.VARIABLE:
-            graph[node_key_decl] = GraphInfo(f"extern {text[:declarator_end+1]};", dependencies_decl)
+            if any(sd.getText() == 'static' for sd in externalDeclaration.declaration().declarationSpecifiers().storageClassSpecifier()):
+                # static exports are special because they redefine the symbol
+                graph[node_key_decl] = GraphInfo(None, [GraphNode(module_name, name, SymbolType.VARIABLE, DepType.DEFINITION)])
+            else:
+                graph[node_key_decl] = GraphInfo(f"extern {text[:declarator_end+1]};", dependencies_decl)
 
     return graph
 

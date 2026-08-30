@@ -1,0 +1,5 @@
+module staticUse;
+
+import statics;
+
+int v = i + ii;

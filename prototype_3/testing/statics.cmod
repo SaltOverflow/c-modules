@@ -1,0 +1,5 @@
+module statics;
+
+export static int i;
+export int static const ii = 5;
+static int iii;
