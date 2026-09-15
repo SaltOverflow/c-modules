@@ -1,0 +1,7 @@
+module importChain;
+
+import a;
+
+void foobar() {
+    foo(1,2,3);
+}
