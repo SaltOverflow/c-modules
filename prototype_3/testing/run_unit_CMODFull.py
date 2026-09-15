@@ -1,4 +1,4 @@
-# Run `python3 testing/run_unit.py` while in venv
+# Run `python3 testing/run_unit_CMODFull.py` while in venv
 
 from antlr4 import InputStream, CommonTokenStream
 

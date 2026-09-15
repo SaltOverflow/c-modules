@@ -1,5 +1,6 @@
+# Run `python3 testing/run_scopeResolution.py` while in venv
+
 import glob, os
-from pprint import pprint
 import src.logging as logging
 from src.interface_generation.interface_generation import generate_module_interface, ModuleInterface
 from src.scope_resolution.scope_resolution import generate_dependency_graph

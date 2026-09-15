@@ -1,3 +1,6 @@
+# Run `python3 testing/run_dependencyTracing.py` while in venv
+# Can also do `python3 testing/run_dependencyTracing.py --modules a`
+
 import glob, os, argparse
 from pprint import pprint
 import src.logging as logging
