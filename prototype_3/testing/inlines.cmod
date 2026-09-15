@@ -10,9 +10,9 @@ inline int rec1(int x) {
 
 // due to the way we implement this,
 // this should be at the bottom of the generated code
-int bottom;
+export int bottom = 6;
 
-inline int rec2(int x) {
+export inline int rec2(int x) {
     if (x % 7 == 0) {
         return x;
     } else {

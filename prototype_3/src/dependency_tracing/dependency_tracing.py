@@ -48,6 +48,9 @@ def generate_module_text(module_name: str, module_data: dict[str, ModuleInterfac
                 pass  # duplicate typedef definitions are technically not C99 compliant (6.7p3), even if compilers support it
             else:
                 output.append(text)
+        if module_specific_text is not None and module_name == originalNode.module_name:
+            # The module that owns the inline function needs to actually emit it
+            output.append(module_specific_text)
         visiting.discard(originalNode); visiting_stack.pop()
         visited.add(originalNode)
     
@@ -57,9 +60,6 @@ def generate_module_text(module_name: str, module_data: dict[str, ModuleInterfac
         if originalNode.depType == DepType.DECLARATION and originalNode.symbolType.isType():
             # if type declaration, put its definition in the queue
             late_type_definitions.append(originalNode._replace(depType=DepType.DEFINITION))
-        if module_specific_text is not None and len(visiting_stack) == 0:
-            # inline function has to actually emit the symbol
-            output.append(module_specific_text)
         if len(visiting_stack) == 0:
             # emit inline function definitions
             lsd = late_symbol_definitions

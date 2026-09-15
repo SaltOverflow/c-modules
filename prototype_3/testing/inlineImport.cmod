@@ -1,0 +1,7 @@
+module inlineImport;
+
+import inlines;
+
+int foo() {
+    return rec2(bottom);
+}
