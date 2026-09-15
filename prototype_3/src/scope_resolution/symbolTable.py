@@ -17,7 +17,7 @@ fileSymbolTableUses: list[tuple[str, str, SymbolType, ParserRuleContext]] = []  
 type DeclaratorSymbolType = Literal[SymbolType.TYPEDEF, SymbolType.VARIABLE, SymbolType.FUNCTION]  # Python 3.12 syntax
 declaratorType: DeclaratorSymbolType = SymbolType.VARIABLE  # DeclaratorSymbolType, used for determining the type of a declarator
 positiveIfParameter = 0  # int >= 0, declarators in parameters are always variables
-functionSymbolTable: dict[tuple[str, QuerySymbolType], SymbolType] | None = None  # dict[(name: str, QuerySymbolType), SymbolType] | None, function definitions have a scope that's split across () and {}
+functionSymbolTable: dict[tuple[str, QuerySymbolType], tuple[SymbolType, bool]] | None = None  # dict[(name: str, QuerySymbolType), (SymbolType, is_decl: bool)] | None, function definitions have a scope that's split across () and {}
 positiveIfStruct = 0  # int >= 0, declarators in struct bodies aren't part of symbol tables
 
 def reset():

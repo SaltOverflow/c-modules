@@ -35,4 +35,4 @@ if args.modules:
 else:
     for module_name in module_data:
         output = generate_module_text(module_name, module_data, module_graph)
-        print(f'{module_name}: {len(output)} lines, errors so far={logging.errorCount}')
+        print(f'{module_name}: {len(output)} entries, errors so far={logging.errorCount}')

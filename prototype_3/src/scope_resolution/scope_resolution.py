@@ -77,6 +77,7 @@ def generate_dependency_graph(module_name: str, module_data: dict[str, ModuleInt
         externalDeclaration = fullParser.externalDeclaration()
         if fullParser.getNumberOfSyntaxErrors() > 0:
             logging.error(f"syntax errors parsing definition text for {node_key_defn}: {text!r}")
+            logging.error(f"state of parser: {module_name=}, imports={interface.imports}, file_symbol_table={st.fileSymbolTable}")
         st.sanityCheck()
 
         # Special cases for decls

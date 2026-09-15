@@ -37,8 +37,6 @@ def check(rule_name, text, expect_errors=False, label=None, seed=None, extra_che
     else:
         failed += 1
     print(f'[{status}] {label or text!r}: ({got_errors=}, {expect_errors=})')
-    if not ok:
-        raise "hello"
     return tree
 
 
