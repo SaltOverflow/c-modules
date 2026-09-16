@@ -12,7 +12,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--modules', nargs='+', help='List of modules to display dependency trace on')
 args = parser.parse_args()
 
-cmod_files = sorted(glob.glob('testing/*.cmod'))
+os.chdir(os.path.dirname(os.path.abspath(__file__)))  # so the glob is relative to this script's directory
+cmod_files = sorted(glob.glob('*.cmod'))
 cmod_files = [f for f in cmod_files if 'justC' not in os.path.basename(f) and 'invalid' not in os.path.basename(f)]
 
 module_data: dict[str, ModuleInterface] = {}
