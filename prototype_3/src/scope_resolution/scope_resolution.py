@@ -42,11 +42,18 @@ class GraphInfo(NamedTuple):
 
 def generate_dependency_graph(module_name: str, module_data: dict[str, ModuleInterface]) -> dict[GraphNode[QuerySymbolType], GraphInfo]:
     """Builds a dependency graph for a single module.
-    ```
-        module_data: dict[module_name: str, ModuleInterface], should contain at least
-            module_name itself and every module it imports (extra entries are ignored)
-        returns: dict[GraphNode[QuerySymbolType], GraphInfo]
-    ```
+
+    Args:
+        module_name: The module to build a dependency graph for.
+        module_data: The output of interface generation. If lazy_interface.lazyLoad is set,
+            this can be empty; otherwise, the transitive closure of modules reachable through
+            imports should already be filled.
+
+    Returns:
+        dict[GraphNode[QuerySymbolType], GraphInfo]
+
+    Note:
+        module_data should only be accessed through getInterface, or lazy logic won't trigger.
     """
     interface = getInterface(module_name, module_data)
 

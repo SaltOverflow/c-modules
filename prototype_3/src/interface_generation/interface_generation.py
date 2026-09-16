@@ -26,15 +26,7 @@ class ModuleInterface(NamedTuple):
 
 @cache
 def generate_module_interface(text: str) -> ModuleInterface:
-    """Extracts file-level symbol info for a single module.
-    ```
-        ModuleInterface(
-            module: str,
-            imports: list[module_name: str],
-            definitions: list[Definition],
-        )
-    ```
-    """
+    """Extracts file-level symbol info for a single module."""
     text, tokens, tree = get_module_info(text)
     module = tree.translationUnit().moduleDeclaration().getChild(1).getText()
     imports = get_imports(text)
@@ -114,12 +106,15 @@ def generate_module_interface(text: str) -> ModuleInterface:
 @cache
 def get_module_info(text: str) -> tuple[str, list[Token], CMODInterfaceParser.CompilationUnitContext]:
     """Parses AST of a given module.
-    ```
-        text: str, tokens, tree
-        tokens: list[token: {text, start, stop, line, column}]
-        tree: {getSourceInterval, getChildren, getChildCount, getChild, getText}
-        (stop is inclusive, just like getSourceInterval)
-    ```
+
+    Args:
+        text: The full source text of the module.
+
+    Returns:
+        tuple[str, list[Token], CompilationUnitContext]: The original text, the list of
+        tokens ({text, start, stop, line, column}, where stop is inclusive, just like
+        getSourceInterval), and the parse tree ({getSourceInterval, getChildren,
+        getChildCount, getChild, getText}).
     """
     input_stream = InputStream(text)
     lexer = CMODInterfaceLexer(input_stream)
@@ -136,11 +131,7 @@ def get_module_info(text: str) -> tuple[str, list[Token], CMODInterfaceParser.Co
 
 @cache
 def get_imports(text: str) -> list[str]:
-    """Gets imports of module.
-    ```
-        list[module_name: str]
-    ```
-    """
+    """Gets imports of module."""
     _, _, tree = get_module_info(text)
     import_names: list[str] = []  # list[module_name: str]
     for importDeclaration in tree.translationUnit().importDeclaration():
@@ -148,18 +139,17 @@ def get_imports(text: str) -> list[str]:
     return import_names
 
 def get_symbol_list(text: str) -> list[SymbolInfo]:
-    """Gets info for symbols of module.
-    ```
-        list[SymbolInfo]
-    ```
-    """
+    """Gets info for symbols of module."""
     return _get_symbol_data(text)[0]
 
 def get_anonymous_map(text: str) -> dict[int, str]:
-    """Gets names for anonymous types of module (side effect of get_symbol_list).
-    ```
-        dict[start_token_idx: int, str]
-    ```
+    """Gets names for anonymous types of module.
+
+    Args:
+        text: The full source text of the module.
+
+    Returns:
+        dict[int, str]: Maps start_token_idx to anon_name.
     """
     return _get_symbol_data(text)[1]
 

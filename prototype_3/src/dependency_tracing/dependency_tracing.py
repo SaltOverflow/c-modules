@@ -9,13 +9,22 @@ from ..scope_resolution.lazy_scope import getGraphInfo
 def generate_module_text(module_name: str, module_data: dict[str, ModuleInterface], module_graph: dict[GraphNode[QuerySymbolType], GraphInfo]) -> list[str]:
     """Performs a post-order traversal of module_graph, starting from module_name's own
     definitions, to produce a flat, dependency-ordered list of C text fragments.
-    ```
-        module_data: dict[module_name: str, ModuleInterface], the output of interface generation
-        module_graph: dict[GraphNode[QuerySymbolType], GraphInfo], the output of scope resolution
-        if lazy_interface.lazyLoad/lazy_scope.lazyLoad are set, then module_data/module_graph can be empty,
-        otherwise the transitive closure of modules reachable through imports should already be filled
-        returns: list[text: str], such that '\\n'.join(output) produces valid, dependency-ordered C code
-    ```
+
+    Args:
+        module_name: The module to generate C text for.
+        module_data: The output of interface generation. If lazy_interface.lazyLoad is set,
+            this can be empty; otherwise, the transitive closure of modules reachable through
+            imports should already be filled.
+        module_graph: The output of scope resolution. If lazy_scope.lazyLoad are set,
+            this can be empty; otherwise, the transitive closure of modules reachable through
+            imports should already be filled.
+
+    Returns:
+        list[str], such that '\\n'.join(output) produces valid, dependency-ordered C code.
+
+    Note:
+        module_data/module_graph should only be accessed through getInterface/getGraphInfo,
+        or lazy logic won't trigger.
     """
     output: list[str] = []
     visiting: set[GraphNode[SymbolType]] = set()  # nodes currently on the DFS stack (used to detect cycles)
