@@ -1,0 +1,7 @@
+module invalidImport;
+
+import doesNotExist;
+
+int foo() {
+    return 4;
+}

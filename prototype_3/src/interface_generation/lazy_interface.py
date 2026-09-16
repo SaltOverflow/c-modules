@@ -5,6 +5,9 @@ from .. import logging
 lazyLoad: bool = False
 project_root: str | None = None
 
+class ModuleNotFound(Exception):
+    pass
+
 def getInterface(module_name: str, module_data: dict[str, ModuleInterface]) -> ModuleInterface:
     if module_name not in module_data:
         if lazyLoad:
@@ -17,7 +20,7 @@ def lazyInterfaceGeneration(module_name: str, module_data: dict[str, ModuleInter
     module_path = os.path.join(project_root, module_name + '.cmod')
     if not os.path.isfile(module_path):
         logging.error(f"could not find module {module_name!r} (expected {module_path!r})")
-        return
+        raise ModuleNotFound(f"could not find module {module_name!r} (expected {module_path!r})")
     with open(module_path) as f:
         text = f.read()
     interface = generate_module_interface(text)

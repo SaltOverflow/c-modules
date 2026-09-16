@@ -9,7 +9,7 @@ from .parser.CMODFullLexer import CMODFullLexer
 from .parser.CMODFullParser import CMODFullParser
 from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 from ..interface_generation.interface_generation import ModuleInterface
-from ..interface_generation.lazy_interface import getInterface
+from ..interface_generation.lazy_interface import getInterface, ModuleNotFound
 
 class DepType(Enum):
     # A dependency that is set as DECLARATION needs at least a declaration,
@@ -66,7 +66,11 @@ def generate_dependency_graph(module_name: str, module_data: dict[str, ModuleInt
         st.reset()
         st.addToFileSymbolTable(module_name, interface.definitions, exported_only=False)
         for imported_name in interface.imports:
-            imported_interface = getInterface(imported_name, module_data)
+            try:
+                imported_interface = getInterface(imported_name, module_data)
+            except ModuleNotFound:
+                logging.error(f"{module_name} imports {imported_name}, which cannot be found")
+                continue  # At this point, the output is "invalid" and we should exit the program, but let's keep going as long as we can
             st.addToFileSymbolTable(imported_name, imported_interface.definitions, exported_only=True)
 
         lexer = CMODFullLexer(InputStream(text))
