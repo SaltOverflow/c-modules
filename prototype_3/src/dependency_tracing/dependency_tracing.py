@@ -1,17 +1,19 @@
 from .. import logging
 from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 from ..interface_generation.interface_generation import ModuleInterface
+from ..interface_generation.lazy_interface import getInterface
 from ..scope_resolution.scope_resolution import GraphNode, GraphInfo, DepType
+from ..scope_resolution.lazy_scope import getGraphInfo
 
 
 def generate_module_text(module_name: str, module_data: dict[str, ModuleInterface], module_graph: dict[GraphNode[QuerySymbolType], GraphInfo]) -> list[str]:
     """Performs a post-order traversal of module_graph, starting from module_name's own
     definitions, to produce a flat, dependency-ordered list of C text fragments.
     ```
-        module_data: dict[module_name: str, ModuleInterface]
-        module_graph: dict[GraphNode[QuerySymbolType], GraphInfo], the merged dependency graphs (via
-            generate_dependency_graph) of module_name and everything it could transitively
-            depend on (its own imports, their imports, etc.)
+        module_data: dict[module_name: str, ModuleInterface], the output of interface generation
+        module_graph: dict[GraphNode[QuerySymbolType], GraphInfo], the output of scope resolution
+        if lazy_interface.lazyLoad/lazy_scope.lazyLoad are set, then module_data/module_graph can be empty,
+        otherwise the transitive closure of modules reachable through imports should already be filled
         returns: list[text: str], such that '\\n'.join(output) produces valid, dependency-ordered C code
     ```
     """
@@ -32,10 +34,9 @@ def generate_module_text(module_name: str, module_data: dict[str, ModuleInterfac
             logging.error(f"cyclic dependency detected at {originalNode} (stack: {list(visiting)})")
             output.append(f"// ERROR: cyclic dependency detected at {originalNode}")
             return
-        assert queryNode in module_graph, f"{queryNode=} (from {originalNode=}) not found in module_graph"
 
         visiting.add(originalNode); visiting_stack.append(originalNode)
-        text, dependencies, module_specific_text = module_graph[queryNode]
+        text, dependencies, module_specific_text = getGraphInfo(queryNode, module_graph, module_data)
         for dependency in dependencies:
             visit(dependency)
         if text is not None:
@@ -54,7 +55,7 @@ def generate_module_text(module_name: str, module_data: dict[str, ModuleInterfac
         visiting.discard(originalNode); visiting_stack.pop()
         visited.add(originalNode)
     
-        if originalNode.depType == DepType.DECLARATION and module_graph[queryNode._replace(depType=DepType.DEFINITION)].module_specific_text is not None:
+        if originalNode.depType == DepType.DECLARATION and getGraphInfo(queryNode._replace(depType=DepType.DEFINITION), module_graph, module_data).module_specific_text is not None:
             # if inline function declaration, put its definition in the queue
             late_symbol_definitions.append(originalNode._replace(depType=DepType.DEFINITION))
         if originalNode.depType == DepType.DECLARATION and originalNode.symbolType.isType():
@@ -73,7 +74,7 @@ def generate_module_text(module_name: str, module_data: dict[str, ModuleInterfac
             for dependency in ltd:
                 visit(dependency)
 
-    interface = module_data[module_name]
+    interface = getInterface(module_name, module_data)
     for name, is_exported, symbolType, _ in interface.definitions:
         visit(GraphNode(module_name, name, symbolType, DepType.DEFINITION))
 

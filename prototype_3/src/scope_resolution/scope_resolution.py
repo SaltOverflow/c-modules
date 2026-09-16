@@ -9,6 +9,7 @@ from .parser.CMODFullLexer import CMODFullLexer
 from .parser.CMODFullParser import CMODFullParser
 from ..interface_generation.ListenerExtractSymbolDefinitions import SymbolType, QuerySymbolType
 from ..interface_generation.interface_generation import ModuleInterface
+from ..interface_generation.lazy_interface import getInterface
 
 class DepType(Enum):
     # A dependency that is set as DECLARATION needs at least a declaration,
@@ -47,7 +48,7 @@ def generate_dependency_graph(module_name: str, module_data: dict[str, ModuleInt
         returns: dict[GraphNode[QuerySymbolType], GraphInfo]
     ```
     """
-    interface = module_data[module_name]
+    interface = getInterface(module_name, module_data)
 
     graph: dict[GraphNode[QuerySymbolType], GraphInfo] = {}
     for name, is_exported, symbolType, text in interface.definitions:
@@ -65,10 +66,7 @@ def generate_dependency_graph(module_name: str, module_data: dict[str, ModuleInt
         st.reset()
         st.addToFileSymbolTable(module_name, interface.definitions, exported_only=False)
         for imported_name in interface.imports:
-            if imported_name not in module_data:
-                logging.error(f"{module_name} imports unknown module {imported_name}")
-                continue
-            imported_interface = module_data[imported_name]
+            imported_interface = getInterface(imported_name, module_data)
             st.addToFileSymbolTable(imported_name, imported_interface.definitions, exported_only=True)
 
         lexer = CMODFullLexer(InputStream(text))
