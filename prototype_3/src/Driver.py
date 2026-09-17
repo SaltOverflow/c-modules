@@ -34,7 +34,7 @@ def generate_code_eager(entry_module_name: str, project_root: str) -> list[str]:
     
     module_graph: dict[GraphNode[QuerySymbolType], GraphInfo] = {}
     for module_name in module_data:
-        lazy_scope.lazyScopeResolution(module_name, module_graph, module_data)
+        lazy_scope.generateGraphInfo(module_name, module_graph, module_data)
 
     return generate_module_text(entry_module_name, module_data, module_graph)
 

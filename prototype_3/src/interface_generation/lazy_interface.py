@@ -8,6 +8,8 @@ lazyLoad: bool = False
 readCache: bool = False
 storeCache: bool = False
 
+module_mtimes: dict[str, float] = {}  # used by lazy_scope
+
 class ModuleNotFound(Exception):
     pass
 
@@ -17,6 +19,7 @@ def getInterface(module_name: str, module_data: dict[str, ModuleInterface]) -> M
         if lazyLoad:
             generateInterface(module_name, module_data)
     assert module_name in module_data, f"Missing interface for {module_name=}"
+    assert module_name in module_mtimes, f"Module mtimes should also be set (used in caches)"
     return module_data[module_name]
 
 def generateInterface(module_name: str, module_data: dict[str, ModuleInterface]) -> None:
@@ -35,6 +38,7 @@ def generateInterface(module_name: str, module_data: dict[str, ModuleInterface])
                 cached_mtime, interface = pickle.load(f)
             if cached_mtime >= module_mtime:
                 module_data[module_name] = interface
+                module_mtimes[module_name] = cached_mtime
                 return
 
     with open(module_path) as f:
@@ -43,6 +47,7 @@ def generateInterface(module_name: str, module_data: dict[str, ModuleInterface])
     if interface.module != module_name:
         logging.error(f"module {module_name!r} (file {module_path!r}) declares itself as {interface.module!r}")
     module_data[module_name] = interface
+    module_mtimes[module_name] = module_mtime
 
     if storeCache:
         os.makedirs(os.path.dirname(cache_path), exist_ok=True)
