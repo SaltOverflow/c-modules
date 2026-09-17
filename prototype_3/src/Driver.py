@@ -15,13 +15,17 @@ def parse_args():
     parser.add_argument('input_file', help='the .cmod file to compile; imported modules are looked up '
                                            'in the same folder as this file')
     parser.add_argument('--eager', action='store_true',
-                         help='eagerly resolve the transitive import closure of modules, '
-                              'which does more work than needed, but simplifies the debug trace')
+                        help='eagerly resolve the transitive import closure of modules, '
+                             'which does more work than needed, but simplifies the debug trace')
+    parser.add_argument('--disable-cache', action='store_true',
+                        help='whether to read/store caches or not')
     return parser.parse_args()
 
 
 def generate_code_eager(entry_module_name: str, project_root: str) -> list[str]:
     lazy_interface.project_root = project_root
+    lazy_scope.project_root = project_root
+
     module_data: dict[str, ModuleInterface] = {}
     to_load = [entry_module_name]
     while to_load:
@@ -40,20 +44,26 @@ def generate_code_eager(entry_module_name: str, project_root: str) -> list[str]:
 
 
 def generate_code_lazy(entry_module_name: str, project_root: str) -> list[str]:
+    lazy_interface.project_root = project_root
+    lazy_scope.project_root = project_root
     module_data: dict[str, ModuleInterface] = {}
     module_graph: dict[GraphNode[QuerySymbolType], GraphInfo] = {}
     lazy_interface.lazyLoad = True
-    lazy_interface.project_root = project_root
     lazy_scope.lazyLoad = True
     return generate_module_text(entry_module_name, module_data, module_graph)
 
 
-def generate_code(input_file: str, eager: bool) -> str:
+def generate_code(input_file: str, eager: bool, disable_cache: bool) -> str:
     project_root, filename = os.path.split(input_file)
     dot_index = filename.rfind('.')
     if dot_index < 0 or filename[dot_index:] != '.cmod':
         raise RuntimeError("input_file must use .cmod suffix")
     entry_module_name = filename[:dot_index]
+    if not disable_cache:
+        lazy_interface.readCache = True
+        lazy_interface.storeCache = True
+        lazy_scope.readCache = True
+        lazy_scope.storeCache = True
     if eager:
         output = generate_code_eager(entry_module_name, project_root)
     else:
@@ -63,7 +73,7 @@ def generate_code(input_file: str, eager: bool) -> str:
 
 def main():
     args = parse_args()
-    code = generate_code(args.input_file, args.eager)
+    code = generate_code(args.input_file, args.eager, args.disable_cache)
     print(code)
     if logging.errorCount > 0:
         print(f"// {logging.errorCount} error(s) encountered during compilation", file=sys.stderr)
