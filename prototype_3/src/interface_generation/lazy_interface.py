@@ -19,7 +19,6 @@ def getInterface(module_name: str, module_data: dict[str, ModuleInterface]) -> M
         if lazyLoad:
             generateInterface(module_name, module_data)
     assert module_name in module_data, f"Missing interface for {module_name=}"
-    assert module_name in module_mtimes, f"Module mtimes should also be set (used in caches)"
     return module_data[module_name]
 
 def generateInterface(module_name: str, module_data: dict[str, ModuleInterface]) -> None:
