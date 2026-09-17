@@ -49,7 +49,7 @@ def generateInterface(module_name: str, module_data: dict[str, ModuleInterface])
     module_data[module_name] = interface
     module_mtimes[module_name] = module_mtime
 
-    if storeCache:
+    if storeCache and logging.errorCount == 0:
         os.makedirs(os.path.dirname(cache_path), exist_ok=True)
         with open(cache_path, 'wb') as f:
             pickle.dump((module_mtime, interface), f)

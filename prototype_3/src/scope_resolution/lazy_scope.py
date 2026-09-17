@@ -1,5 +1,6 @@
 import os
 import pickle
+from .. import logging
 from ..interface_generation.ListenerExtractSymbolDefinitions import QuerySymbolType
 from ..interface_generation.interface_generation import ModuleInterface
 from ..interface_generation.lazy_interface import module_mtimes
@@ -37,13 +38,12 @@ def generateGraphInfo(module_name: str, module_graph: dict[GraphNode[QuerySymbol
     graph = generate_dependency_graph(module_name, module_data)
     module_graph.update(graph)
 
-    if storeCache:
+    if storeCache and logging.errorCount == 0:
         assert project_root is not None, "project_root must be set in order to use caches"
         cache_path = os.path.join(project_root, '.cmod', module_name + '.cmodg')
         cached_mtimes = {module_name: module_mtimes[module_name]}
         for imported_module in module_data[module_name].imports:
-            if imported_module in module_mtimes:
-                cached_mtimes[imported_module] = module_mtimes[imported_module]
+            cached_mtimes[imported_module] = module_mtimes[imported_module]
         os.makedirs(os.path.dirname(cache_path), exist_ok=True)
         with open(cache_path, 'wb') as f:
             pickle.dump((cached_mtimes, graph), f)
