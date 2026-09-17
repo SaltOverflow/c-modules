@@ -28,7 +28,7 @@ def generate_code_eager(entry_module_name: str, project_root: str) -> list[str]:
         module_name = to_load.pop()
         if module_name in module_data:
             continue
-        lazy_interface.lazyInterfaceGeneration(module_name, module_data)
+        lazy_interface.generateInterface(module_name, module_data)
         interface = module_data[module_name]
         to_load.extend(interface.imports)
     
