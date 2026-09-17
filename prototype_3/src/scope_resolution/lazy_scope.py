@@ -27,6 +27,7 @@ def generateGraphInfo(module_name: str, module_graph: dict[GraphNode[QuerySymbol
         if os.path.isfile(cache_path):
             with open(cache_path, 'rb') as f:
                 cached_mtimes, graph = pickle.load(f)
+            # A more advanced mechanism could use hashes to do early cutoff (eg. the interface is used, but it didn't change)
             for cached_module_name, cached_mtime in cached_mtimes.items():
                 module_path = os.path.join(project_root, cached_module_name + '.cmod')
                 if cached_mtime < os.path.getmtime(module_path):
@@ -38,6 +39,8 @@ def generateGraphInfo(module_name: str, module_graph: dict[GraphNode[QuerySymbol
     graph = generate_dependency_graph(module_name, module_data)
     module_graph.update(graph)
 
+    # any error stops caching for all subsequent modules, which is fine because errors are uncommon
+    # we could switch to only invalidating the current module, though
     if storeCache and logging.errorCount == 0:
         assert project_root is not None, "project_root must be set in order to use caches"
         cache_path = os.path.join(project_root, '.cmod', module_name + '.cmodg')

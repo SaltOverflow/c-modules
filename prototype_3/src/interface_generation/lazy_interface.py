@@ -8,7 +8,8 @@ lazyLoad: bool = False
 readCache: bool = False
 storeCache: bool = False
 
-module_mtimes: dict[str, float] = {}  # used by lazy_scope
+# Used by lazy_scope. We could also choose to store this in module_data instead
+module_mtimes: dict[str, float] = {}
 
 class ModuleNotFound(Exception):
     pass
@@ -48,6 +49,8 @@ def generateInterface(module_name: str, module_data: dict[str, ModuleInterface])
     module_data[module_name] = interface
     module_mtimes[module_name] = module_mtime
 
+    # any error stops caching for all subsequent modules, which is fine because errors are uncommon
+    # we could switch to only invalidating the current module, though
     if storeCache and logging.errorCount == 0:
         os.makedirs(os.path.dirname(cache_path), exist_ok=True)
         with open(cache_path, 'wb') as f:
