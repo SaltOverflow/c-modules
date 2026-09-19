@@ -1,5 +1,7 @@
-Exploratory work for Cforall modules, my masters thesis.
+I'm Alvin Zhang, and I've been researching how to add a module system to the C family of languages as part of my master's thesis (this repository focuses on the C language, though my full thesis is on building a module system for [Cforall](https://cforall.uwaterloo.ca/), which is an extension of C). This repository has a number of abandoned ideas, so I'll walk through them:
 
-`proposals/` presents a conceptual view of modules in C.
-`examples/` presents step-by-step examples.
-`code/` provides code that performs the transformations described in `examples/`.
+A major architectural decision I made was to support cyclic imports, because a true header file replacement must handle that case. `proposals/modules_v*.md` was a lot of idea exploration, trying out ideas that I would back out of in the next version. During this time, I drew out an `examples/graph` describing a type-punning approach -- this turns an unboxed type into an opaque type by only disclosing its size and alignment. Alas, this strategy doesn't work because [type-punning is technically not safe](https://blog.regehr.org/archives/959) and [some optimizations will reorganize a struct's representation](https://gcc.gnu.org/onlinedocs/gcc-4.4.7/gcc/Optimize-Options.html#:~:text=O%20and%20higher.-,%2Dfipa%2Dstruct%2Dreorg,-Perform%20structure%20reorganization). These struggles of trying something new while maintaining backward compatibility eventually convinced me that a robust and extensible module system for C would have to look somewhat like a "dynamic preprocessor," which I describe in `proposals/writeup_*.md`.
+
+When I had confidence that this was going to be implementable, I started on prototypes. Due to limited development time, I used Python and ANTLR, which I found to be excellent tools for rapid prototyping. `prototype/` uses a toy language to describe dependencies. `prototype_2/` uses a simplified subset of C99. `prototype_3/` extends the module system to full C99 (minus trigraphs and K&R syntax).
+
+**TLDR: you're most likely only interested in my work in `prototype_3/` -- go to the README in there.**
