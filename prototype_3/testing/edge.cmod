@@ -1,0 +1,12 @@
+module edge;
+
+import node;
+
+export struct Edge {
+    struct Node *nodes[2];
+};
+
+void doSomething() {
+    struct Edge e;
+    struct Edge *ee = e.nodes[1]->edges[0];
+}

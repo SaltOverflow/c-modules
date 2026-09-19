@@ -1,0 +1,7 @@
+module node;
+
+import edge;
+
+export struct Node {
+    struct Edge **edges;
+};
