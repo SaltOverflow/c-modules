@@ -1,0 +1,15 @@
+module invalidDoubleDefinition;
+
+// This case should really be caught in interface_generation instead of scope_generation
+
+int value;
+void foo(int i, int j) {
+    value += 1;
+}
+struct Foo {int i;};
+
+float value;
+void foo() {}
+union Foo {int j; int k;};  // the following shouldn't collide though
+enum Foo {A=1, B=2};
+typedef int Foo;

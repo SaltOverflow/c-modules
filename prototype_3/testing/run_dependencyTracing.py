@@ -15,6 +15,8 @@ args = parser.parse_args()
 os.chdir(os.path.dirname(os.path.abspath(__file__)))  # so the glob is relative to this script's directory
 cmod_files = sorted(glob.glob('*.cmod'))
 cmod_files = [f for f in cmod_files if 'justC' not in os.path.basename(f) and 'invalid' not in os.path.basename(f)]
+if args.modules:
+    cmod_files.extend(f'{m}.cmod' for m in args.modules)  # duplicates are wastful, but idempotent
 
 module_data: dict[str, ModuleInterface] = {}
 for f in cmod_files:
