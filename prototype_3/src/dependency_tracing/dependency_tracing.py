@@ -87,4 +87,14 @@ def generate_module_text(module_name: str, module_data: dict[str, ModuleInterfac
     for name, is_exported, symbolType, _ in interface.definitions:
         visit(GraphNode(module_name, name, symbolType, DepType.DEFINITION))
 
+    # We don't currently have module namespacing, so check for collisions
+    nameCollisionCheck: dict[tuple[str, QuerySymbolType, DepType], str] = {}
+    for node in visited:
+        key = (node.name, node.symbolType.toQuerySymbolType(), node.depType)
+        if key in nameCollisionCheck:
+            logging.error(f"{node} collides with a similar name from {nameCollisionCheck[key]}")
+            output.append(f"// ERROR: {node} collides with a similar name from {nameCollisionCheck[key]}")
+        else:
+            nameCollisionCheck[key] = node.module_name
+
     return output

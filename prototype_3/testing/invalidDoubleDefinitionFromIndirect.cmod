@@ -1,0 +1,8 @@
+module invalidDoubleDefinitionFromIndirect;
+
+import a;
+
+// Note: this wouldn't be a problem if we had module namespacing,
+// but we don't have that right now
+void foobar() {foo();}  // ends up needing basic.struct_S
+struct S {int i;};  // collides with basic.struct_S
