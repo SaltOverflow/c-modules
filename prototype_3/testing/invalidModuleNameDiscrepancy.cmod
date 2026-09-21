@@ -1,0 +1,5 @@
+module InvalidModuleNameDiscrepancy;
+
+import basic;
+
+int i = j;

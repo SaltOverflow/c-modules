@@ -22,6 +22,9 @@ module_data: dict[str, ModuleInterface] = {}
 for f in cmod_files:
     text = open(f).read()
     interface = generate_module_interface(text)
+    module_name = os.path.splitext(os.path.basename(f))[0]  # NOTE: should we switch to the lazy path?
+    if interface.module != module_name:
+        logging.error(f"module {module_name!r} (file {f!r}) declares itself as {interface.module!r}")
     module_data[interface.module] = interface
 
 module_graph: dict[GraphNode[QuerySymbolType], GraphInfo] = {}
