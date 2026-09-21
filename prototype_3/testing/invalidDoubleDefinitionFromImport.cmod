@@ -1,0 +1,5 @@
+module invalidDoubleDefinitionFromImport;
+
+import basic;
+
+struct S {int i;};  // collides with basic.struct_S
